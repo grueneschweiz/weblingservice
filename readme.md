@@ -16,7 +16,7 @@ and start contributing 😍.
 1. Clone this repo (`git clone https://github.com/grueneschweiz/weblingservice.git`)
 1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while it installs
 1. Execute `docker-compose up -d` to start up the stack
-1. After a few seconds: Visit [localhost:8000](localhost:8000)
+1. After a few seconds: Visit [localhost:8000](http://localhost:8000)
 
 ### Docker Cheat Sheet
 - Install: `docker-compose -f docker-compose.install.yml up`
@@ -33,10 +33,10 @@ well. Check out the [Docs](https://docs.npmjs.com/cli/install).)
 
 ### Tooling
 #### Mailhog
-All mail you send out of the application will be caught by [Mailhog](localhost:8020)
+All mail you send out of the application will be caught by [Mailhog](http://localhost:8020)
 
 #### MySQL
-Use the handy [phpMyAdmin](localhost:8010) or access the mysql CLI using
+Use the handy [phpMyAdmin](http://localhost:8010) or access the mysql CLI using
 `docker exec -it wsmysql mysql --user=laravel --password=laravel laravel` 
 
 #### Laravel mix
