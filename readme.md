@@ -1,5 +1,7 @@
 # Webling Service
 
+[![Build Status](https://travis-ci.com/grueneschweiz/weblingservice.svg?branch=master)](https://travis-ci.com/grueneschweiz/weblingservice)
+
 **UNDER DEVELOPEMENT**
 
 This project aims to add some crucial but missing functionality to Webling,
