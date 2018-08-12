@@ -4,19 +4,22 @@
 
 This project aims to add some crucial but missing functionality to Webling,
 while using Weblings RESTful API and exposing a new, higher lever RESTful
-API. It is based on the fabulous [Laravel](https://laravel.com/) Framework
-to speed up the development. Check out the [Docs](https://laravel.com/docs/5.6)
+API. It is based on the fabulous [Laravel](https://laravel.com/) framework
+to speed up the development. Check out the [docs](https://laravel.com/docs/5.6)
 and start contributing 😍.
 
 ## Contributing ...
 ... is cool, simple and helps to make the 🌍 a better place 🤩
-1. Install [Docker](https://store.docker.com/search?offering=community&type=edition)
+1. Install [docker](https://store.docker.com/search?offering=community&type=edition)
 1. Start docker
-1. Create a folder and `cd` into it
-1. Clone this repo (`git clone https://github.com/grueneschweiz/weblingservice.git`)
-1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while it installs
-1. Execute `docker-compose up -d` to start up the stack
-1. After a few seconds: Visit [localhost:8000](http://localhost:8000)
+1. Clone this repo `git clone https://github.com/grueneschweiz/weblingservice.git`
+1. `cd` into the folder containing the repo
+1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while 
+it installs. `wsnode_install` and `wscomposer_install` should exit with `code 0`.
+1. Execute `docker-compose up -d` to start up the stack. The first time you run
+this command, it will take a minute or two. Subsequent calls will be much faster.
+1. After a few seconds: Visit [localhost:8000](http://localhost:8000). If you
+get a connection error, wait 30 seconds then try again. 
 
 ### Docker Cheat Sheet
 - Install: `docker-compose -f docker-compose.install.yml up`
