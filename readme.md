@@ -16,6 +16,8 @@ and start contributing 😍.
 1. `cd` into the folder containing the repo
 1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while 
 it installs. `wsnode_install` and `wscomposer_install` should exit with `code 0`.
+1. Execute `docker-compose -f docker-compose.install.yml run composer 
+cp .env.example .env && php artisan key:generate` to generate the app secrets
 1. Execute `docker-compose up -d` to start up the stack. The first time you run
 this command, it will take a minute or two. Subsequent calls will be much faster.
 1. After a few seconds: Visit [localhost:8000](http://localhost:8000). If you
