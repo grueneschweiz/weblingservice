@@ -36,8 +36,5 @@ ENV APP_HOME /var/www/html
 # set the working dir
 WORKDIR $APP_HOME
 
-# copy source files
-COPY . $APP_HOME
-
 # change ownership of our application
 RUN chown -R www-data:www-data $APP_HOME
