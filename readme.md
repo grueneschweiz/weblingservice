@@ -1,6 +1,7 @@
 # Webling Service
 
 [![Build Status](https://travis-ci.com/grueneschweiz/weblingservice.svg?branch=master)](https://travis-ci.com/grueneschweiz/weblingservice)
+[![Coverage Status](https://coveralls.io/repos/github/grueneschweiz/weblingservice/badge.svg)](https://coveralls.io/github/grueneschweiz/weblingservice)
 
 **UNDER DEVELOPEMENT**
 
