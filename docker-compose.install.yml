@@ -5,7 +5,7 @@ services:
     image: composer
     volumes:
       - .:/app
-    command: composer install --ignore-platform-reqs --no-scripts
+    command: composer install --ignore-platform-reqs
     container_name: wscomposer_install
 
   node:
