@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', "Webling Service"),
 
     /*
     |--------------------------------------------------------------------------
@@ -107,6 +107,22 @@ return [
     'key' => env('APP_KEY'),
 
     'cipher' => 'AES-256-CBC',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webling Api Key and base URL
+    |--------------------------------------------------------------------------
+    |
+    | The url is the base for calls to the Webling API.
+    | The key is used for the webling service.
+    | It can be get by Webling and has certain access rights for the webling
+    | database.
+    | Note that it should be set in the local .env file (see also .env.example file)
+    |
+    */
+    'webling_base_url' => env('WEBLING_BASE_URL'),
+
+    'webling_api_key' => env('WEBLING_API_KEY'),
 
     /*
     |--------------------------------------------------------------------------
