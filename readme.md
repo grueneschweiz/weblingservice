@@ -30,7 +30,7 @@ get a connection error, wait 30 seconds then try again.
 - Install: `docker-compose -f docker-compose.install.yml up`
 - Start up: `docker-compose up -d`
 - Shut down: `docker-compose down`
-- Execute Laravel CLI commands: `docker exec -it wsapp bash`
+- Execute Laravel CLI commands (enter container): `docker exec -it wsapp bash` use `exit` to escape the container.
 - Add dependency using composer: `docker-compose -f docker-compose.install.yml 
 run composer composer require DEPENDENCY` (yes, `composer composer` is correct,
 the first one defines the container to start the second one is the command to
