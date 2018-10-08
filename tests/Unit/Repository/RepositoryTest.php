@@ -61,6 +61,9 @@ class RepositoryTest extends TestCase {
 		$this->testPost();
 	}
 	
+	/**
+	 * this runs before the tests
+	 */
 	protected function setUp() {
 		parent::setUp();
 		
