@@ -59,6 +59,11 @@ class SelectFieldTest extends TestCase {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field->setValue( $this->possibleValues['no'] );
 		$this->assertEquals( 'no', $field->getValue() );
+		
+		// test dirty change
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field->setValue( $this->possibleValues['yes'] );
+		$this->assertTrue( $field->isDirty() );
 	}
 	
 	public function testSetValueInvalidFixedValueException() {
