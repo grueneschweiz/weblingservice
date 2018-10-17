@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +13,9 @@ use Illuminate\Http\Request;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+$version = 'v1';
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::get($version . '/member/{id}', function (Request $request, $id) {
+    $controller = new RestApiMember();
+    return $controller->getMember($id);
 });
