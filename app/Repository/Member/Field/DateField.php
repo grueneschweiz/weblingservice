@@ -39,14 +39,14 @@ class DateField extends FreeField {
 		}
 		
 		$tmp1 = date_parse( $value );
-		$tmp2 = date_parse_from_format( 'm-d-y', $value );
-		$tmp3 = date_parse_from_format( 'Y-d-m', $value );
+		$tmp2 = date_parse_from_format( 'd.m.y', $value );
+		$tmp3 = date_parse_from_format( 'Y-m-d', $value );
 		
 		if ( $tmp1['error_count'] && $tmp2['error_count'] && $tmp3['error_count'] ) {
 			throw new DateParsingException( "Unable to parse date from given string: $value" );
 		}
 		
-		if ( ! $tmp1['error_count'] ) {
+		if ( ! $tmp1['error_count'] && $tmp1['year']) {
 			$date = $tmp1;
 		} elseif ( ! $tmp2['error_count'] ) {
 			$date = $tmp2;

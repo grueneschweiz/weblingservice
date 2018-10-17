@@ -34,6 +34,17 @@ class DateFieldTest extends TestCase {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field->setValue('01.02.2018');
 		$this->assertEquals($this->value, $field->getValue());
+		
+		// test european short date format
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field->setValue('01.02.03');
+		$this->assertEquals('2003-02-01', $field->getValue());
+		
+		// test empty date
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field->setValue(null);
+		$this->assertEmpty($field->getValue());
+		
 	}
 	
 	public function testSetValueDateParsingException() {
