@@ -7,8 +7,7 @@ namespace App\Repository\Member\Field;
 use App\Exceptions\InputLengthException;
 use App\Exceptions\ValueTypeException;
 
-class TextField extends FreeField
-{
+class TextField extends FreeField {
 	const MAX_LEN = 255;
 	
 	/**
@@ -21,10 +20,10 @@ class TextField extends FreeField
 	 * @throws ValueTypeException if input was other than null or a string
 	 */
 	public function setValue( $value, bool $dirty = true ) {
-		$this->assertOptionalStringType($value);
+		$this->assertOptionalStringType( $value );
 		
-		if (null !== $value && self::MAX_LEN < strlen($value)) {
-			throw new InputLengthException('Max length of input ('.self::MAX_LEN.' characters) exceeded');
+		if ( null !== $value && self::MAX_LEN < strlen( $value ) ) {
+			throw new InputLengthException( 'Max length of input (' . self::MAX_LEN . ' characters) exceeded' );
 		}
 		
 		parent::setValue( $value, $dirty );

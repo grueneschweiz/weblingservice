@@ -17,7 +17,7 @@ class DateField extends FreeField {
 	 * @throws ValueTypeException if given value is neither null nor a string
 	 */
 	public function setValue( $value, bool $dirty = true ) {
-		$this->assertOptionalStringType($value);
+		$this->assertOptionalStringType( $value );
 		
 		parent::setValue( $this->parseDate( $value ), $dirty );
 	}
@@ -32,7 +32,7 @@ class DateField extends FreeField {
 	 * @throws DateParsingException if the date format was not recognized by PHPs date_parse()
 	 */
 	private function parseDate( $value ) {
-		$value = $this->clean($value);
+		$value = $this->clean( $value );
 		
 		if ( null === $value ) {
 			return $value;
@@ -46,7 +46,7 @@ class DateField extends FreeField {
 			throw new DateParsingException( "Unable to parse date from given string: $value" );
 		}
 		
-		if ( ! $tmp1['error_count'] && $tmp1['year']) {
+		if ( ! $tmp1['error_count'] && $tmp1['year'] ) {
 			$date = $tmp1;
 		} elseif ( ! $tmp2['error_count'] ) {
 			$date = $tmp2;

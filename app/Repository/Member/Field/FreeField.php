@@ -28,8 +28,8 @@ abstract class FreeField extends Field {
 	 * @throws ValueTypeException if given value is neither null nor a string
 	 */
 	public function setValue( $value, bool $dirty = true ) {
-		$this->assertOptionalStringType($value);
-		$value = $this->clean($value);
+		$this->assertOptionalStringType( $value );
+		$value = $this->clean( $value );
 		
 		if ( $value !== $this->getValue() ) {
 			$this->value = $value;

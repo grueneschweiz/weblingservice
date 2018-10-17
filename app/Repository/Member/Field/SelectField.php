@@ -6,8 +6,7 @@ namespace App\Repository\Member\Field;
 use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\ValueTypeException;
 
-class SelectField extends FixedField
-{
+class SelectField extends FixedField {
 	/**
 	 * SelectField constructor.
 	 *
@@ -35,25 +34,24 @@ class SelectField extends FixedField
 	 * @throws InvalidFixedValueException if given value is neither a possible internal nor a possible webling value
 	 * @throws ValueTypeException if given value is neither null nor a string
 	 */
-    public function setValue($value, bool $dirty = true)
-    {
-        $this->assertOptionalStringType($value);
-        $value = $this->clean($value);
-
-        if (null !== $value){
-	        $value = $this->makeInternalValue($value);
-        }
-
-        if ($this->getValue() !== $value) {
-        	$this->value = $value;
-            $this->setDirty($dirty);
-        }
-    }
+	public function setValue( $value, bool $dirty = true ) {
+		$this->assertOptionalStringType( $value );
+		$value = $this->clean( $value );
+		
+		if ( null !== $value ) {
+			$value = $this->makeInternalValue( $value );
+		}
+		
+		if ( $this->getValue() !== $value ) {
+			$this->value = $value;
+			$this->setDirty( $dirty );
+		}
+	}
 	
 	/**
 	 * @return string
 	 */
 	public function getWeblingValue() {
-		return $this->possibleValues[$this->getValue()];
+		return $this->possibleValues[ $this->getValue() ];
 	}
 }

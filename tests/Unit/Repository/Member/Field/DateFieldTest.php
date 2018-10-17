@@ -16,40 +16,40 @@ class DateFieldTest extends TestCase {
 	private $weblingKey = 'webling key';
 	private $value = '2018-02-01';
 	
-	private function getField() {
-		/** @noinspection PhpUnhandledExceptionInspection */
-		return new DateField($this->key, $this->weblingKey, $this->value);
-	}
-	
 	public function testSetValue() {
 		$field = $this->getField();
 		
 		// test mysql date format
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->setValue('2018-02-01');
-		$this->assertEquals($this->value, $field->getValue());
+		$field->setValue( '2018-02-01' );
+		$this->assertEquals( $this->value, $field->getValue() );
 		
 		// test european date format
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->setValue('01.02.2018');
-		$this->assertEquals($this->value, $field->getValue());
+		$field->setValue( '01.02.2018' );
+		$this->assertEquals( $this->value, $field->getValue() );
 		
 		// test european short date format
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->setValue('01.02.03');
-		$this->assertEquals('2003-02-01', $field->getValue());
+		$field->setValue( '01.02.03' );
+		$this->assertEquals( '2003-02-01', $field->getValue() );
 		
 		// test empty date
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->setValue(null);
-		$this->assertEmpty($field->getValue());
+		$field->setValue( null );
+		$this->assertEmpty( $field->getValue() );
 		
+	}
+	
+	private function getField() {
+		/** @noinspection PhpUnhandledExceptionInspection */
+		return new DateField( $this->key, $this->weblingKey, $this->value );
 	}
 	
 	public function testSetValueDateParsingException() {
 		$field = $this->getField();
-		$this->expectException(DateParsingException::class);
+		$this->expectException( DateParsingException::class );
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->setValue('lirum larum');
+		$field->setValue( 'lirum larum' );
 	}
 }

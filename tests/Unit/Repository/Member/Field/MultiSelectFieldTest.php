@@ -69,7 +69,7 @@ class MultiSelectFieldTest extends TestCase {
 		// set by string
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field->setValue( $this->possibleValues['yes'] );
-		$this->assertTrue( in_array('yes', $field->getValue()) );
+		$this->assertTrue( in_array( 'yes', $field->getValue() ) );
 	}
 	
 	public function testHasValue() {
@@ -88,8 +88,8 @@ class MultiSelectFieldTest extends TestCase {
 		$this->assertTrue( $field->hasValue( $this->possibleValues['yes'] ) );
 		
 		// test missing element
-		$this->assertFalse($field->hasValue( 'no' ));
-		$this->assertFalse($field->hasValue( $this->possibleValues['no'] ));
+		$this->assertFalse( $field->hasValue( 'no' ) );
+		$this->assertFalse( $field->hasValue( $this->possibleValues['no'] ) );
 		
 		// test impossible element
 		$this->assertFalse( $field->hasValue( 'impossible' ) );
@@ -99,31 +99,31 @@ class MultiSelectFieldTest extends TestCase {
 		$field = $this->getField();
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->append($this->possibleValues['yes']);
+		$field->append( $this->possibleValues['yes'] );
 		$this->assertTrue( $field->hasValue( $this->possibleValues['yes'] ) );
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->append($this->possibleValues['no']);
-		$this->assertEquals(array_keys($this->possibleValues), $field->getValue());
+		$field->append( $this->possibleValues['no'] );
+		$this->assertEquals( array_keys( $this->possibleValues ), $field->getValue() );
 	}
 	
 	public function testRemove() {
 		$field = $this->getField();
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->append($this->possibleValues);
+		$field->append( $this->possibleValues );
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->remove($this->possibleValues['no']);
-		$this->assertFalse($field->hasValue($this->possibleValues['no']));
-		$this->assertTrue($field->hasValue($this->possibleValues['yes']));
+		$field->remove( $this->possibleValues['no'] );
+		$this->assertFalse( $field->hasValue( $this->possibleValues['no'] ) );
+		$this->assertTrue( $field->hasValue( $this->possibleValues['yes'] ) );
 	}
 	
 	public function testGetWeblingValue() {
 		$field = $this->getField();
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$field->setValue($this->possibleValues);
-		$this->assertEquals(array_values($this->possibleValues), $field->getWeblingValue());
+		$field->setValue( $this->possibleValues );
+		$this->assertEquals( array_values( $this->possibleValues ), $field->getWeblingValue() );
 	}
 }

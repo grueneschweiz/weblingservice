@@ -8,7 +8,6 @@
 
 namespace App\Repository\Member\Field;
 
-class LongTextField extends FreeField
-{
+class LongTextField extends FreeField {
 
 }

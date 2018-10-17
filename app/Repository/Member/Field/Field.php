@@ -90,8 +90,9 @@ abstract class Field {
 	 *
 	 * @return null|string
 	 */
-	protected function clean($value){
-		$value = trim($value);
-		return 0 === strlen($value) ? null : $value;
+	protected function clean( $value ) {
+		$value = trim( $value );
+		
+		return 0 === strlen( $value ) ? null : $value;
 	}
 }

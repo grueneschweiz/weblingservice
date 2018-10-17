@@ -16,17 +16,17 @@ class TextFieldTest extends TestCase {
 	private $weblingKey = 'webling key';
 	private $value = 'short enough';
 	
-	private function getField() {
-		/** @noinspection PhpUnhandledExceptionInspection */
-		return new TextField($this->key, $this->weblingKey, $this->value);
-	}
-	
 	public function testSetValueInputLengthException() {
 		$twoHundredFiftySixChars = str_repeat( 'a', 256 );
 		$this->expectException( InputLengthException::class );
 		$field = $this->getField();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field->setValue( $twoHundredFiftySixChars );
+	}
+	
+	private function getField() {
+		/** @noinspection PhpUnhandledExceptionInspection */
+		return new TextField( $this->key, $this->weblingKey, $this->value );
 	}
 	
 	public function testSetValueInputLength() {

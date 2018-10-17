@@ -26,12 +26,12 @@ abstract class FixedField extends Field {
 	 *
 	 * @throws InvalidFixedValueException if the given value is neither a possible internal nor a possible webling value
 	 */
-	protected function makeInternalValue(string $value) {
-		$internal_key = array_search($value, $this->possibleValues);
-		if ($internal_key){
+	protected function makeInternalValue( string $value ) {
+		$internal_key = array_search( $value, $this->possibleValues );
+		if ( $internal_key ) {
 			$value = $internal_key;
-		} else if (!in_array($value, array_keys($this->possibleValues))) {
-			throw new InvalidFixedValueException("'$value' ist not a possible value for {$this->getKey()}");
+		} else if ( ! in_array( $value, array_keys( $this->possibleValues ) ) ) {
+			throw new InvalidFixedValueException( "'$value' ist not a possible value for {$this->getKey()}" );
 		}
 		
 		return $value;
