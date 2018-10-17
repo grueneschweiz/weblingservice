@@ -9,7 +9,6 @@
 namespace App\Repository\Member\Field;
 
 use App\Exceptions\DateParsingException;
-use App\Exceptions\ValueTypeException;
 use Tests\TestCase;
 
 class DateFieldTest extends TestCase {

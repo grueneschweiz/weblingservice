@@ -2,7 +2,6 @@
 
 namespace App\Repository\Member\Field;
 
-use App\Exceptions\ValueTypeException;
 use Tests\TestCase;
 
 class LongTextFieldTest extends TestCase {
