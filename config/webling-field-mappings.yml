@@ -131,7 +131,6 @@ mappings:
   weblingKey: Twittername (inkl @) / nom Twitter (@ compris)
 - key: iban
   type: TextField
-  type: iban
   weblingKey: IBAN
 - key: coupleCategory
   type: SelectField

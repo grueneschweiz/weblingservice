@@ -123,7 +123,19 @@ return [
     'webling_base_url' => env('WEBLING_BASE_URL'),
 
     'webling_api_key' => env('WEBLING_API_KEY'),
-
+	
+	/*
+    |--------------------------------------------------------------------------
+    | Webling Field Mappings Config File
+    |--------------------------------------------------------------------------
+    |
+    | Path to the YAML file that holds the Webling field mappings. Make sure
+	| the path is relative to the project root (where the .env file ist).
+    | Note that it should be set in the local .env file (see also .env.example file)
+    |
+    */
+    'webling_field_mappings_config_path' => env('WEBLING_FIELD_MAPPINGS_CONFIG_PATH'),
+	
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
