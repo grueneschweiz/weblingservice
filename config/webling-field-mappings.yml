@@ -9,6 +9,7 @@ mappings:
   type: TextField
   weblingKey: Name / nom
 - key: recordCategory
+  type: SelectField
   values:
   - private: Privatperson / particulier
   - media: Medien / média
@@ -118,7 +119,7 @@ mappings:
   - unwanted: will keine Anrufe / aucun appel souhaité
   weblingKey: Status Telefon / état du tél.
 - key: birthday
-  type: date
+  type: DateField
   weblingKey: Geburtstag / anniversaire
 - key: website
   type: TextField
@@ -314,10 +315,10 @@ mappings:
   type: TextField
   weblingKey: Gewinnungskanal / acquisition
 - key: membershipStart
-  type: date
+  type: DateField
   weblingKey: Beginn Mitgliedschaft / date d’entrée
 - key: membershipEnd
-  type: date
+  type: DateField
   weblingKey: Ende Mitgliedschaft / date de sortie
 - key: membershipFeeCountry
   type: SelectField
@@ -386,22 +387,22 @@ mappings:
   - economy: Wirtschaft / économie
   weblingKey: Interessen / intérêts
 - key: roleCountry
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Funktion National / fonctions nationales
 - key: roleCanton
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Funktion Kantonal / fonctions cantonales
 - key: roleRegion
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Funktion Bezirk / fonctions dans le district
 - key: roleMunicipality
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Funktion Kommunal / fonctions communales
 - key: roleYoung
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Funktion Junge Grüne / fonctions chez les Jeunes Verts
 - key: roleInternational
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Funktion International / fonctions internationales
 - key: request
   type: MultiSelectField
@@ -462,7 +463,7 @@ mappings:
   - commissionPast: Kommission ehemals / commission passé
   weblingKey: Mandate National / mandats nationaux
 - key: mandateCountryDetail
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Details Mandate National / détail des mandats national
 - key: mandateCanton
   type: MultiSelectField
@@ -477,7 +478,7 @@ mappings:
   - commissionPast: Kommission ehemals / commission passé
   weblingKey: Mandate Kantonal / mandats cantonaux
 - key: mandateCantonDetail
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Details Mandate Kantonal / détail des mandats cantonal
 - key: mandateRegion
   type: MultiSelectField
@@ -490,7 +491,7 @@ mappings:
   - commissionPast: Kommission ehemals / commission passé
   weblingKey: Mandate Bezirk / mandats du district
 - key: mandateRegionDetail
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Details Mandate Bezirk / détail des mandats de district
 - key: mandateMunicipality
   type: MultiSelectField
@@ -505,7 +506,7 @@ mappings:
   - commissionPast: Kommission ehemals / commission passé
   weblingKey: Mandate Kommunal / mandats communaux
 - key: mandateMunicipalityDetail
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Details Mandate Kommunal / détail des mandats communal
 - key: donorCountry
   type: SelectField
@@ -543,14 +544,14 @@ mappings:
   - majorDonor: Grossspenderin / mécène
   weblingKey: Spendenstatus Junge Grüne / statut de donatrice Jeunes Verts
 - key: notesCountry
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Notizen National / notes nationales
 - key: notesCanton
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Notizen Kanton / notes cantonales
 - key: notesMunicipality
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: Notizen Kommunal / notes communales
 - key: legacy
-  type: LongTextFieldField
+  type: LongTextField
   weblingKey: "(nicht mehr benutzen / plus actuelles)"

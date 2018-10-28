@@ -56,7 +56,7 @@ abstract class Field {
 	
 	
 	/**
-	 * @return mixed
+	 * @return string|array|null array for MultiSelectFields
 	 */
 	public function getValue() {
 		return $this->value;
