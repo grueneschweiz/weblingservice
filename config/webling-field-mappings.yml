@@ -1,0 +1,557 @@
+mappings:
+- key: company
+  type: TextField
+  weblingKey: Firma / organisation
+- key: firstName
+  type: TextField
+  weblingKey: Vorname / prénom
+- key: lastName
+  type: TextField
+  weblingKey: Name / nom
+- key: recordCategory
+  type: SelectField
+  values:
+  - private: Privatperson / particulier
+  - media: Medien / média
+  - company: Firma / entreprise
+  - npo: NPO / ONG
+  - network: Netzwerk intern / réseau interne
+  weblingKey: Datensatzkategorie / type d’entrée
+- key: recordStatus
+  type: SelectField
+  values:
+  - active: Aktiv / actif
+  - blocked: Gesperrt / bloqué
+  - died: Verstorben / décédée
+  weblingKey: Status Datensatz / état des données
+- key: language
+  type: SelectField
+  values:
+  - d: d
+  - f: f
+  - i: i ( solo cantone / comune)
+  weblingKey: Sprache / langue
+- key: gender
+  type: SelectField
+  values:
+  - f: f
+  - m: m
+  - mf: m+f
+  weblingKey: Geschlecht / genre
+- key: salutationFormal
+  type: SelectField
+  values:
+  - fD: Frau
+  - mD: Herr
+  - mfD: Herr & Frau
+  - fF: Madame
+  - mF: Monsieur
+  - mfF: Madame & Monsieur
+  weblingKey: Anrede / appel (formel)
+- key: salutationInformal
+  type: SelectField
+  values:
+  - fD: Liebe
+  - mD: Lieber
+  - mfD: Lieber & liebe
+  - fF: Chère
+  - mF: Cher
+  - mfF: Chères & Chers
+  weblingKey: Anrede / appel (informel)
+- key: title
+  type: TextField
+  weblingKey: Titel / titre
+- key: address1
+  type: TextField
+  weblingKey: Strasse / rue
+- key: address2
+  type: TextField
+  weblingKey: Adresszusatz / complément d’adresse
+- key: zip
+  type: TextField
+  weblingKey: PLZ / code postal
+- key: city
+  type: TextField
+  weblingKey: Ort / localité
+- key: country
+  type: SelectField
+  values:
+  - ch: CH
+  - de: DE
+  - fr: FR
+  - it: IT
+  - at: AT
+  - other: Andere / autre
+  weblingKey: Land / pays
+- key: postStatus
+  type: SelectField
+  values:
+  - active: aktiv / actif
+  - invalid: ungültig / non valable
+  - unwanted: Will keine Post / courrier non souhaité
+  weblingKey: Status Postadresse / état de l’adresse postale
+- key: email1
+  type: TextField
+  weblingKey: E-Mail / courriel 1
+- key: email2
+  type: TextField
+  weblingKey: E-Mail / courriel 2
+- key: emailStatus
+  type: SelectField
+  values:
+  - active: aktiv / actif
+  - invalid: ungültig / non valable
+  - unwanted: Will keine Emails / courriel non souhaité
+  weblingKey: Status Emailadresse / état du courriel
+- key: mobilePhone
+  type: TextField
+  weblingKey: Mobile / mobile
+- key: landlinePhone
+  type: TextField
+  weblingKey: Telefon / tél. priv.
+- key: workPhone
+  type: TextField
+  weblingKey: Telefon / tél. prof.
+- key: phoneStatus
+  type: SelectField
+  values:
+  - active: aktiv / actif
+  - unwanted: will keine Anrufe / aucun appel souhaité
+  weblingKey: Status Telefon / état du tél.
+- key: birthday
+  type: DateField
+  weblingKey: Geburtstag / anniversaire
+- key: website
+  type: TextField
+  weblingKey: Homepage [URL] de la page d’accueil
+- key: facebook
+  type: TextField
+  weblingKey: Facebook [URL]
+- key: twitter
+  type: TextField
+  weblingKey: Twittername (inkl @) / nom Twitter (@ compris)
+- key: iban
+  type: TextField
+  weblingKey: IBAN
+- key: coupleCategory
+  type: SelectField
+  values:
+  - single: Einzel / seule
+  - partner1: Paar 1 / couple 1
+  - partner2: Paar 2 / couple 2
+  weblingKey: Paar-Kategorie / type de couple
+- key: partnerSalutationFormal
+  type: SelectField
+  values:
+  - fD: Frau
+  - mD: Herr
+  - fF: Madame
+  - mF: Monsieur
+  weblingKey: Partnerin-Anrede / appel de la partenaire (formel)
+- key: partnerSalutationInformal
+  type: SelectField
+  values:
+  - fD: Liebe
+  - mD: Lieber
+  - fF: Chère
+  - mF: Cher
+  weblingKey: Partnerin-Anrede / appel de la partenaire (informel)
+- key: partnerFirstName
+  type: TextField
+  weblingKey: Wohnt mit (Vorname) / habite avec (prénom)
+- key: partnerLastName
+  type: TextField
+  weblingKey: Wohnt mit (Name) / habite avec (nom)
+- key: magazineCountryD
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Greenfo DE
+- key: magazineCountryF
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Greenfo FR
+- key: magazineCantonD
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Kantonale Zeitschrift DE
+- key: magazineCantonF
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: journal cantonal FR
+- key: magazineMunicipality
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Zeitschrift Kommunal / journal communal
+- key: magazineOther
+  type: TextField
+  weblingKey: Andere Zeitschrift / autre journal
+- key: newsletterCountryD
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Newsletter national DE
+- key: newsletterCountryF
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: infolettre nationale FR
+- key: newsletterCantonD
+  type: MultiSelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Newsletter kantonal DE
+- key: newsletterCantonF
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: infolettre cantonale FR
+- key: newsletterMunicipality
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: Newsletter Kommunal / infolettre communale
+- key: newsletterOther
+  type: TextField
+  weblingKey: Anderer Newsletter / autre infolettre
+- key: pressReleaseCountryD
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: MM National DE
+- key: pressReleaseCountryF
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: CP national FR
+- key: pressReleaseCantonD
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: MM Kantonal DE
+- key: pressReleaseCantonF
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: CP cantonal FR
+- key: pressReleaseMunicipality
+  type: SelectField
+  values:
+  - yes: ja / oui
+  - no: nein / non
+  weblingKey: MM Kommunal / CP communal
+- key: memberStatusCountry
+  type: SelectField
+  values:
+  - sympathiser: Sympathisantin / sympathisante
+  - member: Mitglied / membre
+  - unconfirmed: Mitgliedschaft unbestätigt / membre non confirmée
+  - resigned: Ausgetreten / a démissionné
+  - expelled: Ausgeschlossen / exclue
+  - notMember: Nicht-Mitglied / non-membre
+  weblingKey: Mitgliedschaft National / affiliation nationale
+- key: memberStatusCanton
+  type: SelectField
+  values:
+  - sympathiser: Sympathisantin / sympathisante
+  - member: Mitglied / membre
+  - unconfirmed: Mitgliedschaft unbestätigt / membre non confirmée
+  - resigned: Ausgetreten / a démissionné
+  - expelled: Ausgeschlossen / exclue
+  - notMember: Nicht-Mitglied / non-membre
+  weblingKey: Mitgliedschaft Kantonal / affiliation cantonale
+- key: memberStatusRegion
+  type: SelectField
+  values:
+  - sympathiser: Sympathisantin / sympathisante
+  - member: Mitglied / membre
+  - unconfirmed: Mitgliedschaft unbestätigt / membre non confirmée
+  - resigned: Ausgetreten / a démissionné
+  - expelled: Ausgeschlossen / exclue
+  - notMember: Nicht-Mitglied / non-membre
+  weblingKey: Mitgliedschaft Bezirk / affiliation d’un district
+- key: memberStatusMunicipality
+  type: SelectField
+  values:
+  - sympathiser: Sympathisantin / sympathisante
+  - member: Mitglied / membre
+  - unconfirmed: Mitgliedschaft unbestätigt / membre non confirmée
+  - resigned: Ausgetreten / a démissionné
+  - expelled: Ausgeschlossen / exclue
+  - notMember: Nicht-Mitglied / non-membre
+  weblingKey: Mitgliedschaft Kommunal / affiliation communale
+- key: memberStatusYoung
+  type: SelectField
+  values:
+  - sympathiser: Sympathisantin / sympathisante
+  - member: Mitglied / membre
+  - unconfirmed: Mitgliedschaft unbestätigt / membre non confirmée
+  - resigned: Ausgetreten / a démissionné
+  - expelled: Ausgeschlossen / exclue
+  - notMember: Nicht-Mitglied / non-membre
+  weblingKey: Mitgliedschaft Junge Grüne / affiliation Jeunes Verts
+- key: responsibility
+  type: TextField
+  weblingKey: Zuständigkeit / compétence
+- key: entryChannel
+  type: TextField
+  weblingKey: Gewinnungskanal / acquisition
+- key: membershipStart
+  type: DateField
+  weblingKey: Beginn Mitgliedschaft / date d’entrée
+- key: membershipEnd
+  type: DateField
+  weblingKey: Ende Mitgliedschaft / date de sortie
+- key: membershipFeeCountry
+  type: SelectField
+  values:
+  - regular: Einzel Normal / simple normale
+  - reduced: Einzel Reduziert / simple réduite
+  - no: Keine Rechnung / pas facturée
+  weblingKey: MB National / cotisation nationale
+- key: membershipFeeCanton
+  type: SelectField
+  values:
+  - regular: Einzel Normal / simple normale
+  - reduced: Einzel Reduziert / simple réduite
+  - couple: Paar / couple
+  - extra: Extra / autre
+  - no: Keine Rechnung / pas facturée
+  weblingKey: MB Kantonal / cotisation cantonale
+- key: membershipFeeRegion
+  type: SelectField
+  values:
+  - regular: Einzel Normal / simple normale
+  - reduced: Einzel Reduziert / simple réduite
+  - couple: Paar / couple
+  - extra: Extra / autre
+  - no: Keine Rechnung / pas facturée
+  weblingKey: MB Bezirk / cotisation du district
+- key: membershipFeeMunicipality
+  type: SelectField
+  values:
+  - regular: Einzel Normal / simple normale
+  - reduced: Einzel Reduziert / simple réduite
+  - couple: Paar / couple
+  - extra: Extra / autre
+  - no: Keine Rechnung / pas facturée
+  weblingKey: MB Kommunal / cotisation communale
+- key: membershipFeeYoung
+  type: SelectField
+  values:
+  - regular: Einzel Normal / simple normale
+  - reduced: Einzel Reduziert / simple réduite
+  - extra: Extra / autre
+  - no: Keine Rechnung / pas facturée
+  weblingKey: MB Junge Grüne / cotisation Jeunes Verts
+- key: interests
+  type: MultiSelectField
+  values:
+  - international: Aussenbeziehung / relations extérieures
+  - education: Bildung / formation
+  - digitisation: Digitalisierung & Datenschutz / numérisation & protection des données
+  - energy: Energie / énergie
+  - internationalDevelopment: Entwicklungszusammenarbeit / coopération au développement
+  - finance: Finanzen / finances
+  - gender: Gleichstellung & Genderfragen / égalité et questions de genre
+  - health: Gesundheit / santé
+  - climate: Klima / climat
+  - culture: Kultur / culture
+  - agriculture: Landwirtschaft / agriculture
+  - migration: Migration / migration
+  - natureProtection: Naturschutz / protection de la nature
+  - spatialPlaning: Raumplanung & Wohnen / aménagement du territoire & logement
+  - law: Recht / droit
+  - security: Sicherheit & Armee / sécurité & armée
+  - social: Soziales / politique sociale
+  - sport: Sport / sport
+  - traffic: Verkehr / transports
+  - economy: Wirtschaft / économie
+  weblingKey: Interessen / intérêts
+- key: roleCountry
+  type: LongTextField
+  weblingKey: Funktion National / fonctions nationales
+- key: roleCanton
+  type: LongTextField
+  weblingKey: Funktion Kantonal / fonctions cantonales
+- key: roleRegion
+  type: LongTextField
+  weblingKey: Funktion Bezirk / fonctions dans le district
+- key: roleMunicipality
+  type: LongTextField
+  weblingKey: Funktion Kommunal / fonctions communales
+- key: roleYoung
+  type: LongTextField
+  weblingKey: Funktion Junge Grüne / fonctions chez les Jeunes Verts
+- key: roleInternational
+  type: LongTextField
+  weblingKey: Funktion International / fonctions internationales
+- key: request
+  type: MultiSelectField
+  values:
+  - administrative: Administrative Arbeiten / travaux administratifs
+  - driver: Fahrerin / conductrice
+  - movie: Film / film
+  - photo: Fotografie / photographie
+  - fundraising: Fundraising / récolte de fonds
+  - design: Gestaltung / graphisme
+  - campaignOrganisation: Kampagnenorganisation / organisation de campagne
+  - candidacyInternal: Kandidatur internes Amt / candidature > fonction interne
+  - candidacyOfficial: Kandidatur öffentliches Amt / candidature > fonction officielle
+  - readersLetter: Leserbriefe / lettre de lectrice
+  - music: Musik / musique
+  - onlineComments: Online Kommentare / commentaires en ligne
+  - postering: Plakatieren / affichage
+  - socialMedia: Social media / médias sociaux
+  - standCampaign: Standaktion / stand
+  - streetCampaign: Strassenaktion / actions de rue
+  - writing: Texte / rédaction
+  - signatureCollection: Unterschriftensammlungen / récolte de signature
+  - EventOrganisation: Veranstaltungsorganisation / organisation d’événements
+  - distributionCampaign: Verteilaktion / distribution (tracts...)
+  - webdesign: Webdesign / conception web
+  - notes: Siehe Notizen / voir notes
+  - no: Will nicht mithelfen / aucune
+  weblingKey: Anfragen für / disponibilités
+- key: profession
+  type: TextField
+  weblingKey: Beruf / profession
+- key: professionCategory
+  type: SelectField
+  values:
+  - education: Bildung / formation
+  - craft: Handwerk / artisanat
+  - agriculture: Landwirtschaft / agriculture
+  - medicine: Medizin / médecine
+  - pensioner: RentnerIn / retraitée
+  - entrepreneurs: UnternehmerIn / entrepreneuse
+  - administration: Verwaltung / administration
+  - science: Wissenschaft / économie
+  weblingKey: Berufskategorie / secteur prof.
+- key: networkNpo
+  type: TextField
+  weblingKey: Aktiv bei (Organisation) / active auprès de (organisation)
+- key: networkOther
+  type: TextField
+  weblingKey: Anderes (zB Komitees) / autres (p.ex. comité)
+- key: mandateCountry
+  type: MultiSelectField
+  values:
+  - legislativeActive: Legislative aktiv / législatif actuel
+  - legislativePast: Legislative ehemals / législatif passé
+  - judikativeActive: Judikative aktiv / judiciaire actuel
+  - judikativePast: Judikative ehemals / judiciaire passé
+  - commissionActive: Kommission aktiv / commission actuel§
+  - commissionPast: Kommission ehemals / commission passé
+  weblingKey: Mandate National / mandats nationaux
+- key: mandateCountryDetail
+  type: LongTextField
+  weblingKey: Details Mandate National / détail des mandats national
+- key: mandateCanton
+  type: MultiSelectField
+  values:
+  - executiveActive: Exekutive aktiv / exécutif actuel
+  - executivePast: Exekutive ehemals / exécutif passé
+  - legislativeActive: Legislative aktiv / législatif actuel
+  - legislativePast: Legislative ehemals / législatif passé
+  - judikativeActive: Judikative aktiv / judiciaire actuel
+  - judikativePast: Judikative ehemals / judiciaire passé
+  - commissionActive: Kommission aktiv / commission actuel
+  - commissionPast: Kommission ehemals / commission passé
+  weblingKey: Mandate Kantonal / mandats cantonaux
+- key: mandateCantonDetail
+  type: LongTextField
+  weblingKey: Details Mandate Kantonal / détail des mandats cantonal
+- key: mandateRegion
+  type: MultiSelectField
+  values:
+  - judikativeActive: Judikative aktiv / judiciaire actuel
+  - judikativePast: Judikative ehemals / judiciaire passé
+  - governorActive: Regierungsstatthalteramt aktiv / préfecture actuel
+  - governorPast: Regierungsstatthalteramt ehemals / préfecture passé
+  - commissionActive: Kommission aktiv / commission actuel
+  - commissionPast: Kommission ehemals / commission passé
+  weblingKey: Mandate Bezirk / mandats du district
+- key: mandateRegionDetail
+  type: LongTextField
+  weblingKey: Details Mandate Bezirk / détail des mandats de district
+- key: mandateMunicipality
+  type: MultiSelectField
+  values:
+  - executiveActive: Exekutive aktiv / exécutif actuel
+  - executivePast: Exekutive ehemals / exécutif passé
+  - legislativeActive: Legislative aktiv / législatif actuel
+  - legislativePast: Legislative ehemals / législatif passé
+  - judikativeActive: Judikative aktiv / judiciaire actuel
+  - judikativePast: Judikative ehemals / judiciaire passé
+  - commissionActive: Kommission aktiv / commission actuel
+  - commissionPast: Kommission ehemals / commission passé
+  weblingKey: Mandate Kommunal / mandats communaux
+- key: mandateMunicipalityDetail
+  type: LongTextField
+  weblingKey: Details Mandate Kommunal / détail des mandats communal
+- key: donorCountry
+  type: SelectField
+  values:
+  - donor: Spenderin / donatrice
+  - sponsor: Gönnerin / sponsor
+  - majorDonor: Grossspenderin / mécène
+  weblingKey: Spendenstatus National / statut de donatrice nationale
+- key: donorCanton
+  type: SelectField
+  values:
+  - donor: Spenderin / donatrice
+  - sponsor: Gönnerin / sponsor
+  - majorDonor: Grossspenderin / mécène
+  weblingKey: Spendenstatus Kantonal / statut de donatrice cantonale
+- key: donorRegion
+  type: SelectField
+  values:
+  - donor: Spenderin / donatrice
+  - sponsor: Gönnerin / sponsor
+  - majorDonor: Grossspenderin / mécène
+  weblingKey: Spendenstatus Bezirk / statut de donatrice du district
+- key: donorCommune
+  type: SelectField
+  values:
+  - donor: Spenderin / donatrice
+  - sponsor: Gönnerin / sponsor
+  - majorDonor: Grossspenderin / mécène
+  weblingKey: Spendenstatus Kommunal / statut de donatrice communale
+- key: donorYoung
+  type: SelectField
+  values:
+  - donor: Spenderin / donatrice
+  - sponsor: Gönnerin / sponsor
+  - majorDonor: Grossspenderin / mécène
+  weblingKey: Spendenstatus Junge Grüne / statut de donatrice Jeunes Verts
+- key: notesCountry
+  type: LongTextField
+  weblingKey: Notizen National / notes nationales
+- key: notesCanton
+  type: LongTextField
+  weblingKey: Notizen Kanton / notes cantonales
+- key: notesMunicipality
+  type: LongTextField
+  weblingKey: Notizen Kommunal / notes communales
+- key: legacy
+  type: LongTextField
+  weblingKey: "(nicht mehr benutzen / plus actuelles)"
