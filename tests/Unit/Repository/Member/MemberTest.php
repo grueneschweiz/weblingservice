@@ -55,10 +55,10 @@ class MemberTest extends TestCase {
 		$this->assertEquals( null, $member->{$this->someOtherField}->getValue() );
 	}
 	
-	public function test__constructFieldMappingException() {
+	public function test__constructemberUnknownFieldException() {
 		$data[ $this->noneExistingField ] = 'asdf';
 		
-		$this->expectException( WeblingFieldMappingException::class );
+		$this->expectException( MemberUnknownFieldException::class );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		new Member( $data );
 	}
