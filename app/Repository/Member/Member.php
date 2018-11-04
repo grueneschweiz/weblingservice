@@ -10,10 +10,9 @@ namespace App\Repository\Member;
 
 use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\MultiSelectOverwriteException;
-use App\Exceptions\UnknownFieldException;
+use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingFieldMappingConfigException;
-use App\Exceptions\WeblingFieldMappingException;
 use App\Repository\Member\Field\DateField;
 use App\Repository\Member\Field\Field;
 use App\Repository\Member\Field\FieldFactory;
@@ -182,7 +181,7 @@ class Member {
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws InvalidFixedValueException
 	 * @throws ValueTypeException
-	 * @throws WeblingFieldMappingException
+	 * @throws MemberUnknownFieldException
 	 */
 	public function __construct(
 		array $data = null,
@@ -236,7 +235,7 @@ class Member {
 	 *
 	 * @return int|Group[]|Group|Field
 	 *
-	 * @throws UnknownFieldException
+	 * @throws MemberUnknownFieldException
 	 */
 	public function __get( $name ) {
 		if ( 'id' === $name ) {
@@ -261,7 +260,7 @@ class Member {
 	 *
 	 * @return Field
 	 *
-	 * @throws UnknownFieldException
+	 * @throws MemberUnknownFieldException
 	 */
 	public function getField( string $name ): Field {
 		if ( array_key_exists( $name, $this->fields ) ) {
@@ -273,7 +272,7 @@ class Member {
 		}
 		
 		$trace = debug_backtrace();
-		throw new UnknownFieldException( "Tried to access undefined field: {$name} in {$trace[0]['file']} on line {$trace[0]['line']}" );
+		throw new MemberUnknownFieldException( "Tried to access undefined field: {$name} in {$trace[0]['file']} on line {$trace[0]['line']}" );
 	}
 	
 	/**

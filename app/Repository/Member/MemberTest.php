@@ -10,7 +10,7 @@ namespace App\Repository\Member;
 
 
 use App\Exceptions\MultiSelectOverwriteException;
-use App\Exceptions\UnknownFieldException;
+use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\WeblingFieldMappingException;
 use Tests\TestCase;
 

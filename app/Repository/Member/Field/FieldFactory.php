@@ -9,8 +9,8 @@
 namespace App\Repository\Member\Field;
 
 use App\Exceptions\MultiSelectOverwriteException;
+use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\WeblingFieldMappingConfigException;
-use App\Exceptions\WeblingFieldMappingException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -153,13 +153,13 @@ class FieldFactory {
 	 * @return Field
 	 * @throws MultiSelectOverwriteException
 	 * @throws WeblingFieldMappingConfigException
-	 * @throws WeblingFieldMappingException
+	 * @throws MemberUnknownFieldException
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
 	public function create( string $key, $value = null ): Field {
 		if ( empty( $this->mappings[ $key ] ) ) {
-			throw new WeblingFieldMappingException( 'The given key "' . $key . '" was not found in the webling field mapping config.' );
+			throw new MemberUnknownFieldException( 'The given key "' . $key . '" was not found in the webling field mapping config.' );
 		}
 		
 		$mapping = $this->mappings[ $key ];

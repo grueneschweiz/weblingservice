@@ -8,6 +8,7 @@
 
 namespace App\Repository\Member\Field;
 
+use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Exceptions\WeblingFieldMappingException;
@@ -94,10 +95,10 @@ class FieldFactoryTest extends TestCase {
 		$this->assertEquals( self::INTERNAL_FIELD_NAME, $field->getKey() );
 	}
 	
-	public function testCreateMappingException() {
+	public function testCreateMemberUnknownFieldException() {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$fieldFactory = FieldFactory::getInstance();
-		$this->expectException( WeblingFieldMappingException::class );
+		$this->expectException( MemberUnknownFieldException::class );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$fieldFactory->create( 'unknown' );
 	}
