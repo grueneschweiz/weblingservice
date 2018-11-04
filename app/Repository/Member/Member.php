@@ -11,7 +11,10 @@ namespace App\Repository\Member;
 /**
  * Class Member
  *
- * Manages all member Properties.
+ * Manages all member Properties. Allows magic access
+ *
+ * @property
+ *
  *
  * @package App\Repository\Member
  */

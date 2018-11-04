@@ -20,7 +20,8 @@ class FieldFactory {
 	 */
 	const RESERVED = [
 		'groups',
-		'rootGroups'
+		'rootGroups',
+		'id'
 	];
 	
 	/**
