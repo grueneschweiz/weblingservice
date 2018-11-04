@@ -25,6 +25,11 @@ class FreeFieldTest extends TestCase {
 		$this->assertFalse( $field->isDirty() );
 	}
 	
+	public function testGetWeblingValue() {
+		$field = $this->getField();
+		$this->assertEquals( $this->value, $field->getWeblingValue() );
+	}
+	
 	private function getField() {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		return new TextField( $this->key, $this->weblingKey, $this->value );

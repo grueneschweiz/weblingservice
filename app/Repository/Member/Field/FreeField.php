@@ -36,4 +36,11 @@ abstract class FreeField extends Field {
 			$this->setDirty( $dirty );
 		}
 	}
+	
+	/**
+	 * @return string|array
+	 */
+	public function getWeblingValue() {
+		return $this->getValue();
+	}
 }

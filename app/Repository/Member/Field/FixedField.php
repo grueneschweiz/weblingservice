@@ -13,11 +13,6 @@ abstract class FixedField extends Field {
 	protected $possibleValues = [];
 	
 	/**
-	 * @return string|array
-	 */
-	public abstract function getWeblingValue();
-	
-	/**
 	 * Returns the internal value for any internal or webling value
 	 *
 	 * @param string $value
