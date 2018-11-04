@@ -68,6 +68,16 @@ class FieldFactoryTest extends TestCase {
 		new FieldFactory();
 	}
 	
+	public function test__constructReservedFieldNameException() {
+		Config::set( 'app.webling_field_mappings_config_path',
+			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-reserved-field-key.yml' );
+		
+		$this->expectException( WeblingFieldMappingConfigException::class );
+		$this->expectExceptionMessageRegExp( "/^Reserved field key:/" );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		new FieldFactory();
+	}
+	
 	public function testCreateByInternalKey() {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$fieldFactory = new FieldFactory();

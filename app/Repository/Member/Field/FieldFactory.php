@@ -16,6 +16,14 @@ use Symfony\Component\Yaml\Yaml;
 
 class FieldFactory {
 	/**
+	 * Reserved field names
+	 */
+	const RESERVED = [
+		'groups',
+		'rootGroups'
+	];
+	
+	/**
 	 * Cache the field mappings
 	 *
 	 * @var array
@@ -80,6 +88,10 @@ class FieldFactory {
 		
 		if ( empty( $array['weblingKey'] ) ) {
 			throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: Every mapping element must provide a non-empty weblingKey property.' );
+		}
+		
+		if ( in_array( $array['key'], self::RESERVED ) ) {
+			throw new WeblingFieldMappingConfigException( "Reserved field key: {$array['key']}" );
 		}
 		
 		// add mapping by its internal key
