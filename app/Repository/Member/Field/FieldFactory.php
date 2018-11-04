@@ -14,6 +14,13 @@ use App\Exceptions\WeblingFieldMappingException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Class FieldFactory
+ *
+ * Creates the right fields from given key and value. Works as a singleton.
+ *
+ * @package App\Repository\Member\Field
+ */
 class FieldFactory {
 	/**
 	 * Reserved field names
@@ -23,6 +30,13 @@ class FieldFactory {
 		'rootGroups',
 		'id'
 	];
+	
+	/**
+	 * The instance
+	 *
+	 * @var FieldFactory|null
+	 */
+	private static $instance;
 	
 	/**
 	 * Cache the field mappings
@@ -39,13 +53,28 @@ class FieldFactory {
 	private $fieldKeys = [];
 	
 	/**
+	 * Get instance.
+	 *
+	 * @return FieldFactory|null
+	 * @throws WeblingFieldMappingConfigException
+	 */
+	public static function getInstance() {
+		if (! self::$instance)
+		{
+			self::$instance = new FieldFactory();
+		}
+		
+		return self::$instance;
+	}
+	
+	/**
 	 * FieldFactory constructor.
 	 *
 	 * Read mappings config and populate mappings field with it.
 	 *
 	 * @throws WeblingFieldMappingConfigException
 	 */
-	public function __construct() {
+	private function __construct() {
 		$mappings = $this->readMappings();
 		
 		foreach ( $mappings as $mapping ) {
