@@ -99,7 +99,7 @@ class FieldFactory {
 		try {
 			$mappings = Yaml::parseFile( $path );
 		} catch ( ParseException $e ) {
-			throw new WeblingFieldMappingConfigException( "YAML pase error: {$e->getMessage()}" );
+			throw new WeblingFieldMappingConfigException( "YAML parse error: {$e->getMessage()}" );
 		}
 		
 		

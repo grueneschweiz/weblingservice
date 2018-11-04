@@ -17,7 +17,7 @@ abstract class Field {
 	protected $key;
 	
 	/**
-	 * @var string the fieldname in webling
+	 * @var string the field name in webling
 	 */
 	protected $weblingKey;
 	

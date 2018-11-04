@@ -68,6 +68,7 @@ abstract class Repository {
 	 * @return null|string
 	 */
 	private function removeApiKey( string $endpoint ) {
+		/** @noinspection SpellCheckingInspection */
 		return preg_replace( '/&apikey=[^&]*/', '', $endpoint );
 	}
 	
