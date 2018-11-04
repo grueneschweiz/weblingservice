@@ -8,6 +8,7 @@
 
 namespace App\Repository\Member;
 
+use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\UnknownFieldException;
 use App\Repository\Member\Field\DateField;
 use App\Repository\Member\Field\Field;
@@ -130,6 +131,9 @@ class Member {
 	/**
 	 * Member constructor.
 	 *
+	 * NOTE: To prevent accidental overwriting of MultiSelect fields, this
+	 * must be explicitly allowed.
+	 *
 	 * @param array $data with ether of the following structure:
 	 *                    variant 1: $data[][key] = value
 	 *                    variant 2: $data[][key] = weblingValue
@@ -137,8 +141,17 @@ class Member {
 	 *                    variant 4: $data[][weblingKey] = weblingValue
 	 * @param int|null $id the id in webling
 	 * @param Groups[] $groups
+	 * @param bool $allowSettingMultiSelectFields
+	 *
+	 * @throws UnknownFieldException
+	 * @throws MultiSelectOverwriteException
 	 */
-	public function __construct( array $data = null, int $id = null, array $groups = null ) {
+	public function __construct(
+		array $data = null,
+		int $id = null,
+		array $groups = null,
+		bool $allowSettingMultiSelectFields = false
+	) {
 		// todo: implement it
 		// make sure to construct all fields regardless of the input
 		// make sure to set the root group from the given groups
