@@ -11,6 +11,7 @@ namespace App\Repository\Member;
 
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\UnknownFieldException;
+use App\Exceptions\WeblingFieldMappingException;
 use Tests\TestCase;
 
 class MemberTest extends TestCase {
@@ -38,8 +39,8 @@ class MemberTest extends TestCase {
 	public function testGetDirtyFields() {
 		$member = $this->getMember();
 		$this->assertEmpty( $member->getDirtyFields() );
-		$member->{$someKey}->setValue( 'this makes me dirty' );
-		$this->assertTrue( in_array( $member->{$someKey}, $member->getDirtyFields() ) );
+		$member->{$this->someKey}->setValue( 'this makes me dirty' );
+		$this->assertTrue( in_array( $member->{$this->someKey}, $member->getDirtyFields() ) );
 	}
 	
 	private function getMember() {
@@ -49,15 +50,15 @@ class MemberTest extends TestCase {
 	
 	public function test__construct() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$member = new Member( $this->data, $this->id, $this->groups );
+		$member = new Member( $this->data, $this->id, $this->groups, true );
 		$this->assertEquals( $this->someValue, $member->{$this->someKey}->getValue() );
 		$this->assertEquals( null, $member->{$this->someOtherField}->getValue() );
 	}
 	
-	public function test__constructUnknownFieldException() {
+	public function test__constructFieldMappingException() {
 		$data[ $this->noneExistingField ] = 'asdf';
 		
-		$this->expectException( UnknownFieldException::class );
+		$this->expectException( WeblingFieldMappingException::class );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		new Member( $data );
 	}

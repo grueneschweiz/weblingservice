@@ -8,10 +8,15 @@
 
 namespace App\Repository\Member;
 
+use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\UnknownFieldException;
+use App\Exceptions\ValueTypeException;
+use App\Exceptions\WeblingFieldMappingConfigException;
+use App\Exceptions\WeblingFieldMappingException;
 use App\Repository\Member\Field\DateField;
 use App\Repository\Member\Field\Field;
+use App\Repository\Member\Field\FieldFactory;
 use App\Repository\Member\Field\LongTextField;
 use App\Repository\Member\Field\MultiSelectField;
 use App\Repository\Member\Field\SelectField;
@@ -23,9 +28,9 @@ use App\Repository\Member\Field\TextField;
  * Manages all member Properties. Provides magic access to the following
  * properties:
  *
- * @property int $id
- * @property Group $rootGroup
- * @property Group[] $groups
+ * @property null|int $id
+ * @property null|Group $rootGroup
+ * @property null|Group[] $groups
  * @property TextField $company
  * @property TextField $firstName
  * @property TextField $lastName
@@ -123,9 +128,39 @@ use App\Repository\Member\Field\TextField;
  * @package App\Repository\Member
  */
 class Member {
+	/**
+	 * The fields with the member data
+	 *
+	 * @var array
+	 */
 	private $fields;
+	
+	/**
+	 * Alias to the $fields field, but using the webling key as key
+	 *
+	 * @var array
+	 */
+	private $fieldsByWeblingKey;
+	
+	/**
+	 * The groups the member belongs to
+	 *
+	 * @var null|Group[]
+	 */
 	private $groups;
+	
+	/**
+	 * The top most group of the member (usually the cantons group)
+	 *
+	 * @var null|Group
+	 */
 	private $rootGroup;
+	
+	/**
+	 * The id of the member in webling
+	 *
+	 * @var int|null
+	 */
 	private $id;
 	
 	/**
@@ -143,8 +178,11 @@ class Member {
 	 * @param Groups[] $groups
 	 * @param bool $allowSettingMultiSelectFields
 	 *
-	 * @throws UnknownFieldException
 	 * @throws MultiSelectOverwriteException
+	 * @throws WeblingFieldMappingConfigException
+	 * @throws InvalidFixedValueException
+	 * @throws ValueTypeException
+	 * @throws WeblingFieldMappingException
 	 */
 	public function __construct(
 		array $data = null,
@@ -152,22 +190,68 @@ class Member {
 		array $groups = null,
 		bool $allowSettingMultiSelectFields = false
 	) {
-		// todo: implement it
-		// make sure to construct all fields regardless of the input
-		// make sure to set the root group from the given groups
+		$this->id     = $id;
+		$this->groups = $groups;
+		// todo: set the root group from the given groups
+		
+		$fieldFactory = FieldFactory::getInstance();
+		
+		// create fields from given data
+		foreach ( $data as $key => $value ) {
+			$field = $fieldFactory->create( $key );
+			
+			// throw error if a MultiSelect value should be set and this is not
+			// explicitly allowed
+			if ( $field instanceof MultiSelectField
+			     && ! $allowSettingMultiSelectFields
+			     && $value !== null
+			) {
+				throw new MultiSelectOverwriteException( 'The initialisation of members with MultiSelectFields must explicitly be allowed to prevent accidental overwrite of existing values.' );
+			}
+			
+			// as we set the value after creating the field, make sure the field
+			// is yet not marked dirty
+			$field->setValue( $value, false );
+			
+			$internalKey = $field->getKey();
+			$weblingKey  = $field->getWeblingKey();
+			
+			$this->fields[ $internalKey ]            = $field;
+			$this->fieldsByWeblingKey[ $weblingKey ] = &$this->fields[ $internalKey ];
+		}
+		
+		// create other fields
+		$setFields = array_keys($this->fields);
+		foreach ( $fieldFactory->getFieldKeys() as $key ) {
+			if ( ! in_array( $key, $setFields ) ) {
+				$this->fields[ $key ] = $fieldFactory->create( $key );
+			}
+		}
 	}
 	
 	/**
 	 * Magic access to member properties.
 	 *
-	 * NOTE: Fields may only be accessed using the internal key.
-	 *
 	 * @param $name
+	 *
+	 * @return int|Group[]|Group|Field
 	 *
 	 * @throws UnknownFieldException
 	 */
 	public function __get( $name ) {
-	
+		if ( 'id' === $name ) {
+			return $this->id;
+		}
+		
+		if ( 'groups' === $name ) {
+			return $this->groups;
+		}
+		
+		if ( 'rootGroup' === $name ) {
+			return $this->rootGroup;
+		}
+		
+		return $this->getField( $name );
 	}
 	
 	/**
@@ -180,7 +264,16 @@ class Member {
 	 * @throws UnknownFieldException
 	 */
 	public function getField( string $name ): Field {
-	
+		if ( array_key_exists( $name, $this->fields ) ) {
+			return $this->fields[ $name ];
+		}
+		
+		if ( array_key_exists( $name, $this->fieldsByWeblingKey ) ) {
+			return $this->fieldsByWeblingKey[ $name ];
+		}
+		
+		$trace = debug_backtrace();
+		throw new UnknownFieldException( "Tried to access undefined field: {$name} in {$trace[0]['file']} on line {$trace[0]['line']}" );
 	}
 	
 	/**
@@ -189,7 +282,7 @@ class Member {
 	 * @return array
 	 */
 	public function getFields(): array {
-	
+		return $this->fields;
 	}
 	
 	/**
@@ -198,6 +291,17 @@ class Member {
 	 * @return array
 	 */
 	public function getDirtyFields(): array {
-	
+		$dirty = [];
+		
+		/** @var Field $field */
+		foreach ( $this->fields as $field ) {
+			if ( $field->isDirty() ) {
+				$dirty[] = $field;
+			}
+		}
+		
+		return $dirty;
 	}
+	
+	
 }

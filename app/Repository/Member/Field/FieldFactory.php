@@ -237,6 +237,8 @@ class FieldFactory {
 	}
 	
 	/**
+	 * Return an array containing all internal field keys
+	 *
 	 * @return array
 	 */
 	public function getFieldKeys(): array {
