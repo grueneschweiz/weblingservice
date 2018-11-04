@@ -32,6 +32,13 @@ class FieldFactory {
 	private $mappings = [];
 	
 	/**
+	 * The internal field keys
+	 *
+	 * @var array
+	 */
+	private $fieldKeys = [];
+	
+	/**
 	 * FieldFactory constructor.
 	 *
 	 * Read mappings config and populate mappings field with it.
@@ -100,6 +107,9 @@ class FieldFactory {
 		
 		// add alias so we can also access it by the webling key
 		$this->mappings[ $array['weblingKey'] ] = &$this->mappings[ $array['key'] ];
+		
+		// populate the internal field keys array
+		$this->fieldKeys[] = $array['key'];
 	}
 	
 	/**
@@ -195,5 +205,12 @@ class FieldFactory {
 		}
 		
 		return $values;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getFieldKeys(): array {
+		return $this->fieldKeys;
 	}
 }
