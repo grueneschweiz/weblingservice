@@ -72,6 +72,15 @@ class MemberTest extends TestCase {
 	public function test__get() {
 		$member = $this->getMember();
 		$this->assertEquals( $this->someValue, $member->{$this->someKey}->getValue() );
+		$this->assertEquals($this->id, $member->id);
+		// todo: test groups and rootGroup
+	}
+	
+	public function test__getMemberUnknownFieldException() {
+		$member = $this->getMember();
+		$this->expectException( MemberUnknownFieldException::class );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$member->{$this->noneExistingField}->getValue();
 	}
 	
 	public function testGetField() {
