@@ -208,7 +208,7 @@ mappings:
   - no: nein / non
   weblingKey: infolettre nationale FR
 - key: newsletterCantonD
-  type: MultiSelectField
+  type: SelectField
   values:
   - yes: ja / oui
   - no: nein / non
