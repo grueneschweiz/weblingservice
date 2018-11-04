@@ -63,6 +63,11 @@ abstract class Field {
 	}
 	
 	/**
+	 * @return string|array
+	 */
+	public abstract function getWeblingValue();
+	
+	/**
 	 * set value
 	 *
 	 * @param string|array|null $value with the value(s)
