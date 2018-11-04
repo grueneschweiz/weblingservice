@@ -40,7 +40,7 @@ class FieldFactoryTest extends TestCase {
 			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-parse-error.yml' );
 		
 		$this->expectException( WeblingFieldMappingConfigException::class );
-		$this->expectExceptionMessageRegExp( "/^YAML pase error:/" );
+		$this->expectExceptionMessageRegExp( "/^YAML parse error:/" );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		FieldFactory::getInstance();
 	}
