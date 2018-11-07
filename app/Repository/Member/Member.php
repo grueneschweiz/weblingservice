@@ -168,7 +168,7 @@ class Member {
 	 * NOTE: To prevent accidental overwriting of MultiSelect fields, this
 	 * must be explicitly allowed.
 	 *
-	 * @param array $data with ether of the following structure:
+	 * @param array $data with either of the following structure:
 	 *                    variant 1: $data[][key] = value
 	 *                    variant 2: $data[][key] = weblingValue
 	 *                    variant 3: $data[][weblingKey] = value
