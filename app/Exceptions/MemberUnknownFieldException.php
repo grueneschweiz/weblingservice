@@ -9,6 +9,6 @@
 namespace App\Exceptions;
 
 
-class WeblingFieldMappingException extends \Exception {
+class MemberUnknownFieldException extends \Exception {
 
 }

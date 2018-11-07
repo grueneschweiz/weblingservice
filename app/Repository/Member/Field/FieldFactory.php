@@ -9,12 +9,35 @@
 namespace App\Repository\Member\Field;
 
 use App\Exceptions\MultiSelectOverwriteException;
+use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\WeblingFieldMappingConfigException;
-use App\Exceptions\WeblingFieldMappingException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Class FieldFactory
+ *
+ * Creates the right fields from given key and value. Works as a singleton.
+ *
+ * @package App\Repository\Member\Field
+ */
 class FieldFactory {
+	/**
+	 * Reserved field names
+	 */
+	const RESERVED = [
+		'groups',
+		'rootGroups',
+		'id'
+	];
+	
+	/**
+	 * The instance
+	 *
+	 * @var FieldFactory|null
+	 */
+	private static $instance;
+	
 	/**
 	 * Cache the field mappings
 	 *
@@ -23,13 +46,35 @@ class FieldFactory {
 	private $mappings = [];
 	
 	/**
+	 * The internal field keys
+	 *
+	 * @var array
+	 */
+	private $fieldKeys = [];
+	
+	/**
+	 * Get instance.
+	 *
+	 * @return FieldFactory|null
+	 * @throws WeblingFieldMappingConfigException
+	 */
+	public static function getInstance() {
+		if (! self::$instance)
+		{
+			self::$instance = new FieldFactory();
+		}
+		
+		return self::$instance;
+	}
+	
+	/**
 	 * FieldFactory constructor.
 	 *
 	 * Read mappings config and populate mappings field with it.
 	 *
 	 * @throws WeblingFieldMappingConfigException
 	 */
-	public function __construct() {
+	private function __construct() {
 		$mappings = $this->readMappings();
 		
 		foreach ( $mappings as $mapping ) {
@@ -54,7 +99,7 @@ class FieldFactory {
 		try {
 			$mappings = Yaml::parseFile( $path );
 		} catch ( ParseException $e ) {
-			throw new WeblingFieldMappingConfigException( "YAML pase error: {$e->getMessage()}" );
+			throw new WeblingFieldMappingConfigException( "YAML parse error: {$e->getMessage()}" );
 		}
 		
 		
@@ -82,11 +127,18 @@ class FieldFactory {
 			throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: Every mapping element must provide a non-empty weblingKey property.' );
 		}
 		
+		if ( in_array( $array['key'], self::RESERVED ) ) {
+			throw new WeblingFieldMappingConfigException( "Reserved field key: {$array['key']}" );
+		}
+		
 		// add mapping by its internal key
 		$this->mappings[ $array['key'] ] = $array;
 		
 		// add alias so we can also access it by the webling key
 		$this->mappings[ $array['weblingKey'] ] = &$this->mappings[ $array['key'] ];
+		
+		// populate the internal field keys array
+		$this->fieldKeys[] = $array['key'];
 	}
 	
 	/**
@@ -101,13 +153,13 @@ class FieldFactory {
 	 * @return Field
 	 * @throws MultiSelectOverwriteException
 	 * @throws WeblingFieldMappingConfigException
-	 * @throws WeblingFieldMappingException
+	 * @throws MemberUnknownFieldException
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
 	public function create( string $key, $value = null ): Field {
 		if ( empty( $this->mappings[ $key ] ) ) {
-			throw new WeblingFieldMappingException( 'The given key "' . $key . '" was not found in the webling field mapping config.' );
+			throw new MemberUnknownFieldException( 'The given key "' . $key . '" was not found in the webling field mapping config.' );
 		}
 		
 		$mapping = $this->mappings[ $key ];
@@ -182,5 +234,14 @@ class FieldFactory {
 		}
 		
 		return $values;
+	}
+	
+	/**
+	 * Return an array containing all internal field keys
+	 *
+	 * @return array
+	 */
+	public function getFieldKeys(): array {
+		return $this->fieldKeys;
 	}
 }

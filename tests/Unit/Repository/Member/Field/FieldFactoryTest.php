@@ -8,6 +8,7 @@
 
 namespace App\Repository\Member\Field;
 
+use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Exceptions\WeblingFieldMappingException;
@@ -31,7 +32,7 @@ class FieldFactoryTest extends TestCase {
 		$this->expectException( WeblingFieldMappingConfigException::class );
 		$this->expectExceptionMessage( 'The Webling field mappings config file was not found.' );
 		/** @noinspection PhpUnhandledExceptionInspection */
-		new FieldFactory();
+		FieldFactory::getInstance();
 	}
 	
 	public function test__constructParseException() {
@@ -39,9 +40,9 @@ class FieldFactoryTest extends TestCase {
 			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-parse-error.yml' );
 		
 		$this->expectException( WeblingFieldMappingConfigException::class );
-		$this->expectExceptionMessageRegExp( "/^YAML pase error:/" );
+		$this->expectExceptionMessageRegExp( "/^YAML parse error:/" );
 		/** @noinspection PhpUnhandledExceptionInspection */
-		new FieldFactory();
+		FieldFactory::getInstance();
 	}
 	
 	private function getFileRelPath() {
@@ -55,7 +56,7 @@ class FieldFactoryTest extends TestCase {
 		$this->expectException( WeblingFieldMappingConfigException::class );
 		$this->expectExceptionMessage( 'The entry point ("mappings") was not found or empty.' );
 		/** @noinspection PhpUnhandledExceptionInspection */
-		new FieldFactory();
+		FieldFactory::getInstance();
 	}
 	
 	public function test__constructInvalidConfigException() {
@@ -65,12 +66,22 @@ class FieldFactoryTest extends TestCase {
 		$this->expectException( WeblingFieldMappingConfigException::class );
 		$this->expectExceptionMessageRegExp( "/^Invalid Webling field mapping config:/" );
 		/** @noinspection PhpUnhandledExceptionInspection */
-		new FieldFactory();
+		FieldFactory::getInstance();
+	}
+	
+	public function test__constructReservedFieldNameException() {
+		Config::set( 'app.webling_field_mappings_config_path',
+			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-reserved-field-key.yml' );
+		
+		$this->expectException( WeblingFieldMappingConfigException::class );
+		$this->expectExceptionMessageRegExp( "/^Reserved field key:/" );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		FieldFactory::getInstance();
 	}
 	
 	public function testCreateByInternalKey() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::INTERNAL_FIELD_NAME );
 		$this->assertEquals( self::WEBLING_FIELD_NAME, $field->getWeblingKey() );
@@ -78,23 +89,23 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateByWeblingKey() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::WEBLING_FIELD_NAME );
 		$this->assertEquals( self::INTERNAL_FIELD_NAME, $field->getKey() );
 	}
 	
-	public function testCreateMappingException() {
+	public function testCreateMemberUnknownFieldException() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
-		$this->expectException( WeblingFieldMappingException::class );
+		$fieldFactory = FieldFactory::getInstance();
+		$this->expectException( MemberUnknownFieldException::class );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$fieldFactory->create( 'unknown' );
 	}
 	
 	public function testCreateWithValue() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::WEBLING_FIELD_NAME, 'Hans Muster' );
 		$this->assertFalse( $field->isDirty() );
@@ -102,7 +113,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateDateField() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::DATE_FIELD );
 		$this->assertTrue( $field instanceof DateField );
@@ -110,7 +121,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateLongTextField() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::LONG_TEXT_FIELD );
 		$this->assertTrue( $field instanceof LongTextField );
@@ -118,7 +129,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateMultiSelectField() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::MULTI_SELECT_FIELD );
 		$this->assertTrue( $field instanceof MultiSelectField );
@@ -126,7 +137,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateMultiSelectFieldOverwriteException() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		$this->expectException( MultiSelectOverwriteException::class );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$fieldFactory->create( self::MULTI_SELECT_FIELD, 'anything' );
@@ -134,7 +145,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateSelectField() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::SELECT_FIELD, self::SELECT_FIELD_VALUE_KEY );
 		$this->assertTrue( $field instanceof SelectField );
@@ -145,7 +156,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testCreateTextField() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field = $fieldFactory->create( self::TEXT_FIELD );
 		$this->assertTrue( $field instanceof TextField );
@@ -153,7 +164,7 @@ class FieldFactoryTest extends TestCase {
 	
 	public function testAllConfigMappings() {
 		/** @noinspection PhpUnhandledExceptionInspection */
-		$fieldFactory = new FieldFactory();
+		$fieldFactory = FieldFactory::getInstance();
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$mappings  = $this->getPrivateProperty( FieldFactory::class, 'mappings' );
 		$fieldKeys = array_keys( $mappings->getValue( $fieldFactory ) );
@@ -161,7 +172,7 @@ class FieldFactoryTest extends TestCase {
 		foreach ( $fieldKeys as $key ) {
 			/** @noinspection PhpUnhandledExceptionInspection */
 			$field = $fieldFactory->create( $key );
-			$this->assertTrue($field instanceof Field);
+			$this->assertTrue( $field instanceof Field );
 		}
 	}
 	
