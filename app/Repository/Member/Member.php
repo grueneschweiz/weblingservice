@@ -251,7 +251,7 @@ class Member {
 	 *
 	 * Access this function using magic property access.
 	 *
-	 * @return null|Group[]
+	 * @return Group[]
 	 */
 	private function getRootGroups() {
 		// todo: implement this
