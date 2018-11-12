@@ -28,7 +28,7 @@ use App\Repository\Member\Field\TextField;
  * properties:
  *
  * @property null|int $id
- * @property null|Group $rootGroup
+ * @property null|Group[] $rootGroups
  * @property null|Group[] $groups
  * @property TextField $company
  * @property TextField $firstName
@@ -149,13 +149,6 @@ class Member {
 	private $groups;
 	
 	/**
-	 * The top most group of the member (usually the cantons group)
-	 *
-	 * @var null|Group
-	 */
-	private $rootGroup;
-	
-	/**
 	 * The id of the member in webling
 	 *
 	 * @var int|null
@@ -233,7 +226,7 @@ class Member {
 	 *
 	 * @param $name
 	 *
-	 * @return int|Group[]|Group|Field
+	 * @return null|int|Group[]|Field
 	 *
 	 * @throws MemberUnknownFieldException
 	 */
@@ -246,11 +239,23 @@ class Member {
 			return $this->groups;
 		}
 		
-		if ( 'rootGroup' === $name ) {
-			return $this->rootGroup;
+		if ( 'rootGroups' === $name ) {
+			return $this->getRootGroups();
 		}
 		
 		return $this->getField( $name );
+	}
+	
+	/**
+	 * Returns an array with the root groups of this member.
+	 *
+	 * Access this function using magic property access.
+	 *
+	 * @return Group[]
+	 */
+	private function getRootGroups() {
+		// todo: implement this
+		// make sure to filter duplicate root groups
 	}
 	
 	/**
