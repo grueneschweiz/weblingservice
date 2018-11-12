@@ -6,7 +6,6 @@
  * Time: 20:30
  */
 
-/** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
 
 namespace App\Repository\Member;
 
@@ -43,7 +42,7 @@ class MemberRepository extends Repository {
 	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
 	 */
 	public function get( int $id ): Member {
-		$data = parent::get( "member/$id" );
+		$data = $this->api_get( "member/$id" );
 		
 		if ( $data->getStatusCode() === 200 ) {
 			$memberData = $data->getData();

@@ -6,8 +6,6 @@
  * Time: 15:41
  */
 
-/** @noinspection PhpSignatureMismatchDuringInheritanceInspection */
-
 namespace App\Repository\Group;
 
 
