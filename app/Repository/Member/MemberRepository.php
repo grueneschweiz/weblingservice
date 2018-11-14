@@ -42,7 +42,7 @@ class MemberRepository extends Repository {
 	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
 	 */
 	public function get( int $id ): Member {
-		$data = $this->api_get( "member/$id" );
+		$data = $this->apiGet( "member/$id" );
 		
 		if ( $data->getStatusCode() === 200 ) {
 			$memberData = $data->getData();
