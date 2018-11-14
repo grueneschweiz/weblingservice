@@ -14,11 +14,11 @@ class RepositoryTest extends TestCase {
 	private $repository;
 	
 	public function testGet() {
-		$test = $this->repository->get( 'member/210' );
+		$test = $this->apiGet( 'member/210' );
 		$this->assertAttributeEquals( 200, 'code', $test );
 		
 		$query = 'member?filter= (`Name / nom` = "Der Testmann" OR `Name / nom` = "Nèrvén") AND `Vorname / prénom` = "Ümläüts" AND `Datensatzkategorie / type d’entrée` = "Privatperson / particulier"';
-		$test  = $this->repository->get( $query );
+		$test  = $this->apiGet( $query );
 		$this->assertAttributeEquals( 200, 'code', $test );
 		
 		$data = $test->getData();
@@ -42,7 +42,7 @@ class RepositoryTest extends TestCase {
 			'parents'    => [ 100 ]
 		];
 		
-		$post = $this->repository->post( 'member', $data );
+		$post = $this->apiPost( 'member', $data );
 		$this->assertAttributeEquals( 201, 'code', $post );
 		
 		$data   = [
@@ -50,10 +50,10 @@ class RepositoryTest extends TestCase {
 				'Strasse / rue' => 'Deadend 99',
 			]
 		];
-		$update = $this->repository->put( "member/{$post->getData()}", $data );
+		$update = $this->apiPut( "member/{$post->getData()}", $data );
 		$this->assertAttributeEquals( 204, 'code', $update );
 		
-		$delete = $this->repository->delete( "member/{$post->getData()}" );
+		$delete = $this->apiDelete( "member/{$post->getData()}" );
 		$this->assertAttributeEquals( 204, 'code', $delete );
 	}
 	
@@ -70,5 +70,41 @@ class RepositoryTest extends TestCase {
 		$this->repository = $this->getMockBuilder( Repository::class )
 		                         ->setConstructorArgs( array( config( 'app.webling_api_key' ) ) )
 		                         ->getMockForAbstractClass();
+	}
+	
+	private function apiGet($endpoint) {
+		return self::callProtectedMethod($this->repository, 'apiGet', array($endpoint));
+	}
+	
+	private function apiPost($endpoint, $data) {
+		return self::callProtectedMethod($this->repository, 'apiPost', array($endpoint, $data));
+	}
+	
+	private function apiPut($endpoint, $data) {
+		return self::callProtectedMethod($this->repository, 'apiPut', array($endpoint, $data));
+	}
+	
+	private function apiDelete($endpoint) {
+		return self::callProtectedMethod($this->repository, 'apiDelete', array($endpoint));
+	}
+	
+	/**
+	 * Test protected method
+	 *
+	 * @param $object
+	 * @param $method
+	 * @param array $args
+	 *
+	 * @return mixed
+	 * @throws \ReflectionException
+	 *
+	 * @see https://stackoverflow.com/a/5013441
+	 */
+	public static function callProtectedMethod($object, $method, array $args=array()) {
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$class  = new \ReflectionClass(get_class($object));
+		$method = $class->getMethod($method);
+		$method->setAccessible(true);
+		return $method->invokeArgs($object, $args);
 	}
 }
