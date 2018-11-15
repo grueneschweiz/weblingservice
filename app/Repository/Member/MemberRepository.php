@@ -125,11 +125,11 @@ class MemberRepository extends Repository {
 	 *
 	 * @param Member $member
 	 *
-	 * @return Member On insert, it conatins the id after saving.
+	 * @return Member On insert, it contains the id after saving.
 	 *
-	 * @throws MemberSaveException
+	 * @throws WeblingAPIException
 	 */
-	public function save( Member $member ) {
+	public function save( Member $member ): Member {
 		// todo: implement this
 	}
 	
@@ -144,6 +144,20 @@ class MemberRepository extends Repository {
 	 * matched Member else a MemberMatch object is returned.
 	 */
 	public function findExisting( Member $member, array $rootGroups ): MemberMatch {
+		// todo: implement this
+	}
+	
+	/**
+	 * Delete member in Webling.
+	 *
+	 * Note: Think twice, if you want to delete this member. There might be some
+	 * accounting data left over without a linked member.
+	 *
+	 * @param Member $member
+	 *
+	 * @throws WeblingAPIException
+	 */
+	public function delete( Member $member ) {
 		// todo: implement this
 	}
 }
