@@ -42,7 +42,7 @@ abstract class Repository {
 	 * @return \Webling\API\IResponse|\Webling\API\Response
 	 * @throws \Webling\API\ClientException
 	 */
-	public function get( string $endpoint ) {
+	protected function apiGet( string $endpoint ) {
 		return $this->webling_client->get( $this->prepareEndpoint( $endpoint ) );
 	}
 	
@@ -107,7 +107,7 @@ abstract class Repository {
 	 * @return \Webling\API\IResponse|\Webling\API\Response
 	 * @throws \Webling\API\ClientException
 	 */
-	public function put( string $endpoint, array $data ) {
+	protected function apiPut( string $endpoint, array $data ) {
 		// todo: implement history
 		return $this->webling_client->put( $this->prepareEndpoint( $endpoint ), $data );
 	}
@@ -123,7 +123,7 @@ abstract class Repository {
 	 * @return \Webling\API\IResponse|\Webling\API\Response
 	 * @throws \Webling\API\ClientException
 	 */
-	public function post( string $endpoint, array $data ) {
+	protected function apiPost( string $endpoint, array $data ) {
 		return $this->webling_client->post( $this->prepareEndpoint( $endpoint ), $data );
 	}
 	
@@ -137,7 +137,7 @@ abstract class Repository {
 	 * @return \Webling\API\IResponse|\Webling\API\Response
 	 * @throws \Webling\API\ClientException
 	 */
-	public function delete( string $endpoint ) {
+	protected function apiDelete( string $endpoint ) {
 		// todo: implement history
 		return $this->webling_client->delete( $this->prepareEndpoint( $endpoint ) );
 	}
