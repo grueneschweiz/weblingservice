@@ -120,7 +120,7 @@ class MultiSelectField extends FixedField {
 	/**
 	 * Return the webling values
 	 *
-	 * @return string|array
+	 * @return array
 	 */
 	public function getWeblingValue() {
 		$array = [];

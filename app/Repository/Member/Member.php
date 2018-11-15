@@ -9,8 +9,8 @@
 namespace App\Repository\Member;
 
 use App\Exceptions\InvalidFixedValueException;
-use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\MemberUnknownFieldException;
+use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Repository\Member\Field\DateField;
@@ -132,7 +132,7 @@ class Member {
 	 *
 	 * @var array
 	 */
-	private $fields;
+	private $fields = [];
 	
 	/**
 	 * Alias to the $fields field, but using the webling key as key
@@ -177,14 +177,13 @@ class Member {
 	 * @throws MemberUnknownFieldException
 	 */
 	public function __construct(
-		array $data = null,
+		array $data = [],
 		int $id = null,
 		array $groups = null,
 		bool $allowSettingMultiSelectFields = false
 	) {
 		$this->id     = $id;
 		$this->groups = $groups;
-		// todo: set the root group from the given groups
 		
 		$fieldFactory = FieldFactory::getInstance();
 		
@@ -218,7 +217,7 @@ class Member {
 		}
 		
 		// create other fields
-		$setFields = array_keys($this->fields);
+		$setFields = array_keys( $this->fields );
 		foreach ( $fieldFactory->getFieldKeys() as $key ) {
 			if ( ! in_array( $key, $setFields ) ) {
 				$field = $fieldFactory->create( $key );
