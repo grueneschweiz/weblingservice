@@ -555,3 +555,6 @@ mappings:
 - key: legacy
   type: LongTextField
   weblingKey: "(nicht mehr benutzen / plus actuelles)"
+- key: dontUse
+  type: Skip
+  weblingKey: Mitglieder ID / n° de membre

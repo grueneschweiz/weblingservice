@@ -147,17 +147,19 @@ class FieldFactory {
 	 * NOTE: MultiSelectFields must not be created with a initial value to prevent
 	 * accidental overwrite (append != setValue).
 	 *
+	 * NOTE: Fields of type 'Skip' will return null.
+	 *
 	 * @param string $key
 	 * @param null|string $value
 	 *
-	 * @return Field
+	 * @return Field|null null if the type was 'Skip'
 	 * @throws MultiSelectOverwriteException
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws MemberUnknownFieldException
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
-	public function create( string $key, $value = null ): Field {
+	public function create( string $key, $value = null ) {
 		if ( empty( $this->mappings[ $key ] ) ) {
 			throw new MemberUnknownFieldException( 'The given key "' . $key . '" was not found in the webling field mapping config.' );
 		}
@@ -178,6 +180,8 @@ class FieldFactory {
 			case 'SelectField':
 			case 'MultiSelectField':
 				return $this->createFixedField( $key, $value );
+			case 'Skip':
+				return null;
 		}
 		
 		throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: The given type does not match a field class. Given key: "' . $key . '"' );

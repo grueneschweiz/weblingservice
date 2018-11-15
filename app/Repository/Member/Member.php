@@ -192,6 +192,11 @@ class Member {
 		foreach ( $data as $key => $value ) {
 			$field = $fieldFactory->create( $key );
 			
+			if ( ! $field ) {
+				// handle the 'Skip' field type
+				continue;
+			}
+			
 			// throw error if a MultiSelect value should be set and this is not
 			// explicitly allowed
 			if ( $field instanceof MultiSelectField
@@ -216,7 +221,11 @@ class Member {
 		$setFields = array_keys($this->fields);
 		foreach ( $fieldFactory->getFieldKeys() as $key ) {
 			if ( ! in_array( $key, $setFields ) ) {
-				$this->fields[ $key ] = $fieldFactory->create( $key );
+				$field = $fieldFactory->create( $key );
+				if ( $field ) {
+					// handle Skip field type
+					$this->fields[ $key ] = $field;
+				}
 			}
 		}
 	}
