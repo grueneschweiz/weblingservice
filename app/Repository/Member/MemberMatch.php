@@ -49,7 +49,7 @@ class MemberMatch {
 	 * MemberMatch constructor.
 	 *
 	 * @param int $status
-	 * @param array $matches
+	 * @param Member[] $matches
 	 */
 	public function __construct( $status, array $matches ) {
 		$this->status = $status;
