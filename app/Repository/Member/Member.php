@@ -9,8 +9,8 @@
 namespace App\Repository\Member;
 
 use App\Exceptions\InvalidFixedValueException;
-use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\MemberUnknownFieldException;
+use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Repository\Member\Field\DateField;
@@ -132,7 +132,7 @@ class Member {
 	 *
 	 * @var array
 	 */
-	private $fields;
+	private $fields = [];
 	
 	/**
 	 * Alias to the $fields field, but using the webling key as key
@@ -177,20 +177,24 @@ class Member {
 	 * @throws MemberUnknownFieldException
 	 */
 	public function __construct(
-		array $data = null,
+		array $data = [],
 		int $id = null,
 		array $groups = null,
 		bool $allowSettingMultiSelectFields = false
 	) {
 		$this->id     = $id;
 		$this->groups = $groups;
-		// todo: set the root group from the given groups
 		
 		$fieldFactory = FieldFactory::getInstance();
 		
 		// create fields from given data
 		foreach ( $data as $key => $value ) {
 			$field = $fieldFactory->create( $key );
+			
+			if ( ! $field ) {
+				// handle the 'Skip' field type
+				continue;
+			}
 			
 			// throw error if a MultiSelect value should be set and this is not
 			// explicitly allowed
@@ -213,10 +217,14 @@ class Member {
 		}
 		
 		// create other fields
-		$setFields = array_keys($this->fields);
+		$setFields = array_keys( $this->fields );
 		foreach ( $fieldFactory->getFieldKeys() as $key ) {
 			if ( ! in_array( $key, $setFields ) ) {
-				$this->fields[ $key ] = $fieldFactory->create( $key );
+				$field = $fieldFactory->create( $key );
+				if ( $field ) {
+					// handle Skip field type
+					$this->fields[ $key ] = $field;
+				}
 			}
 		}
 	}

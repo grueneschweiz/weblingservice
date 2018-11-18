@@ -25,6 +25,7 @@ class FieldFactoryTest extends TestCase {
 	const SELECT_FIELD_VALUE_KEY = 'private';
 	const SELECT_FIELD_VALUE_WEBLING_KEY = 'Privatperson / particulier';
 	const TEXT_FIELD = 'lastName';
+	const SKIP_FIELD = 'dontUse';
 	
 	public function test__constructConfigNotFound() {
 		Config::set( 'app.webling_field_mappings_config_path', 'unknown' );
@@ -162,6 +163,14 @@ class FieldFactoryTest extends TestCase {
 		$this->assertTrue( $field instanceof TextField );
 	}
 	
+	public function testCreateSkipField() {
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$fieldFactory = FieldFactory::getInstance();
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field = $fieldFactory->create( self::SKIP_FIELD );
+		$this->assertEmpty( $field );
+	}
+	
 	public function testAllConfigMappings() {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$fieldFactory = FieldFactory::getInstance();
@@ -172,7 +181,10 @@ class FieldFactoryTest extends TestCase {
 		foreach ( $fieldKeys as $key ) {
 			/** @noinspection PhpUnhandledExceptionInspection */
 			$field = $fieldFactory->create( $key );
-			$this->assertTrue( $field instanceof Field );
+			if ( $field ) {
+				// handle Skip fields
+				$this->assertTrue( $field instanceof Field );
+			}
 		}
 	}
 	
