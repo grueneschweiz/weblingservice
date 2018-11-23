@@ -14,8 +14,26 @@ use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
 |
 */
 $version = 'v1';
+$adminBase=$version . '/admin';
+$memberBase=$version . '/member';
 
-Route::get($version . '/member/{id}', function (Request $request, $id) {
+
+Route::get($memberBase . '/{id}', function (Request $request, $id) {
     $controller = new RestApiMember();
-    return $controller->getMember($id);
+    return $controller->getMember($request, $id, $is_admin = false);
+});
+
+Route::get($memberBase . '/changed/{revisionId}', function (Request $request, $revisionId) {
+    $controller = new RestApiMember();
+    return $controller->getChanged($request, $revisionId);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin Resources
+|--------------------------------------------------------------------------
+*/
+Route::get($adminBase . '/member/{id}', function (Request $request, $id) {
+    $controller = new RestApiMember();
+    return $controller->getMember($request, $id, $is_admin = true);
 });
