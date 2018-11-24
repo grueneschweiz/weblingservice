@@ -7,7 +7,6 @@ use App\Repository\Member\MemberRepository;
 use App\Repository\Member\Field\FieldFactory;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\IllegalArgumentException;
 
 use Illuminate\Http\Request;
@@ -27,7 +26,7 @@ class RestApiMember
   * @param $member_id - the id of the member that we should get
   * @param $is_admin - is the call by an admin resource (i.e. should we return
   *                     all information about the member)
-  * @return string
+  * @return string  the JSON
   */
   public function getMember($request, $member_id, $is_admin = false) {
     $this->checkIntegerInput($member_id);
@@ -43,7 +42,7 @@ class RestApiMember
   /**
   * Return a json with the all member that changed since the $revisionId
   *
-  * @return string
+  * @return string the JSON
   */
   public function getChanged($request, $revisionId) {
     $this->checkIntegerInput($revisionId);
@@ -66,6 +65,9 @@ class RestApiMember
 
   /**
   *
+  * @param Member the member object
+  * @param boolean [optional] is the array for an admin or not?
+  * @return the MemberRepository
   */
   private function getMemberAsArray(Member $member, $is_admin = false): array {
 
@@ -76,7 +78,7 @@ class RestApiMember
       }
     } else {
       //reduce visible fields according to yml file:
-      $path = base_path( 'config/member-json-fields.yml' );
+      $path = base_path( config('app.member_json_fields_config_path'));
       $mappings = Yaml::parseFile( $path );
 
       foreach ($mappings['mappings'] as $key) {
@@ -88,6 +90,8 @@ class RestApiMember
   }
   /**
   * We check the input here because we want to wrap the error in an Exception
+  *
+  * @param mixed the input we want to test to be an int
   */
   private function checkIntegerInput($input) {
     if (!is_numeric($input)) {
@@ -96,13 +100,16 @@ class RestApiMember
   }
 
   /**
-  * FIXME description
+  * Creates a MemberRepository to deal with Member entities.
+  *
+  * @param string [optional] the db key (as of 24.11.2018 the webling api key) for the repo
+  * @return MemberRepository
   */
   private function createMemberRepo(String $api_key = null) {
     if (!$api_key) {
       $api_key = config('app.webling_api_key');// default on server
     }
-    return new MemberRepository($api_key);
+      return new MemberRepository($api_key);
   }
 
 
