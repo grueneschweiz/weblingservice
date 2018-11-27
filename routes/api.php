@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
+use \App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,9 @@ $version = 'v1';
 Route::get($version . '/member/{id}', function (Request $request, $id) {
     $controller = new RestApiMember();
     return $controller->getMember($id);
+});
+
+Route::get($version . '/group/{id}', function (Request $request, $id) {
+   $controller = new RestApiGroup();
+   return $controller->getGroup($id);
 });
