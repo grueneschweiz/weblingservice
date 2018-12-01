@@ -10,9 +10,12 @@ namespace App\Repository\Member;
 
 
 use App\Exceptions\MemberNotFoundException;
+use App\Repository\Revision\RevisionRepository;
 use Tests\TestCase;
 
 class MemberRepositoryTest extends TestCase {
+	const REVISION_ID = 2000;
+	
 	/**
 	 * @var MemberRepository
 	 */
@@ -110,8 +113,18 @@ class MemberRepositoryTest extends TestCase {
 	}
 	
 	public function testGetUpdated() {
-		// todo: implement this
-		$this->assertTrue( true );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$updated = $this->repository->getUpdated( self::REVISION_ID );
+		foreach ( $updated as $member ) {
+			$this->assertTrue( $member instanceof Member );
+		}
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$rervisionRepository = new RevisionRepository( config( 'app.webling_api_key' ) );
+		$revision            = $rervisionRepository->get( self::REVISION_ID );
+		foreach ( $revision->getMemberIds() as $id ) {
+			$this->assertTrue( array_key_exists( $id, $updated ) );
+		}
 	}
 	
 	public function testFind() {

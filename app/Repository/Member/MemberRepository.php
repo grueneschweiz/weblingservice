@@ -11,6 +11,7 @@ namespace App\Repository\Member;
 
 
 use App\Exceptions\InvalidFixedValueException;
+use App\Exceptions\InvalidRevisionIdException;
 use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
@@ -19,9 +20,16 @@ use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Repository\Member\Field\Field;
 use App\Repository\Repository;
+use App\Repository\Revision\RevisionRepository;
 use Webling\API\ClientException;
 
 class MemberRepository extends Repository {
+	/**
+	 * The maximum of members that should be queried in one turn.
+	 *
+	 * If more members are queried, it is split up in multiple requests.
+	 */
+	const QUERY_MEMBER_MAX = 100;
 	
 	/**
 	 * Find the master record of a given member (or member id)
@@ -41,10 +49,122 @@ class MemberRepository extends Repository {
 	 *
 	 * @return Member[]
 	 *
+	 * @throws ClientException
+	 * @throws InvalidFixedValueException
+	 * @throws InvalidRevisionIdException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
+	 *
 	 * @see https://gruenesandbox.webling.ch/api#replicate
 	 */
 	public function getUpdated( int $revisionId ): array {
+		$repository = new RevisionRepository( $this->api_key, $this->api_url );
+		$revision   = $repository->get( $revisionId );
+		
+		return $this->getMultiple( $revision->getMemberIds() );
+	}
+	
+	/**
+	 * Get multiple members by id.
+	 *
+	 * If more than self::QUERY_MEMBER_MAX ids are queried, Webling ist queried
+	 * multiple times with at most members self::QUERY_MEMBER_MAX per request.
+	 *
+	 * @param array $memberIds
+	 *
+	 * @return Member[]
+	 *
+	 * @throws ClientException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
+	 */
+	private function getMultiple( array $memberIds ): array {
+		$blocks = array_chunk( $memberIds, self::QUERY_MEMBER_MAX );
+		
+		$members = [];
+		foreach ( $blocks as $block ) {
+			$ids = implode( ',', $block );
+			
+			$resp = $this->apiGet( "member/$ids" );
+			
+			if ( $resp->getStatusCode() === 200 ) {
+				$newMembers = $this->getMembersFromWeblingPayload( $resp->getData(), $block );
+				$members    += $newMembers;
+			} else if ( $resp->getStatusCode() === 404 ) {
+				throw new MemberNotFoundException();
+			} else {
+				throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
+			}
+		}
+		
+		return $members;
+	}
+	
+	/**
+	 * Convert the payload of a webling member response into an array of members
+	 *
+	 * @param array $payload the data from the Webling response
+	 * @param int[] $ids the webling ids that were requested
+	 *
+	 * @return Member[] with the webling ids as key and the member as value
+	 *
+	 * @throws InvalidFixedValueException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingFieldMappingConfigException
+	 */
+	private function getMembersFromWeblingPayload( array $payload, array $ids ): array {
+		/*
+		 * Normalize webling payload
+		 *
+		 * Put single member response payload into array, so it has the same
+		 * form as a multi member response payload.
+		 */
+		if ( 1 === count( $ids ) ) {
+			$payload['id'] = $ids[0];
+			$payload       = [ $payload ];
+		}
+		
+		$members = [];
+		foreach ( $payload as $memberData ) {
+			$fieldData = $memberData['properties'];
+			$groups    = $this->getGroups( $memberData['parents'] );
+			$id        = $memberData['id'];
+			
+			$members[ $id ] = new Member( $fieldData, $id, $groups, true );
+		}
+		
+		return $members;
+	}
+	
+	/**
+	 * Convert group ids in array into Groups
+	 *
+	 * @param int[] $groupIds
+	 *
+	 * @return Group[]
+	 */
+	private function getGroups( array $groupIds ): array {
 		// todo: implement this
+		return [ 100 ]; // todo: remove this mock
+//		$groupRepository = new GroupRepository();
+//
+//		$groups = [];
+//		foreach ( $groupIds as $groupId ) {
+//			$groups[] = $groupRepository->get( $groupId );
+//		}
+//
+//		return $groups;
 	}
 	
 	/**
@@ -160,41 +280,9 @@ class MemberRepository extends Repository {
 	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
 	 */
 	public function get( int $id ): Member {
-		$data = $this->apiGet( "member/$id" );
+		$result = $this->getMultiple( [ $id ] );
 		
-		if ( $data->getStatusCode() === 200 ) {
-			$memberData = $data->getData();
-			$fieldData  = $memberData['properties'];
-			$groups     = $this->getGroups( $memberData['parents'] );
-			
-			return new Member( $fieldData, $id, $groups, true );
-		}
-		
-		if ( $data->getStatusCode() === 404 ) {
-			throw new MemberNotFoundException();
-		} else {
-			throw new WeblingAPIException( "Get request to Webling failed with status code {$data->getStatusCode()}" );
-		}
-	}
-	
-	/**
-	 * Convert group ids in array into Groups
-	 *
-	 * @param int[] $groupIds
-	 *
-	 * @return Group[]
-	 */
-	private function getGroups( array $groupIds ): array {
-		// todo: implement this
-		return [ 100 ]; // todo: remove this mock
-//		$groupRepository = new GroupRepository();
-//
-//		$groups = [];
-//		foreach ( $groupIds as $groupId ) {
-//			$groups[] = $groupRepository->get( $groupId );
-//		}
-//
-//		return $groups;
+		return array_pop( $result );
 	}
 	
 	/**
