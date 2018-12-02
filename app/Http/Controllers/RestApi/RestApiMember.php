@@ -2,38 +2,62 @@
 
 namespace App\Http\Controllers\RestApi;
 
+use App\Repository\Member\Member;
+use App\Repository\Member\MemberRepository;
+use App\Repository\Member\Field\FieldFactory;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
+use App\Exceptions\IllegalArgumentException;
+
+use App\Http\Controllers\RestApi;
+
+use Illuminate\Http\Request;
+
+/**
+ * Class RestApiMember
+ *
+ * Manages all API resources connected to the Member
+ */
 class RestApiMember
 {
-  public function getMember($member_id)
-  {
-    $api = new \Webling\API\Client(config('app.webling_base_url'), config('app.webling_api_key')); //TODO maybe use a factory here?
-    $varuable = $api->get('member/' . $member_id);
-    if ($varuable && $varuable->getStatusCode() == '200') {
-      $dataArray = $varuable->getData();
-      $data = [
-        //TODO map properties to own json
-        'properties' => [
-          'Vorname / prénom' => $dataArray['properties']['Vorname / prénom'],
-          'Name / nom' =>  $dataArray['properties']['Name / nom'],
-        ]
-      ];
-      return json_encode($data);
 
-  // return //json_encode($dataArray);
-  //        'properties: ' . json_encode($dataArray['properties']) . PHP_EOL
-  //        . 'readonly: ' . $readonly . PHP_EOL
-  //        . 'children: ' . json_encode($dataArray['children']) . PHP_EOL
-  //        . 'parents: ' . json_encode($dataArray['parents']) . PHP_EOL
-  //        . 'links: ' . json_encode($dataArray['links'])
-  //        ;
-    } else {
-      //TODO how to handle errors?
-      return 'Error: Server returned error';
+  /**
+  * Return a json with the member fields
+  *
+  * @param $request - the http Request
+  * @param $member_id - the id of the member that we should get
+  * @param $is_admin - is the call by an admin resource (i.e. should we return
+  *                     all information about the member)
+  * @return string  the JSON
+  */
+  public function getMember($request, $member_id, $is_admin = false) {
+    ApiHelper::checkIntegerInput($member_id);
+    $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
+
+    $member = $memberRepo->get($member_id);
+
+    $data = ApiHelper::getMemberAsArray($member, $is_admin);
+
+    return json_encode($data);
+  }
+
+  /**
+  * Return a json with the all member that changed since the $revisionId
+  *
+  * @return string the JSON
+  */
+  public function getChanged($request, $revisionId) {
+    ApiHelper::checkIntegerInput($revisionId);
+    $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
+
+    $members = $memberRepo->getUpdated($revisionId);
+
+    $data = [];
+    foreach ($members as $member) {
+      $data[$member->id] = ApiHelper::getMemberAsArray($member);
     }
+
+    return json_encode($data);
   }
 
-//TODO implement more resources
-  public function postMember($member_id)
-  {
-  }
 }
