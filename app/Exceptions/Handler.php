@@ -48,7 +48,7 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
       if ($exception instanceof ClientException) {
-        abort(400, "Wrong db-key.");
+        abort(400, "Exception: " . $exception->getMessage());
       }
         return parent::render($request, $exception);
     }
