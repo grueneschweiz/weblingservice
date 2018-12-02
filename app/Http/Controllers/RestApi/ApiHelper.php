@@ -70,5 +70,4 @@ class ApiHelper
       return new MemberRepository($api_key);
   }
 
-
 }

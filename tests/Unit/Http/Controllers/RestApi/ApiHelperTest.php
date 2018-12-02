@@ -17,10 +17,12 @@ class ApiHelperTest extends TestCase {
 	private $someValue = 'Hugo';
 	private $someAdminKey = 'roleCountry';
   private $someAdminValue = 'president';
-	private $multiSelectField = 'interests';
-	private $multiSelectValue = 'digitisation';
-  private $groups; // todo: test groups as soon as they are implemented
+  private $groups;
 
+
+  private function getMember() {
+		return new Member( $this->data, $this->id, $this->groups, true );
+	}
 
   public function setUp() {
 		parent::setUp();
@@ -28,39 +30,36 @@ class ApiHelperTest extends TestCase {
 		$this->data = [
 			$this->someKey          => $this->someValue,
       $this->someAdminKey     => $this->someAdminValue,
-			$this->multiSelectField => $this->multiSelectValue,
 		];
 	}
 
-  private function getMember() {
-		/** @noinspection PhpUnhandledExceptionInspection */
-		return new Member( $this->data, $this->id, $this->groups, true );
-	}
-
+  /**
+   * @doesNotPerformAssertions - we check for the happy case
+   */
   public function testCheckIntegerInput() {
       ApiHelper::checkIntegerInput('11');
       ApiHelper::checkIntegerInput(11);
+    }
 
+  public function testCheckIntegerInput_Exception() {
       $this->expectException(IllegalArgumentException::class);
       ApiHelper::checkIntegerInput('11d');
     }
 
-//TODO get correct config on server
-  // public function testGetMemberAsArray_nonAdmin() {
-  //   $memberArray = ApiHelper::getMemberAsArray($this->getMember());
+  public function testGetMemberAsArray_nonAdmin() {
+    $memberArray = ApiHelper::getMemberAsArray($this->getMember());
 
-  //   $this->assertTrue(is_array($memberArray));
-  //   $this->assertArrayHasKey($this->someKey, $memberArray);
-  //   $this->assertArrayNotHasKey($this->someAdminKey, $memberArray);
+    $this->assertTrue(is_array($memberArray));
+    $this->assertArrayHasKey($this->someKey, $memberArray);
+    $this->assertArrayNotHasKey($this->someAdminKey, $memberArray);
+  }
 
-  // }
+  public function testGetMemberAsArray_admin() {
+    $memberArray = ApiHelper::getMemberAsArray($this->getMember(), true);
 
-  // public function testGetMemberAsArray_admin() {
-  //   $memberArray = ApiHelper::getMemberAsArray($this->getMember(), true);
-
-  //   $this->assertTrue(is_array($memberArray));
-  //   $this->assertArrayHasKey($this->someKey, $memberArray);
-  //   $this->assertArrayHasKey($this->someAdminKey, $memberArray);
-  // }
+    $this->assertTrue(is_array($memberArray));
+    $this->assertArrayHasKey($this->someKey, $memberArray);
+    $this->assertArrayHasKey($this->someAdminKey, $memberArray);
+  }
 
 }
