@@ -47,7 +47,8 @@ class MemberRepository extends Repository {
 	 *
 	 * @param int $revisionId
 	 *
-	 * @return Member[]
+	 * @return Member[]? The array keys hold the member id, while the value
+	 * holds the member. If the member was deleted, the value is NULL.
 	 *
 	 * @throws ClientException
 	 * @throws InvalidFixedValueException
@@ -71,12 +72,15 @@ class MemberRepository extends Repository {
 	/**
 	 * Get multiple members by id.
 	 *
-	 * If more than self::QUERY_MEMBER_MAX ids are queried, Webling ist queried
-	 * multiple times with at most members self::QUERY_MEMBER_MAX per request.
+	 * If more than $membersPerRequest ids are queried, Webling ist queried
+	 * multiple times with at most members $membersPerRequest per request.
 	 *
-	 * @param array $memberIds
+	 * @param array $memberIds the member ids to fetch
+	 * @param int $membersPerRequest the maximum number of members to get per
+	 * request.
 	 *
-	 * @return Member[]
+	 * @return Member[]? Array with the member ids as keys and the members as
+	 * values. If the member was not found, the value is NULL.
 	 *
 	 * @throws ClientException
 	 * @throws InvalidFixedValueException
@@ -87,8 +91,8 @@ class MemberRepository extends Repository {
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
 	 */
-	private function getMultiple( array $memberIds ): array {
-		$blocks = array_chunk( $memberIds, self::QUERY_MEMBER_MAX );
+	private function getMultiple( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
+		$blocks = array_chunk( $memberIds, $membersPerRequest );
 		
 		$members = [];
 		foreach ( $blocks as $block ) {
@@ -100,7 +104,25 @@ class MemberRepository extends Repository {
 				$newMembers = $this->getMembersFromWeblingPayload( $resp->getData(), $block );
 				$members    += $newMembers;
 			} else if ( $resp->getStatusCode() === 404 ) {
-				throw new MemberNotFoundException();
+				/**
+				 * Since Webling returns a 404 even if only one id isn't present,
+				 * we have have to narrow it down until we've got the failing
+				 * ones.
+				 *
+				 * We do this by recursively halving the input, to minimize the
+				 * amount of requests needed.
+				 */
+				
+				// base case
+				if ( 1 === count( $block ) ) {
+					$members += [ $block[0] => null ];
+					continue;
+				}
+				
+				// recursive cases
+				$recursiveMembersPerRequest = ( $membersPerRequest % 2 == 1 ) ? ( $membersPerRequest + 1 ) / 2 : $membersPerRequest / 2;
+				$newMembers                 = $this->getMultiple( $block, $recursiveMembersPerRequest );
+				$members                    += $newMembers;
 			} else {
 				throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
 			}
@@ -281,8 +303,11 @@ class MemberRepository extends Repository {
 	 */
 	public function get( int $id ): Member {
 		$result = $this->getMultiple( [ $id ] );
+		if ( null === $result[ $id ] ) {
+			throw new MemberNotFoundException( "Member with id '$id' not found in Webling." );
+		}
 		
-		return array_pop( $result );
+		return $result[ $id ];
 	}
 	
 	/**

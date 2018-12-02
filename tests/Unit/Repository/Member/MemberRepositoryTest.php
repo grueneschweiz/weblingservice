@@ -116,7 +116,7 @@ class MemberRepositoryTest extends TestCase {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$updated = $this->repository->getUpdated( self::REVISION_ID );
 		foreach ( $updated as $member ) {
-			$this->assertTrue( $member instanceof Member );
+			$this->assertTrue( $member instanceof Member || null === $member );
 		}
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
