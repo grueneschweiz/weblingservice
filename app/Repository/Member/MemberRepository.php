@@ -66,6 +66,8 @@ class MemberRepository extends Repository {
 		$repository = new RevisionRepository( $this->api_key, $this->api_url );
 		$revision   = $repository->get( $revisionId );
 		
+		// todo: timeout handling
+		
 		return $this->getMultiple( $revision->getMemberIds() );
 	}
 	
