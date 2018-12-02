@@ -46,6 +46,9 @@ class ApiHelper
   /**
   * We check the input here because we want to wrap the error in an Exception
   *
+  * Note: We do not use parameter constraints in routing because this would give a 404
+  * but we want to return the that the id is of the wrong format
+  *
   * @param mixed the input we want to test to be an int
   */
   public static function checkIntegerInput($input) {

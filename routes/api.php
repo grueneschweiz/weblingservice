@@ -8,24 +8,29 @@ use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
+| Here is where we can register API routes for our application. These
 | routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
+| is assigned the "api" middleware group.
 |
 */
-$version = 'v1';
-$adminBase=$version . '/admin';
-$memberBase=$version . '/member';
 
+/*
+|--------------------------------------------------------------------------
+| Member Resources
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'v1/member'], function() {
 
-Route::get($memberBase . '/{id}', function (Request $request, $id) {
-    $controller = new RestApiMember();
-    return $controller->getMember($request, $id, $is_admin = false);
-});
+  Route::get('{id}', function (Request $request, $id) {
+      $controller = new RestApiMember();
+      return $controller->getMember($request, $id, $is_admin = false);
+  });
 
-Route::get($memberBase . '/changed/{revisionId}', function (Request $request, $revisionId) {
-    $controller = new RestApiMember();
-    return $controller->getChanged($request, $revisionId);
+  Route::get('changed/{revisionId}', function (Request $request, $revisionId) {
+      $controller = new RestApiMember();
+      return $controller->getChanged($request, $revisionId);
+  });
+
 });
 
 /*
@@ -33,7 +38,11 @@ Route::get($memberBase . '/changed/{revisionId}', function (Request $request, $r
 | Admin Resources
 |--------------------------------------------------------------------------
 */
-Route::get($adminBase . '/member/{id}', function (Request $request, $id) {
-    $controller = new RestApiMember();
-    return $controller->getMember($request, $id, $is_admin = true);
+Route::group(['prefix' => 'v1/admin'], function() {
+
+  Route::get('member/{id}', function (Request $request, $id) {
+      $controller = new RestApiMember();
+      return $controller->getMember($request, $id, $is_admin = true);
+  });
+
 });
