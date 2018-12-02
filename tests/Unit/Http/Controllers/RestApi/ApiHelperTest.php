@@ -18,6 +18,7 @@ class ApiHelperTest extends TestCase {
 	private $someAdminKey = 'roleCountry';
   private $someAdminValue = 'president';
   private $groups;
+  private $data;
 
 
   private function getMember() {
