@@ -16,8 +16,8 @@ use Tests\TestCase;
 
 class RevisionRepositoryTest extends TestCase {
 	const INVALID_REVISION_ID = 0;
-	const VALID_REVISION_ID = 2000;
 	const EXCEEDING_REVISION_ID = 1000000;
+	const REVISION_LAG = 100;
 	
 	/**
 	 * @var RevisionRepository
@@ -31,10 +31,11 @@ class RevisionRepositoryTest extends TestCase {
 	}
 	
 	public function testGet() {
-		$revision = $this->repository->get( self::VALID_REVISION_ID );
+		$revisionId = $this->repository->getCurrentRevisionId() - self::REVISION_LAG;
+		$revision   = $this->repository->get( $revisionId );
 		
-		$this->assertEquals( self::VALID_REVISION_ID, $revision->getQueriedRevisionId() );
-		$this->assertGreaterThan( self::VALID_REVISION_ID, $revision->getCurrentRevisionId() );
+		$this->assertEquals( $revisionId, $revision->getQueriedRevisionId() );
+		$this->assertGreaterThan( $revisionId, $revision->getCurrentRevisionId() );
 		$this->assertNotEmpty( $revision->getMemberIds() );
 		$this->assertTrue( is_int( $revision->getMemberIds()[0] ) );
 	}
@@ -52,6 +53,5 @@ class RevisionRepositoryTest extends TestCase {
 	public function testGetCurrentRevisionId() {
 		$revisionId = $this->repository->getCurrentRevisionId();
 		$this->assertTrue( is_int( $revisionId ) );
-		$this->assertGreaterThan( self::VALID_REVISION_ID, $revisionId );
 	}
 }
