@@ -10,12 +10,14 @@
 namespace App\Repository\Revision;
 
 
-use App\Exceptions\InvalidRevisionIdException;
+use App\Exceptions\InvalidRevisionArgumentsException;
+use App\Exceptions\RevisionNotFoundException;
 use Tests\TestCase;
 
 class RevisionRepositoryTest extends TestCase {
 	const INVALID_REVISION_ID = 0;
 	const VALID_REVISION_ID = 2000;
+	const EXCEEDING_REVISION_ID = 1000000;
 	
 	/**
 	 * @var RevisionRepository
@@ -37,9 +39,14 @@ class RevisionRepositoryTest extends TestCase {
 		$this->assertTrue( is_int( $revision->getMemberIds()[0] ) );
 	}
 	
-	public function testGet__InvalidRevisionIdException() {
-		$this->expectException( InvalidRevisionIdException::class );
+	public function testGet__RevisionNotFoundException() {
+		$this->expectException( RevisionNotFoundException::class );
 		$this->repository->get( self::INVALID_REVISION_ID );
+	}
+	
+	public function testGet__InvalidRevisionArgumentsException() {
+		$this->expectException( InvalidRevisionArgumentsException::class );
+		$this->repository->get( self::EXCEEDING_REVISION_ID );
 	}
 	
 	public function testGetCurrentRevisionId() {

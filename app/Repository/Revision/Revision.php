@@ -9,6 +9,8 @@
 namespace App\Repository\Revision;
 
 
+use App\Exceptions\InvalidRevisionArgumentsException;
+
 class Revision {
 	/**
 	 * The webling ids of the members, where some member properties have
@@ -38,12 +40,18 @@ class Revision {
 	 * @param int $queriedRevisionId
 	 * @param int $currentRevisionId
 	 * @param int[] $memberIds
+	 *
+	 * @throws InvalidRevisionArgumentsException
 	 */
 	public function __construct(
 		int $queriedRevisionId,
 		int $currentRevisionId,
 		array $memberIds
 	) {
+		if ( $queriedRevisionId > $currentRevisionId ) {
+			throw new InvalidRevisionArgumentsException( 'The queried revision id must not exceed the current revision id.' );
+		}
+		
 		$this->memberIds         = $memberIds;
 		$this->currentRevisionId = $currentRevisionId;
 		$this->queriedRevisionId = $queriedRevisionId;

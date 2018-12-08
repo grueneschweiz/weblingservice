@@ -9,7 +9,7 @@
 namespace App\Exceptions;
 
 
-class InvalidRevisionIdException extends \Exception {
+class RevisionNotFoundException extends \Exception {
 	
 	/**
 	 * Render the exception into an HTTP response.

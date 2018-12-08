@@ -11,10 +11,11 @@ namespace App\Repository\Member;
 
 
 use App\Exceptions\InvalidFixedValueException;
-use App\Exceptions\InvalidRevisionIdException;
+use App\Exceptions\InvalidRevisionArgumentsException;
 use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
+use App\Exceptions\RevisionNotFoundException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
@@ -52,13 +53,14 @@ class MemberRepository extends Repository {
 	 *
 	 * @throws ClientException
 	 * @throws InvalidFixedValueException
-	 * @throws InvalidRevisionIdException
+	 * @throws RevisionNotFoundException
 	 * @throws MemberNotFoundException
 	 * @throws MemberUnknownFieldException
 	 * @throws MultiSelectOverwriteException
 	 * @throws ValueTypeException
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 * @throws InvalidRevisionArgumentsException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#replicate
 	 */

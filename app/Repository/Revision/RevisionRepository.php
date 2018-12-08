@@ -9,7 +9,8 @@
 namespace App\Repository\Revision;
 
 
-use App\Exceptions\InvalidRevisionIdException;
+use App\Exceptions\InvalidRevisionArgumentsException;
+use App\Exceptions\RevisionNotFoundException;
 use App\Exceptions\WeblingAPIException;
 use App\Repository\Repository;
 
@@ -21,9 +22,10 @@ class RevisionRepository extends Repository {
 	 * @param int $revisionId
 	 *
 	 * @return Revision
-	 * @throws InvalidRevisionIdException
+	 * @throws RevisionNotFoundException
 	 * @throws WeblingAPIException
 	 * @throws \Webling\API\ClientException
+	 * @throws InvalidRevisionArgumentsException
 	 */
 	public function get( int $revisionId ): Revision {
 		$resp = $this->apiGet( "replicate/$revisionId" );
@@ -36,7 +38,7 @@ class RevisionRepository extends Repository {
 		$currentRevision = $data['revision'];
 		
 		if ( 0 >= $currentRevision ) {
-			throw new InvalidRevisionIdException( "Webling didn't find a revision with the id {$revisionId}" );
+			throw new RevisionNotFoundException( "Webling didn't find a revision with the id {$revisionId}" );
 		}
 		
 		$memberIds = ! empty( $data['objects']['member'] ) ? $data['objects']['member'] : [];
