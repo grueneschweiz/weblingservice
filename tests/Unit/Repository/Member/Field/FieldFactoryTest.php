@@ -11,7 +11,6 @@ namespace App\Repository\Member\Field;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingConfigException;
-use App\Exceptions\WeblingFieldMappingException;
 use Illuminate\Support\Facades\Config;
 use Tests\TestCase;
 
@@ -28,6 +27,11 @@ class FieldFactoryTest extends TestCase {
 	const SKIP_FIELD = 'dontUse';
 	
 	public function test__constructConfigNotFound() {
+		// remove existing instances, else getInstance will return the existing instance
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$instanceField = $this->getPrivateProperty( FieldFactory::class, 'instance' );
+		$instanceField->setValue( null );
+		
 		Config::set( 'app.webling_field_mappings_config_path', 'unknown' );
 		
 		$this->expectException( WeblingFieldMappingConfigException::class );
@@ -37,6 +41,11 @@ class FieldFactoryTest extends TestCase {
 	}
 	
 	public function test__constructParseException() {
+		// remove existing instances, else getInstance will return the existing instance
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$instanceField = $this->getPrivateProperty( FieldFactory::class, 'instance' );
+		$instanceField->setValue( null );
+		
 		Config::set( 'app.webling_field_mappings_config_path',
 			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-parse-error.yml' );
 		
@@ -51,6 +60,11 @@ class FieldFactoryTest extends TestCase {
 	}
 	
 	public function test__constructMappingsException() {
+		// remove existing instances, else getInstance will return the existing instance
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$instanceField = $this->getPrivateProperty( FieldFactory::class, 'instance' );
+		$instanceField->setValue( null );
+		
 		Config::set( 'app.webling_field_mappings_config_path',
 			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-mappings-not-found.yml' );
 		
@@ -61,6 +75,11 @@ class FieldFactoryTest extends TestCase {
 	}
 	
 	public function test__constructInvalidConfigException() {
+		// remove existing instances, else getInstance will return the existing instance
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$instanceField = $this->getPrivateProperty( FieldFactory::class, 'instance' );
+		$instanceField->setValue( null );
+		
 		Config::set( 'app.webling_field_mappings_config_path',
 			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-invalid-config.yml' );
 		
@@ -71,6 +90,11 @@ class FieldFactoryTest extends TestCase {
 	}
 	
 	public function test__constructReservedFieldNameException() {
+		// remove existing instances, else getInstance will return the existing instance
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$instanceField = $this->getPrivateProperty( FieldFactory::class, 'instance' );
+		$instanceField->setValue( null );
+		
 		Config::set( 'app.webling_field_mappings_config_path',
 			$this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-reserved-field-key.yml' );
 		
