@@ -136,11 +136,11 @@ class Mapping {
 			return $value;
 		}
 		
-		if ( in_array( $value, $this->getWeblingValues() ) ) {
-			return array_search( $value, $this->getWeblingValues() );
+		if ( in_array( $value, $this->getInternalValues() ) ) {
+			return array_search( $value, $this->getInternalValues() );
 		}
 		
-		if ( in_array( $value, $this->getInternalValues() ) ) {
+		if ( in_array( $value, $this->getWeblingValues() ) ) {
 			return $value;
 		}
 		
