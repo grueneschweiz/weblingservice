@@ -18,7 +18,7 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @package App\Repository\Member\Field\Mapping
  */
-class Mapper {
+class Loader {
 	/**
 	 * Reserved field names
 	 */
@@ -31,7 +31,7 @@ class Mapper {
 	/**
 	 * The instance
 	 *
-	 * @var Mapper|null
+	 * @var Loader|null
 	 */
 	private static $instance;
 	
@@ -178,12 +178,12 @@ class Mapper {
 	/**
 	 * Get instance.
 	 *
-	 * @return Mapper|null
+	 * @return Loader|null
 	 * @throws WeblingFieldMappingConfigException
 	 */
 	public static function getInstance() {
 		if ( ! self::$instance ) {
-			self::$instance = new Mapper();
+			self::$instance = new Loader();
 		}
 		
 		return self::$instance;

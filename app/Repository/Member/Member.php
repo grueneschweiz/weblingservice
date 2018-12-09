@@ -17,7 +17,7 @@ use App\Repository\Member\Field\DateField;
 use App\Repository\Member\Field\Field;
 use App\Repository\Member\Field\FieldFactory;
 use App\Repository\Member\Field\LongTextField;
-use App\Repository\Member\Field\Mapping\Mapper;
+use App\Repository\Member\Field\Mapping\Loader;
 use App\Repository\Member\Field\MultiSelectField;
 use App\Repository\Member\Field\SelectField;
 use App\Repository\Member\Field\TextField;
@@ -219,7 +219,7 @@ class Member {
 		
 		// create other fields
 		$setFields = array_keys( $this->fields );
-		foreach ( Mapper::getInstance()->getFieldKeys() as $key ) {
+		foreach ( Loader::getInstance()->getFieldKeys() as $key ) {
 			if ( ! in_array( $key, $setFields ) ) {
 				$field = $fieldFactory->create( $key );
 				if ( $field ) {

@@ -11,7 +11,7 @@ namespace App\Repository\Member\Field;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingConfigException;
-use App\Repository\Member\Field\Mapping\Mapper;
+use App\Repository\Member\Field\Mapping\Loader;
 use App\Repository\Member\Field\Mapping\Mapping;
 
 /**
@@ -62,7 +62,7 @@ class FieldFactory {
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
 	public function create( string $key, $value = null ) {
-		$mapper  = Mapper::getInstance();
+		$mapper  = Loader::getInstance();
 		$mapping = $mapper->getMapping( $key );
 		
 		switch ( $mapping->getType() ) {
