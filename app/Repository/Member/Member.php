@@ -186,11 +186,9 @@ class Member {
 		$this->id     = $id;
 		$this->groups = $groups;
 		
-		$fieldFactory = FieldFactory::getInstance();
-		
 		// create fields from given data
 		foreach ( $data as $key => $value ) {
-			$field = $fieldFactory->create( $key );
+			$field = FieldFactory::create( $key );
 			
 			if ( ! $field ) {
 				// handle the 'Skip' field type
@@ -221,7 +219,7 @@ class Member {
 		$setFields = array_keys( $this->fields );
 		foreach ( Loader::getInstance()->getFieldKeys() as $key ) {
 			if ( ! in_array( $key, $setFields ) ) {
-				$field = $fieldFactory->create( $key );
+				$field = FieldFactory::create( $key );
 				if ( $field ) {
 					// handle Skip field type
 					$this->fields[ $key ] = $field;

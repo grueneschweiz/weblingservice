@@ -58,7 +58,7 @@ class Loader {
 	private $flippedFieldKeys = [];
 	
 	/**
-	 * FieldFactory constructor.
+	 * Loader constructor.
 	 *
 	 * Read mappings config and populate mappings field with it.
 	 *

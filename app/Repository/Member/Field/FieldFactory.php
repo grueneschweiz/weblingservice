@@ -17,31 +17,11 @@ use App\Repository\Member\Field\Mapping\Mapping;
 /**
  * Class FieldFactory
  *
- * Creates the right fields from given key and value. Works as a singleton.
+ * Creates the right fields from given key and value.
  *
  * @package App\Repository\Member\Field
  */
 class FieldFactory {
-	/**
-	 * The instance
-	 *
-	 * @var FieldFactory|null
-	 */
-	private static $instance;
-	
-	/**
-	 * Get instance.
-	 *
-	 * @return FieldFactory|null
-	 */
-	public static function getInstance() {
-		if ( ! self::$instance ) {
-			self::$instance = new FieldFactory();
-		}
-		
-		return self::$instance;
-	}
-	
 	/**
 	 * Create correct field with all needed presets from given key and optional value.
 	 *
@@ -60,7 +40,7 @@ class FieldFactory {
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
-	public function create( string $key, $value = null ) {
+	public static function create( string $key, $value = null ) {
 		$mapper  = Loader::getInstance();
 		$mapping = $mapper->getMapping( $key );
 		
@@ -73,7 +53,7 @@ class FieldFactory {
 				return new TextField( $mapping->getKey(), $mapping->getWeblingKey(), $value );
 			case 'SelectField':
 			case 'MultiSelectField':
-				return $this->createFixedField( $mapping, $value );
+				return self::createFixedField( $mapping, $value );
 			case 'Skip':
 				return null;
 			default:
@@ -82,8 +62,8 @@ class FieldFactory {
 	}
 	
 	/**
-	 * Does basically as {@see App\Repository\Member\Field\FixedField}s are
-	 * slightly more complicated to create, we've separated the logic from the
+	 * As {@see App\Repository\Member\Field\FixedField}s are slightly more
+	 * complicated to create, we've separated the logic from the
 	 * {@see self::create()} method.
 	 *
 	 * @param Mapping $mapping
@@ -94,7 +74,7 @@ class FieldFactory {
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
-	private function createFixedField( Mapping $mapping, $value ): FixedField {
+	private static function createFixedField( Mapping $mapping, $value ): FixedField {
 		if ( 'SelectField' === $mapping->getType() ) {
 			
 			return new SelectField( $mapping->getKey(), $mapping->getWeblingKey(), $mapping->getWeblingValues(),
