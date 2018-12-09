@@ -33,7 +33,6 @@ class FieldFactory {
 	 * Get instance.
 	 *
 	 * @return FieldFactory|null
-	 * @throws WeblingFieldMappingConfigException
 	 */
 	public static function getInstance() {
 		if ( ! self::$instance ) {
