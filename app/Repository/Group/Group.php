@@ -6,42 +6,13 @@ namespace App\Repository\Group;
 use App\Exceptions\WeblingAPIException;
 use App\Repository\Member\Member;
 
-class Group
+class Group implements \JsonSerializable
 {
     /**
-     * Group constructor.
-     * @param string $jsonData Group-Data as JSON-String
-     *
-     * @throws WeblingAPIException
+     * Group id
+     * @var int
      */
-    public function __construct(string $jsonData)
-    {
-        $data = json_decode($jsonData);
-        if(json_last_error() == JSON_ERROR_NONE) {
-            if(isset($data->title)) {
-                $this->name = $data->title;
-            }
-
-            if(isset($data->children)) {
-                if(isset($data->children->membergroup)) {
-                    $this->children = $data->children->membergroup;
-                }
-                if(isset($data->children->member)) {
-                    $this->members = $data->children->member;
-                }
-            }
-
-            if(isset($data->parents) && isset($data->parents[0])) {
-                $this->parent = $data->parents[0];
-            }
-
-            //todo: calclulate root path already here or do it later (lazy)
-            $this->rootPath = $this->calculateRootPath();
-        } else {
-            throw new WeblingAPIException("Invalid JSON from WeblingAPI. JSON_ERROR: ".json_last_error());
-        }
-
-    }
+    private $id;
 
     /**
      * Name of the Group
@@ -51,9 +22,9 @@ class Group
 
     /**
      * Parent Group
-     * @var Group|null null if there is no parent (= group is at the root)
+     * @var int|null null if there is no parent (= group is at the root)
      */
-    private $parent = null;
+    private $parent;
 
     /**
      * Subgroups/Children
@@ -68,7 +39,7 @@ class Group
     private $members;
 
     /**
-     * @var Group[]
+     * @var int[]
      */
     private $rootPath = null;
 
@@ -78,33 +49,88 @@ class Group
      */
     public function getAllMembers() {
         //ToDo
+        return [];
     }
 
     /**
      * Calculates the root path
-     * @return Group[]
+     * @param $groupRepository GroupRepository
+     * @return int[]
+     * @throws WeblingAPIException
+     * @throws \App\Exceptions\GroupNotFoundException
+     * @throws \Webling\API\ClientException
      */
-    private function calculateRootPath() {
+    public function calculateRootPath($groupRepository): array
+    {
         //ToDo
         if($this->parent == null) {
             return [];
         }
 
-        //ToDo: is there already an instance of GroupRepository?
-        $groupRepository = new GroupRepository();
-        $parentObject = $groupRepository.get($this->parent);
+        $parentObject = $groupRepository->get($this->parent);
 
-        $this->rootPath = $parentObject->getRootPath();
+        $this->rootPath = $parentObject->getRootPath($groupRepository);
         $this->rootPath[] = $this->parent;
+
+        return $this->rootPath;
     }
 
-    public function getRootPath() {
+    /**
+     * @param GroupRepository $groupRepository
+     * @return int[]
+     * @throws WeblingAPIException
+     * @throws \App\Exceptions\GroupNotFoundException
+     * @throws \Webling\API\ClientException
+     */
+    public function getRootPath(GroupRepository $groupRepository): array
+    {
         if($this->rootPath == null) {
-            $this->calculateRootPath();
+            $this->calculateRootPath($groupRepository);
         }
 
         return $this->rootPath;
     }
+
+    /**
+     * @param int $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @param int|null $parent
+     */
+    public function setParent(?int $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * @param Group[] $children
+     */
+    public function setChildren(array $children): void
+    {
+        $this->children = $children;
+    }
+
+    /**
+     * @param Member[] $members
+     */
+    public function setMembers(array $members): void
+    {
+        $this->members = $members;
+    }
+
 
     /**
      * @return string
@@ -131,10 +157,29 @@ class Group
     }
 
     /**
-     * @return Group|null
+     * @return int|null
      */
-    public function getParent(): ?Group
+    public function getParent(): ?int
     {
         return $this->parent;
+    }
+
+    /**
+     * Specify data which should be serialized to JSON
+     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        $array =  get_object_vars($this);
+        foreach ($array as $key => $value) {
+            if($value == null) {
+                unset($array[$key]);
+            }
+        }
+
+        return $array;
     }
 }
