@@ -128,17 +128,16 @@ class MemberRepositoryTest extends TestCase {
 	}
 	
 	public function testFind() {
-		// todo: implement this
-		$this->assertTrue( true );
-//		$this->addMember();
-//
-//		$query = '`email1` = "' . $this->member->email1->getValue() . '"';
-//		$found = $this->repository->find($query);
-//
-//		$this->assertEquals(1, count($found));
-//		$this->assertEquals($this->member->id, $found[0]->id);
-//
-//		$this->removeMember();
+		$this->addMember();
+		
+		$query = '`' . $this->member->email1->getWeblingKey() . '` = "' . $this->member->email1->getValue() . '"';
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$found = $this->repository->find( $query );
+		
+		$this->assertEquals( 1, count( $found ) );
+		$this->assertEquals( $this->member->id, array_values( $found )[0]->id );
+		
+		$this->removeMember();
 	}
 	
 	public function testDelete() {
