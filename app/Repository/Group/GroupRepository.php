@@ -96,9 +96,9 @@ class GroupRepository extends Repository {
      * Loads a Group from the cache
      * @param int $id
      *
-     * @return string
+     * @return string|null
      */
-    private function getFromCache(int $id): string
+    private function getFromCache(int $id): ?string
     {
         try {
             $maxAge = new \DateInterval(config('app.cache_max_age'));
