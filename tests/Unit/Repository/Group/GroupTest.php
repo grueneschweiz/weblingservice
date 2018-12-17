@@ -20,10 +20,10 @@ class GroupTest extends TestCase
         $this->group = new Group();
 
 
-        $this->assertEquals("Mitglieder", $group->getName());
-        $this->assertEquals(null, $group->getParent());
-        $this->assertEquals([201, 202, 242], $group->getChildren());
-        $this->assertEquals([494, 495, 496, 502, 506, 508, 509], $group->getMembers());
+        $this->assertEquals("Mitglieder", $this->group->getName());
+        $this->assertEquals(null, $this->group->getParent());
+        $this->assertEquals([201, 202, 242], $this->group->getChildren());
+        $this->assertEquals([494, 495, 496, 502, 506, 508, 509], $this->group->getMembers());
     }
 
     public function testGetRootPath()
