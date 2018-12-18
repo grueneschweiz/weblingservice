@@ -63,14 +63,14 @@ class Group implements \JsonSerializable
     public function calculateRootPath($groupRepository): array
     {
         //ToDo
-        if($this->parent == null) {
-            return [];
+        if($this->parent === null) {
+            $this->rootPath = [];
+        } else {
+            $parentObject = $groupRepository->get($this->parent);
+
+            $this->rootPath = $parentObject->getRootPath($groupRepository);
+            $this->rootPath[] = $this->parent;
         }
-
-        $parentObject = $groupRepository->get($this->parent);
-
-        $this->rootPath = $parentObject->getRootPath($groupRepository);
-        $this->rootPath[] = $this->parent;
 
         return $this->rootPath;
     }
