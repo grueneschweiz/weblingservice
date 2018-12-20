@@ -168,7 +168,7 @@ class GroupRepository extends Repository {
 	    $files = scandir($directory, SCANDIR_SORT_NONE);
 	    foreach ($files as $file) {
 	        $file = $directory . $file;
-	        if(filemtime($file) < $timestamp) {
+	        if(is_file($file) && filemtime($file) < $timestamp) {
 	            unlink($file);
             }
         }
