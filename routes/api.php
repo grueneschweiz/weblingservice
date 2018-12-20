@@ -48,6 +48,7 @@ Route::group(['prefix' => 'v1/admin'], function() {
 
 });
 
+$version = 'v1';
 Route::get($version . '/group/{id}', function (Request $request, $id) {
    $controller = new RestApiGroup();
    return $controller->getGroup($id);
