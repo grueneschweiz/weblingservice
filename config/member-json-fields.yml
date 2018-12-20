@@ -1,0 +1,33 @@
+mappings:
+  #   EMAIL
+  # FNAME
+  # LNAME
+  # GENDER
+  # CANTON
+  # WEBLINGID
+  # MEMBER
+  # JOURNALIST
+  # DONOR
+  # ENGAGEMENTS
+  # CONCERNS
+  # NOTES
+  - email1
+  # - email2
+  - firstName
+  - lastName
+  - gender
+  # - canton???
+  # - weblingId???
+  # - member yes_no
+  # - journalist yes_no
+  # - donor yes_no
+  # notes
+  - recordCategory
+  - emailStatus
+  - language
+  - newsletterCantonD
+  - newsletterCantonF
+  - newsletterCountryD
+  - newsletterCountryF
+  - newsletterMunicipality
+  - newsletterOther

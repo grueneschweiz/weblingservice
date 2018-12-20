@@ -12,7 +12,32 @@ namespace App\Repository;
 use Webling\API\Client;
 
 abstract class Repository {
+	/**
+	 * The Webling client object
+	 *
+	 * @see https://github.com/usystems/webling-api-php
+	 *
+	 * @var Client
+	 */
 	private $webling_client;
+	
+	/**
+	 * The api key
+	 *
+	 * Exposed to child classes, so they can instantiate further repositories.
+	 *
+	 * @var string
+	 */
+	protected $api_key;
+	
+	/**
+	 * The api url
+	 *
+	 * Exposed to child classes, so they can instantiate further repositories.
+	 *
+	 * @var string
+	 */
+	protected $api_url;
 	
 	/**
 	 * Repository constructor.
@@ -28,6 +53,9 @@ abstract class Repository {
 		if ( ! $api_url ) {
 			$api_url = config( 'app.webling_base_url' );
 		}
+		
+		$this->api_key = $api_key;
+		$this->api_url = $api_url;
 		
 		$this->webling_client = new Client( $api_url, $api_key );
 	}

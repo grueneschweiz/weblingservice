@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cyrillbolliger
- * Date: 27.10.18
- * Time: 16:55
- */
 
 namespace App\Exceptions;
 
 
-class MemberNotFoundException extends \Exception {
+class IllegalArgumentException extends \Exception {
 
   /**
    * Render the exception into an HTTP response.
@@ -18,6 +12,7 @@ class MemberNotFoundException extends \Exception {
    * @return \Illuminate\Http\Response
    */
   public function render($request) {
-      abort(404, "Member does not exist.");
+      abort(400, "Something is wrong with your argument: " . $this->getMessage());
   }
+
 }
