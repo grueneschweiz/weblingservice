@@ -84,7 +84,7 @@ class Group implements \JsonSerializable
      */
     public function getRootPath(GroupRepository $groupRepository): array
     {
-        if($this->rootPath == null) {
+        if($this->rootPath === null) {
             $this->calculateRootPath($groupRepository);
         }
 
@@ -175,7 +175,7 @@ class Group implements \JsonSerializable
     {
         $array =  get_object_vars($this);
         foreach ($array as $key => $value) {
-            if($value == null) {
+            if($value === null) {
                 unset($array[$key]);
             }
         }

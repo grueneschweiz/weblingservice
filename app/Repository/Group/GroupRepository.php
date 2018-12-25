@@ -57,7 +57,7 @@ class GroupRepository extends Repository {
             $groupJson = $this->getFromCache($id);
         }
 
-        if($groupJson == null) {
+        if($groupJson === null) {
             $groupJson = $this->getFromApi($id);
             $this->putToCache($id, $groupJson);
         }
