@@ -3,6 +3,7 @@
 namespace App\Repository\Member\Field\Mapping;
 
 use App\Exceptions\InvalidFixedValueException;
+use App\Repository\Member\Field\DateField;
 
 /**
  * Holds the configuration to map a field to Webling.
@@ -78,13 +79,28 @@ class Mapping {
 	/**
 	 * Tests if the given value is a possible value
 	 *
-	 * @param string? $value
+	 * @param string|null $value
 	 *
 	 * @return bool
 	 */
-	public function isPossibleValue( $value ): bool {
-		if ( empty( $this->values ) || null === $value ) {
+	public function isPossibleValue( ?string $value ): bool {
+		if ( null === $value ) {
 			return true;
+		}
+		
+		if ( 'TextField' === $this->type
+		     || 'LongTextField' === $this->type ) {
+			return true;
+		}
+		
+		if ( 'DateField' === $this->type ) {
+			try {
+				DateField::parseDate( $value );
+				
+				return true;
+			} catch ( \Exception $e ) {
+				return false;
+			}
 		}
 		
 		if ( in_array( $value, $this->getWeblingValues() ) ) {

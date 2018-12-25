@@ -22,6 +22,13 @@ class MappingTest extends TestCase {
 	];
 	const INVALID_VALUE = 'invalid';
 	
+	const TEXT_FIELD_TYPE = 'TextField';
+	const SOME_TEXT = 'Some text';
+	
+	const DATE_FIELD_TYPE = 'DateField';
+	const VALID_DATE = '25.12.2018';
+	const INVALID_DATE = '12.25.2018';
+	
 	public function testMakeWeblingValue() {
 		$mapping = $this->getMapping();
 		
@@ -38,7 +45,7 @@ class MappingTest extends TestCase {
 		$freeFieldMapping = new Mapping(
 			self::INTERNAL_FIELD_NAME,
 			self::WEBLING_FIELD_NAME,
-			self::TYPE
+			self::TEXT_FIELD_TYPE
 		);
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
@@ -74,8 +81,39 @@ class MappingTest extends TestCase {
 		$this->assertFalse( $mapping->isPossibleValue( self::INVALID_VALUE ) );
 	}
 	
+	public function testIsPossibleValue_freeField() {
+		$mapping = new Mapping(
+			self::INTERNAL_FIELD_NAME,
+			self::WEBLING_FIELD_NAME,
+			self::TEXT_FIELD_TYPE
+		);
+		
+		$this->assertTrue( $mapping->isPossibleValue( '' ) );
+		$this->assertTrue( $mapping->isPossibleValue( null ) );
+		$this->assertTrue( $mapping->isPossibleValue( self::SOME_TEXT ) );
+	}
+	
+	public function testIsPossibleValue_dateField() {
+		$mapping = new Mapping(
+			self::INTERNAL_FIELD_NAME,
+			self::WEBLING_FIELD_NAME,
+			self::DATE_FIELD_TYPE
+		);
+		
+		$this->assertTrue( $mapping->isPossibleValue( '' ) );
+		$this->assertTrue( $mapping->isPossibleValue( null ) );
+		$this->assertTrue( $mapping->isPossibleValue( self::VALID_DATE ) );
+		$this->assertFalse( $mapping->isPossibleValue( self::INVALID_DATE ) );
+		$this->assertFalse( $mapping->isPossibleValue( self::SOME_TEXT ) );
+	}
+	
 	public function test__construct() {
-		$mapping = $this->getMapping();
+		$mapping = new Mapping(
+			self::INTERNAL_FIELD_NAME,
+			self::WEBLING_FIELD_NAME,
+			self::TYPE,
+			self::POSSIBLE_VALUES
+		);
 		
 		$this->assertEquals( self::INTERNAL_FIELD_NAME, $mapping->getKey() );
 		$this->assertEquals( self::WEBLING_FIELD_NAME, $mapping->getWeblingKey() );
