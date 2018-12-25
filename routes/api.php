@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
+use \App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,4 +46,10 @@ Route::group(['prefix' => 'v1/admin'], function() {
       return $controller->getMember($request, $id, $is_admin = true);
   });
 
+});
+
+$version = 'v1';
+Route::get($version . '/group/{id}', function (Request $request, $id) {
+   $controller = new RestApiGroup();
+   return $controller->getGroup($id);
 });
