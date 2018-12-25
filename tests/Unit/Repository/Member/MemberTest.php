@@ -9,8 +9,8 @@
 namespace App\Repository\Member;
 
 
-use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\MemberUnknownFieldException;
+use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingException;
 use Tests\TestCase;
 
@@ -87,5 +87,9 @@ class MemberTest extends TestCase {
 		$member = $this->getMember();
 		$this->assertEquals( $this->someValue, $member->getField( $this->someKey )->getValue() );
 		$this->assertEquals( $this->someValue, $member->getField( $this->someWeblingKey )->getValue() );
+	}
+	
+	public function getFirstLevelGroupIds() {
+		// todo implement this test
 	}
 }
