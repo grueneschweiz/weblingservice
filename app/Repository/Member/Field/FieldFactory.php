@@ -8,8 +8,8 @@
 
 namespace App\Repository\Member\Field;
 
-use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\MemberUnknownFieldException;
+use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -27,7 +27,6 @@ class FieldFactory {
 	 */
 	const RESERVED = [
 		'groups',
-		'rootGroups',
 		'id'
 	];
 	

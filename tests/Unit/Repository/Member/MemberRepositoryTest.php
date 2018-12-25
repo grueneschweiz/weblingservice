@@ -10,6 +10,7 @@ namespace App\Repository\Member;
 
 
 use App\Exceptions\MemberNotFoundException;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Revision\RevisionRepository;
 use Tests\TestCase;
 
@@ -61,6 +62,12 @@ class MemberRepositoryTest extends TestCase {
 		$member->lastName->setValue( 'Test' );
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$member->email1->setValue( 'unittest+' . str_random() . '@unittest.ut' );
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$rootGroup = $groupRepository->get( 100 );
+		$member->addGroups( $rootGroup );
 		
 		return $member;
 	}
