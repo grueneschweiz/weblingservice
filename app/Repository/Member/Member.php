@@ -17,6 +17,7 @@ use App\Repository\Member\Field\DateField;
 use App\Repository\Member\Field\Field;
 use App\Repository\Member\Field\FieldFactory;
 use App\Repository\Member\Field\LongTextField;
+use App\Repository\Member\Field\Mapping\Loader;
 use App\Repository\Member\Field\MultiSelectField;
 use App\Repository\Member\Field\SelectField;
 use App\Repository\Member\Field\TextField;
@@ -185,11 +186,9 @@ class Member {
 		$this->id     = $id;
 		$this->groups = $groups;
 		
-		$fieldFactory = FieldFactory::getInstance();
-		
 		// create fields from given data
 		foreach ( $data as $key => $value ) {
-			$field = $fieldFactory->create( $key );
+			$field = FieldFactory::create( $key );
 			
 			if ( ! $field ) {
 				// handle the 'Skip' field type
@@ -218,9 +217,9 @@ class Member {
 		
 		// create other fields
 		$setFields = array_keys( $this->fields );
-		foreach ( $fieldFactory->getFieldKeys() as $key ) {
+		foreach ( Loader::getInstance()->getFieldKeys() as $key ) {
 			if ( ! in_array( $key, $setFields ) ) {
-				$field = $fieldFactory->create( $key );
+				$field = FieldFactory::create( $key );
 				if ( $field ) {
 					// handle Skip field type
 					$this->fields[ $key ] = $field;
