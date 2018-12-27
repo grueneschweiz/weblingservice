@@ -147,9 +147,9 @@ class GroupRepository extends Repository {
      */
 	public function updateCache(): void
     {
-        $iterator = GroupIterator::createRecursiveGroupIterator(100, $this, false);
+        $rootGroup = $this->get(100); //Todo: rootId entweder übergeben oder aus config lesen
+        $iterator = GroupIterator::createRecursiveGroupIterator($rootGroup, $this, false);
 
-        //Todo: rootId entweder übergeben oder aus config lesen
         /** @noinspection PhpUnusedLocalVariableInspection */
         foreach ($iterator as $group) {
 		    //reset time limit after each group
@@ -191,7 +191,7 @@ class GroupRepository extends Repository {
      */
 	private function groupFromWeblingJson(int $id, string $jsonString): ?Group
     {
-	    $group = new Group();
+	    $group = new Group($this);
 	    $group->setId($id);
 
         $data = json_decode($jsonString);

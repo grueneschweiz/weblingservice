@@ -51,7 +51,7 @@ class GroupRepositoryTest extends TestCase
         $timestamp = time();
 
         // Travis filemtime seems to be out of sync with time()
-        if(config('app.env') == 'testing') {
+        if(config('app.env') === 'testing') {
             $timestamp -= 20;
         }
 
@@ -67,6 +67,16 @@ class GroupRepositoryTest extends TestCase
             if(is_file($file)) {
                 $this->assertGreaterThanOrEqual($timestamp, filemtime($file), $file . ' seems to be too new.');
             }
+        }
+    }
+
+    public function testGetAllMembers() {
+        $group = $this->groupRepository->get(100);
+
+        $allMembers = $group->getAllMembers();
+
+        foreach([1082, 1083, 1085] as $needle) {
+            $this->assertContains($needle, $allMembers);
         }
     }
 }

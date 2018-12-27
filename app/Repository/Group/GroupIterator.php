@@ -30,18 +30,13 @@ class GroupIterator extends \RecursiveArrayIterator
 
     /**
      * Creates a new GroupIterator wrapped by a RecursiveIteratorIterator so it can directly be used
-     * @param int $rootId
+     * @param $rootGroup
      * @param GroupRepository $repository
      * @param bool $useCache
      * @return RecursiveIteratorIterator
-     * @throws ClientException
-     * @throws GroupNotFoundException
-     * @throws WeblingAPIException
      */
-    public static function createRecursiveGroupIterator(int $rootId, GroupRepository $repository, bool $useCache = true): RecursiveIteratorIterator
+    public static function createRecursiveGroupIterator($rootGroup, GroupRepository $repository, bool $useCache = true): RecursiveIteratorIterator
     {
-        $rootGroup = $repository->get($rootId);
-
         $iterator = new GroupIterator(array($rootGroup), $repository, $useCache);
         return new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST);
     }
