@@ -41,13 +41,13 @@ class Group implements \JsonSerializable
     /**
      * @var int[]
      */
-    private $rootPath = null;
+    private $rootPath;
 
     /**
      * Returns the members of this group and all subgroups
      * @return Member[]
      */
-    public function getAllMembers() {
+    public function getAllMembers(): array {
         //ToDo
         return [];
     }
@@ -99,6 +99,11 @@ class Group implements \JsonSerializable
         $this->id = $id;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
     /**
      * @param string $name
      */
@@ -145,6 +150,9 @@ class Group implements \JsonSerializable
      */
     public function getChildren(): array
     {
+        if($this->children === null) {
+            return [];
+        }
         return $this->children;
     }
 

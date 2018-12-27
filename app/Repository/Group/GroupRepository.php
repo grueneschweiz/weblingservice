@@ -136,19 +136,26 @@ class GroupRepository extends Repository {
     {
         return $this->cacheDirectory . '/group/' . $id . '.json';
     }
-	
-	/**
-	 * Update the groups cache.
-	 *
+
+    /**
+     * Update the groups cache.
      *
-	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
-	 */
+     * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
+     * @throws ClientException
+     * @throws GroupNotFoundException
+     * @throws WeblingAPIException
+     */
 	public function updateCache(): void
     {
-		// todo: implement this
-		// note: we have to handle php timeouts
+        $iterator = GroupIterator::createRecursiveGroupIterator(100, $this, false);
 
-        //Todo: delete json files older than eg. 36h
+        //Todo: rootId entweder übergeben oder aus config lesen
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        foreach ($iterator as $group) {
+		    //reset time limit after each group
+		    set_time_limit(60);
+        }
+
         $this->deleteCacheOlderThan(rtrim(config('app.cache_directory'), '/') . '/group/', config('app.cache_delete_after'));
 	}
 
@@ -188,8 +195,7 @@ class GroupRepository extends Repository {
 	    $group->setId($id);
 
         $data = json_decode($jsonString);
-        /** @noinspection TypeUnsafeComparisonInspection */
-        if(json_last_error() == JSON_ERROR_NONE) {
+        if(json_last_error() === JSON_ERROR_NONE) {
             if(isset($data->properties, $data->properties->title)) {
                 $group->setName($data->properties->title);
             }
