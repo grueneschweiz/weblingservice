@@ -50,6 +50,11 @@ class GroupRepositoryTest extends TestCase
     {
         $timestamp = time();
 
+        // Travis filemtime seems to be out of sync with time()
+        if(config('app.env') == 'testing') {
+            $timestamp -= 20;
+        }
+
         \config(['app.cache_delete_after' => 'PT1M']);
         $this->groupRepository->updateCache();
 
