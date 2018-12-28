@@ -34,19 +34,18 @@ class GroupRepository extends Repository {
     }
 
     /**
-	 * Get group by id. Serve from cache if not specified otherwise.
-	 *
-	 * @param int $id
-	 * @param bool $cached
-	 *
-	 * @return Group
-	 *
-	 * @throws GroupNotFoundException
-	 * @throws ClientException on connection error
-	 * @throws WeblingAPIException
-	 *
-	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
-	 */
+     * Get group by id. Serve from cache if not specified otherwise.
+     *
+     * @param int $id
+     * @param bool $cached
+     *
+     * @return Group
+     *
+     * @throws GroupNotFoundException
+     * @throws WeblingAPIException
+     *
+     * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
+     */
 	public function get(int $id, bool $cached = true): Group {
         /**
          * @var Group
@@ -71,15 +70,16 @@ class GroupRepository extends Repository {
      * @return string
      *
      * @throws GroupNotFoundException
-     * @throws ClientException on connection error
      * @throws WeblingAPIException
      */
 	private function getFromApi(int $id): ?string
     {
-	    //ToDo
-
         $endpoint = "membergroup/$id";
-        $data = $this->apiGet($endpoint);
+        try {
+            $data = $this->apiGet($endpoint);
+        } catch (ClientException $clientException) {
+            throw new WeblingAPIException('Failed to load group from webling api', 500, $clientException);
+        }
         /** @noinspection TypeUnsafeComparisonInspection */
         if($data->getStatusCode() == 200) {
             return $data->getRawData();
@@ -141,7 +141,6 @@ class GroupRepository extends Repository {
      * Update the groups cache.
      *
      * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
-     * @throws ClientException
      * @throws GroupNotFoundException
      * @throws WeblingAPIException
      */
@@ -185,7 +184,6 @@ class GroupRepository extends Repository {
      * @param int $id
      * @param $jsonString string
      * @return Group
-     * @throws ClientException
      * @throws GroupNotFoundException
      * @throws WeblingAPIException
      */

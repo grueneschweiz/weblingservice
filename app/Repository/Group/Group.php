@@ -74,7 +74,6 @@ class Group implements \JsonSerializable
      * @return int[]
      * @throws WeblingAPIException
      * @throws \App\Exceptions\GroupNotFoundException
-     * @throws \Webling\API\ClientException
      */
     public function calculateRootPath($groupRepository): array
     {
@@ -96,7 +95,6 @@ class Group implements \JsonSerializable
      * @return int[]
      * @throws WeblingAPIException
      * @throws \App\Exceptions\GroupNotFoundException
-     * @throws \Webling\API\ClientException
      */
     public function getRootPath(GroupRepository $groupRepository): array
     {
