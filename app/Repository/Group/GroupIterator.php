@@ -12,7 +12,6 @@ namespace App\Repository\Group;
 use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\WeblingAPIException;
 use RecursiveIteratorIterator;
-use Webling\API\ClientException;
 
 class GroupIterator extends \RecursiveArrayIterator
 {
@@ -70,23 +69,16 @@ class GroupIterator extends \RecursiveArrayIterator
      * Returns an iterator for the current entry.
      * @link https://php.net/manual/en/recursiveiterator.getchildren.php
      * @return GroupIterator An iterator for the current entry.
+     * @throws GroupNotFoundException
+     * @throws WeblingAPIException
      * @since 5.1.0
-     * @return GroupIterator
      */
     public function getChildren(): GroupIterator
     {
         $childGroups = [];
         foreach ($this->current()->getChildren() as $childId) {
-            try {
-                $group = $this->repository->get($childId, $this->useCache);
-                $childGroups[] = $group;
-            } catch (GroupNotFoundException $e) {
-                //todo
-            } catch (WeblingAPIException $e) {
-                //todo
-            } catch (ClientException $e) {
-                //todo
-            }
+            $group = $this->repository->get($childId, $this->useCache);
+            $childGroups[] = $group;
         }
 
         return new GroupIterator($childGroups, $this->repository, $this->useCache);
