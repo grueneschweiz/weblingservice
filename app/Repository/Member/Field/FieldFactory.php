@@ -8,139 +8,20 @@
 
 namespace App\Repository\Member\Field;
 
-use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\MemberUnknownFieldException;
+use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\WeblingFieldMappingConfigException;
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
+use App\Repository\Member\Field\Mapping\Loader;
+use App\Repository\Member\Field\Mapping\Mapping;
 
 /**
  * Class FieldFactory
  *
- * Creates the right fields from given key and value. Works as a singleton.
+ * Creates the right fields from given key and value.
  *
  * @package App\Repository\Member\Field
  */
 class FieldFactory {
-	/**
-	 * Reserved field names
-	 */
-	const RESERVED = [
-		'groups',
-		'rootGroups',
-		'id'
-	];
-	
-	/**
-	 * The instance
-	 *
-	 * @var FieldFactory|null
-	 */
-	private static $instance;
-	
-	/**
-	 * Cache the field mappings
-	 *
-	 * @var array
-	 */
-	private $mappings = [];
-	
-	/**
-	 * The internal field keys
-	 *
-	 * @var array
-	 */
-	private $fieldKeys = [];
-	
-	/**
-	 * Get instance.
-	 *
-	 * @return FieldFactory|null
-	 * @throws WeblingFieldMappingConfigException
-	 */
-	public static function getInstance() {
-		if (! self::$instance)
-		{
-			self::$instance = new FieldFactory();
-		}
-		
-		return self::$instance;
-	}
-	
-	/**
-	 * FieldFactory constructor.
-	 *
-	 * Read mappings config and populate mappings field with it.
-	 *
-	 * @throws WeblingFieldMappingConfigException
-	 */
-	private function __construct() {
-		$mappings = $this->readMappings();
-		
-		foreach ( $mappings as $mapping ) {
-			$this->addMapping( $mapping );
-		}
-	}
-	
-	/**
-	 * Read the Webling field mappings config file defined in .env and return
-	 * an array with the mappings.
-	 *
-	 * @return array
-	 * @throws WeblingFieldMappingConfigException
-	 */
-	private function readMappings() {
-		$path = base_path( config( 'app.webling_field_mappings_config_path' ) );
-		
-		if ( ! file_exists( $path ) ) {
-			throw new WeblingFieldMappingConfigException( 'The Webling field mappings config file was not found.' );
-		}
-		
-		try {
-			$mappings = Yaml::parseFile( $path );
-		} catch ( ParseException $e ) {
-			throw new WeblingFieldMappingConfigException( "YAML parse error: {$e->getMessage()}" );
-		}
-		
-		
-		if ( empty( $mappings['mappings'] ) ) {
-			throw new WeblingFieldMappingConfigException( 'The entry point ("mappings") was not found or empty.' );
-		}
-		
-		return $mappings['mappings'];
-	}
-	
-	/**
-	 * Add the given mapping data to the mappings field, accessible by the
-	 * internal key and with a alias using the webling key.
-	 *
-	 * @param array $array
-	 *
-	 * @throws WeblingFieldMappingConfigException
-	 */
-	private function addMapping( array $array ) {
-		if ( empty( $array['key'] ) ) {
-			throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: Every mapping element must provide a non-empty key property.' );
-		}
-		
-		if ( empty( $array['weblingKey'] ) ) {
-			throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: Every mapping element must provide a non-empty weblingKey property.' );
-		}
-		
-		if ( in_array( $array['key'], self::RESERVED ) ) {
-			throw new WeblingFieldMappingConfigException( "Reserved field key: {$array['key']}" );
-		}
-		
-		// add mapping by its internal key
-		$this->mappings[ $array['key'] ] = $array;
-		
-		// add alias so we can also access it by the webling key
-		$this->mappings[ $array['weblingKey'] ] = &$this->mappings[ $array['key'] ];
-		
-		// populate the internal field keys array
-		$this->fieldKeys[] = $array['key'];
-	}
-	
 	/**
 	 * Create correct field with all needed presets from given key and optional value.
 	 *
@@ -159,93 +40,51 @@ class FieldFactory {
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
-	public function create( string $key, $value = null ) {
-		if ( empty( $this->mappings[ $key ] ) ) {
-			throw new MemberUnknownFieldException( 'The given key "' . $key . '" was not found in the webling field mapping config.' );
-		}
+	public static function create( string $key, $value = null ) {
+		$mapper  = Loader::getInstance();
+		$mapping = $mapper->getMapping( $key );
 		
-		$mapping = $this->mappings[ $key ];
-		
-		if ( empty( $mapping['type'] ) ) {
-			throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: Every mapping element must provide a non-empty type property. Given key: "' . $key . '"' );
-		}
-		
-		switch ( $mapping['type'] ) {
+		switch ( $mapping->getType() ) {
 			case 'DateField':
-				return new DateField( $mapping['key'], $mapping['weblingKey'], $value );
+				return new DateField( $mapping->getKey(), $mapping->getWeblingKey(), $value );
 			case 'LongTextField':
-				return new LongTextField( $mapping['key'], $mapping['weblingKey'], $value );
+				return new LongTextField( $mapping->getKey(), $mapping->getWeblingKey(), $value );
 			case 'TextField':
-				return new TextField( $mapping['key'], $mapping['weblingKey'], $value );
+				return new TextField( $mapping->getKey(), $mapping->getWeblingKey(), $value );
 			case 'SelectField':
 			case 'MultiSelectField':
-				return $this->createFixedField( $key, $value );
+				return self::createFixedField( $mapping, $value );
 			case 'Skip':
 				return null;
+			default:
+				throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: The given type does not match a field class. Given key: "' . $mapping->getType() . '"' );
 		}
-		
-		throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: The given type does not match a field class. Given key: "' . $key . '"' );
 	}
 	
 	/**
-	 * Does basically as {@see App\Repository\Member\Field\FixedField}s are
-	 * slightly more complicated to create, we've separated the logic from the
+	 * As {@see App\Repository\Member\Field\FixedField}s are slightly more
+	 * complicated to create, we've separated the logic from the
 	 * {@see self::create()} method.
 	 *
-	 * @param string $key
+	 * @param Mapping $mapping
 	 * @param null|string $value
 	 *
 	 * @return FixedField
 	 * @throws MultiSelectOverwriteException
-	 * @throws WeblingFieldMappingConfigException
 	 * @throws \App\Exceptions\InvalidFixedValueException
 	 * @throws \App\Exceptions\ValueTypeException
 	 */
-	private function createFixedField( string $key, $value ): FixedField {
-		$mapping = $this->mappings[ $key ];
-		
-		if ( empty( $mapping['values'] ) ) {
-			throw new WeblingFieldMappingConfigException( 'Invalid Webling field mapping config: All mappings of type "' . $mapping['type'] . '" must provide a property "values" that contains all possible values for this field. Given key: "' . $key . '"' );
-		}
-		
-		$possibleValues = $this->preparePossibleValues( $mapping['values'] );
-		
-		if ( 'SelectField' === $mapping['type'] ) {
+	private static function createFixedField( Mapping $mapping, $value ): FixedField {
+		if ( 'SelectField' === $mapping->getType() ) {
 			
-			return new SelectField( $mapping['key'], $mapping['weblingKey'], $possibleValues, $value );
+			return new SelectField( $mapping->getKey(), $mapping->getWeblingKey(), $mapping->getWeblingValues(),
+				$value );
 		}
 		
 		if ( ! empty( $value ) ) {
 			throw new MultiSelectOverwriteException( 'The value of MultiSelectFields must be set explicitly to prevent accidental overwrite of existing values.' );
 		}
 		
-		return new MultiSelectField( $mapping['key'], $mapping['weblingKey'], $possibleValues );
-	}
-	
-	/**
-	 * Helper function that maps the numeric two-dimensional array of the yaml
-	 * parser into a one-dimensional key value paired array.
-	 *
-	 * @param array $array
-	 *
-	 * @return array
-	 */
-	private function preparePossibleValues( array $array ): array {
-		$values = [];
-		foreach ( $array as $a ) {
-			$key            = array_keys( $a )[0];
-			$values[ $key ] = $a[ $key ];
-		}
-		
-		return $values;
-	}
-	
-	/**
-	 * Return an array containing all internal field keys
-	 *
-	 * @return array
-	 */
-	public function getFieldKeys(): array {
-		return $this->fieldKeys;
+		return new MultiSelectField( $mapping->getKey(), $mapping->getWeblingKey(), $mapping->getWeblingValues() );
 	}
 }
