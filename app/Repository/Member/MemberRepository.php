@@ -327,22 +327,11 @@ class MemberRepository extends Repository {
 	 * matched Member else a MemberMatch object is returned.
 	 *
 	 * @throws ClientException
-	 * @throws InvalidFixedValueException
-	 * @throws MemberNotFoundException
-	 * @throws MemberUnknownFieldException
-	 * @throws MultiSelectOverwriteException
-	 * @throws ValueTypeException
+	 * @throws GroupNotFoundException
 	 * @throws WeblingAPIException
-	 * @throws WeblingFieldMappingConfigException
 	 */
 	public function findExisting( Member $member, array $rootGroups ): MemberMatch {
-		$mappings = Loader::getInstance();
-		if ( $member->email1->getValue() || $member->email2->getValue() ) {
-			$query   = "`{$member->email1->getWeblingKey()}`,`{$member->email1->getWeblingKey()}` = '{$member->email1->getWeblingValue()}'" .
-			           "OR `{$member->email1->getWeblingKey()}`,`{$member->email1->getWeblingKey()}` = '{$member->email2->getWeblingValue()}'";
-			$members = $this->find( $query, $rootGroups );
-		}
-		// todo: implement this
+		return MemberMatch::match( $member, $rootGroups, $this );
 	}
 	
 	/**

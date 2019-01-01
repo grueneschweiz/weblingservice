@@ -9,6 +9,17 @@
 namespace App\Repository\Member;
 
 
+use App\Exceptions\GroupNotFoundException;
+use App\Exceptions\InvalidFixedValueException;
+use App\Exceptions\MemberNotFoundException;
+use App\Exceptions\MemberUnknownFieldException;
+use App\Exceptions\MultiSelectOverwriteException;
+use App\Exceptions\ValueTypeException;
+use App\Exceptions\WeblingAPIException;
+use App\Exceptions\WeblingFieldMappingConfigException;
+use Illuminate\Support\Facades\Log;
+use Webling\API\ClientException;
+
 class MemberMatch {
 	/**
 	 * No member in webling matched the given member
@@ -51,9 +62,238 @@ class MemberMatch {
 	 * @param int $status
 	 * @param Member[] $matches
 	 */
-	public function __construct( $status, array $matches ) {
-		$this->status = $status;
+	private function __construct( int $status, array $matches ) {
+		$this->status  = $status;
 		$this->matches = $matches;
+	}
+	
+	/**
+	 * Find duplicate members in given group or its subgroups
+	 *
+	 * See chapter 6.3 of the documentation for a detailed flow chart.
+	 *
+	 * Note: The given member must at least have an email address or
+	 * first and last name.
+	 *
+	 * @param Member $member
+	 * @param array $rootGroups
+	 * @param MemberRepository $memberRepository
+	 *
+	 * @return MemberMatch
+	 * @throws ClientException
+	 * @throws GroupNotFoundException
+	 * @throws WeblingAPIException
+	 */
+	public static function match(
+		Member $member,
+		array $rootGroups,
+		MemberRepository $memberRepository
+	): MemberMatch {
+		// find by email and return if found
+		if ( $member->email1->getValue() || $member->email2->getValue() ) {
+			$query   = self::buildEmailQuery( $member );
+			$matches = self::matchByQuery( $query, $rootGroups, $memberRepository );
+			if ( ! empty( $matches ) && $member->firstName->getValue() ) {
+				self::selectByFirstName( $matches, $member->firstName->getValue() );
+			}
+			
+			if ( count( $matches ) ) {
+				return self::create( $matches, false );
+			}
+		}
+		
+		// don't proceed, if we dont have first and last name
+		if ( ! ( $member->firstName->getValue() && $member->lastName->getValue() ) ) {
+			return new MemberMatch( self::NO_MATCH, [] );
+		}
+		
+		// search webling by first and last name
+		$query   = self::buildNameQuery( $member );
+		$matches = self::matchByQuery( $query, $rootGroups, $memberRepository );
+		
+		if ( ! empty( $matches ) ) {
+			// make sure we filter out all entries where only the beginning of the
+			// name was identical, but the given name was no a short name
+			self::removeWrongNameMatches( $matches, $member->firstName->getValue(),
+				$member->lastName->getValue() );
+		}
+		
+		if ( ! empty( $matches ) && $member->zip->getValue() ) {
+			// filter out all results, where the zip didn't match
+			self::removeWrongZipMatches( $matches, $member->zip->getValue() );
+			
+			return self::create( $matches, false );
+		}
+		
+		return self::create( $matches, true );
+	}
+	
+	/**
+	 * Return webling query to find members by email
+	 *
+	 * @param Member $member
+	 *
+	 * @return string
+	 */
+	private static function buildEmailQuery( Member $member ): string {
+		$query = [];
+		if ( $member->email1->getWeblingValue() ) {
+			$query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '{$member->email1->getWeblingValue()}'";
+		}
+		
+		if ( $member->email2->getWeblingValue() ) {
+			$query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '{$member->email2->getWeblingValue()}'";
+		}
+		
+		return implode( ' OR ', $query );
+	}
+	
+	/**
+	 * Return members that matched the given query and log exceptions that
+	 * should not occur here.
+	 *
+	 * @param string $query
+	 * @param array $rootGroups
+	 * @param MemberRepository $memberRepository
+	 *
+	 * @return Member[]
+	 *
+	 * @throws ClientException
+	 * @throws GroupNotFoundException
+	 * @throws WeblingAPIException
+	 */
+	private static function matchByQuery(
+		string $query,
+		array $rootGroups,
+		MemberRepository $memberRepository
+	): array {
+		try {
+			return $memberRepository->find( $query, $rootGroups );
+		} catch ( InvalidFixedValueException
+		| MemberNotFoundException
+		| MemberUnknownFieldException
+		| MultiSelectOverwriteException
+		| ValueTypeException
+		| WeblingFieldMappingConfigException $e ) {
+			Log::debug( $e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
+				[ 'Query' => $query, 'Root Groups' => $rootGroups ] );
+			
+			return [];
+		}
+	}
+	
+	/**
+	 * Remove entries of the matches where the first name doesn't match
+	 *
+	 * The comparison is not case sensitive. If the matches don't contain a
+	 * first name, they will still be part of the result.
+	 *
+	 * @param Member[] $matches
+	 * @param string $firstName
+	 */
+	private static function selectByFirstName( array &$matches, string $firstName ) {
+		// remove matches with different first name
+		foreach ( $matches as $idx => &$match ) {
+			if ( $match->firstName->getValue()
+			     && ! strcasecmp( $match->firstName->getValue(), $firstName ) ) {
+				if ( ! preg_match( "/^{$firstName}[- ]/i", $match->firstName->getValue() ) ) {
+					unset( $matches[ $idx ] );
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Transform matches into a member match object
+	 *
+	 * @param Member[] $matches
+	 * @param bool $ambiguous
+	 *
+	 * @return MemberMatch
+	 */
+	private static function create( array $matches, bool $ambiguous ): MemberMatch {
+		switch ( count( $matches ) ) {
+			case 0:
+				$status = self::NO_MATCH;
+				break;
+			
+			case 1:
+				$status = $ambiguous ? self::AMBIGUOUS_MATCH : self::MATCH;
+				break;
+			
+			default:
+				$status = self::MULTIPLE_MATCHES;
+		}
+		
+		// make sure the matches are strictly ordered (no holes from unset)
+		$matches = array_values( $matches );
+		
+		return new MemberMatch( $status, $matches );
+	}
+	
+	/**
+	 * Return webling query to find members by first and last name
+	 *
+	 * @param Member $member
+	 *
+	 * @return string
+	 */
+	private static function buildNameQuery( Member $member ): string {
+		$query = [];
+		if ( $member->firstName->getWeblingValue() ) {
+			$query[] = "`{$member->firstName->getWeblingKey()}` LIKE '{$member->firstName->getWeblingValue()}'";
+		}
+		
+		if ( $member->lastName->getWeblingValue() ) {
+			$query[] = "`{$member->lastName->getWeblingKey()}` LIKE '{$member->lastName->getWeblingValue()}'";
+		}
+		
+		return implode( ' AND ', $query );
+	}
+	
+	/**
+	 * Remove members where trailing characters of name are not separated by
+	 * either a space or a hyphen.
+	 *
+	 * There are two reasons for this function:
+	 * - In online forms, people tend to not write there full names (if they have multiple)
+	 * - Weblings FILTER is a 'starts with' function, that doesn't allow any further checks
+	 *
+	 * @param Member[] $matches
+	 * @param string $firstName
+	 * @param string $lastName
+	 */
+	private static function removeWrongNameMatches( array &$matches, string $firstName, string $lastName ) {
+		foreach ( $matches as $idx => $match ) {
+			if ( ! strcasecmp( $match->firstName->getValue(), $firstName ) ) {
+				if ( ! preg_match( "/^{$firstName}[- ]/i", $match->firstName->getValue() ) ) {
+					unset( $matches[ $idx ] );
+				}
+			}
+			if ( ! strcasecmp( $match->lastName->getValue(), $lastName ) ) {
+				if ( ! preg_match( "/^{$lastName}[- ]/i", $match->lastName->getValue() ) ) {
+					unset( $matches[ $idx ] );
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Compare zip code and remove the entries where the zip doesn't match
+	 *
+	 * @param Member[] $matches
+	 * @param string $zip
+	 */
+	private static function removeWrongZipMatches( array &$matches, string $zip ) {
+		$zip = (int) filter_var( $zip, FILTER_SANITIZE_NUMBER_INT );
+		foreach ( $matches as $idx => $match ) {
+			if ( $match->zip->getValue() ) {
+				$matchZip = (int) filter_var( $match->zip->getValue(), FILTER_SANITIZE_NUMBER_INT );
+				if ( $matchZip != $zip ) {
+					unset( $matches[ $idx ] );
+				}
+			}
+		}
 	}
 	
 	/**
@@ -80,6 +320,6 @@ class MemberMatch {
 	 * @return int
 	 */
 	public function count(): int {
-		return count($this->matches);
+		return count( $this->matches );
 	}
 }
