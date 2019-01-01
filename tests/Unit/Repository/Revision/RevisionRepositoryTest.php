@@ -12,6 +12,8 @@ namespace App\Repository\Revision;
 
 use App\Exceptions\InvalidRevisionArgumentsException;
 use App\Exceptions\RevisionNotFoundException;
+use App\Repository\Member\Member;
+use App\Repository\Member\MemberRepository;
 use Tests\TestCase;
 
 class RevisionRepositoryTest extends TestCase {
@@ -31,8 +33,19 @@ class RevisionRepositoryTest extends TestCase {
 	}
 	
 	public function testGet() {
+		// add a member so we can be sure we have changes
+		$member = new Member();
+		$member->firstName->setValue( 'Revision' );
+		$member->lastName->setValue( 'Unit Test' );
+		$memberRepository = new MemberRepository( config( 'app.webling_api_key' ) );
+		$member           = $memberRepository->save( $member );
+		
+		// get revision
 		$revisionId = $this->repository->getCurrentRevisionId() - self::REVISION_LAG;
 		$revision   = $this->repository->get( $revisionId );
+		
+		// delete member before assertions so it also be will be deleted if asserts fail
+		$memberRepository->delete( $member );
 		
 		$this->assertEquals( $revisionId, $revision->getQueriedRevisionId() );
 		$this->assertGreaterThan( $revisionId, $revision->getCurrentRevisionId() );
