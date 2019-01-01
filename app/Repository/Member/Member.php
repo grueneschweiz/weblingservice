@@ -246,6 +246,19 @@ class Member {
 	}
 	
 	/**
+	 * Remove a single or multiple groups from this member.
+	 *
+	 * @param Group|Group[] $groups
+	 */
+	public function removeGroups( $groups ) {
+		$groups = is_array( $groups ) ? $groups : [ $groups ];
+		
+		foreach ( $groups as $group ) {
+			unset( $this->groups[ $group->getId() ] );
+		}
+	}
+	
+	/**
 	 * Magic access to member properties.
 	 *
 	 * @param $name

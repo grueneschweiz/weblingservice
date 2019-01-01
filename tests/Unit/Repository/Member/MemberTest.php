@@ -118,5 +118,58 @@ class MemberTest extends TestCase {
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertEquals( [ 207 ], $member->getFirstLevelGroupIds( 202 ) );
+		
+		$member->removeGroups( $member->groups );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertEmpty( $member->getFirstLevelGroupIds( $this->rootGroup ) );
+	}
+	
+	public function test__addGroups() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$group = $groupRepository->get( 202 );
+		
+		// single add
+		$member->addGroups( $group );
+		$this->assertContains( $group, $member->groups );
+		
+		// no duplicates
+		$count = count( $member->groups );
+		$member->addGroups( $group );
+		$this->assertEquals( $count, count( $member->groups ) );
+		
+		// multiple add
+		$member = $this->getMember();
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groups = [
+			202 => $groupRepository->get( 202 ),
+			203 => $groupRepository->get( 203 ),
+		];
+		$member->addGroups( $groups );
+		$this->assertContains( $groups[202], $member->groups );
+		$this->assertContains( $groups[203], $member->groups );
+	}
+	
+	public function test__removeGroups() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$group = $groupRepository->get( 203 );
+		
+		// single remove
+		$member->addGroups( $group );
+		$this->assertContains( $group, $member->groups );
+		$member->removeGroups( $group );
+		$this->assertNotContains( $group, $member->groups );
+		
+		// multiple remove
+		$this->assertGreaterThan( 1, count( $member->groups ) );
+		$member->removeGroups( $member->groups );
+		$this->assertEmpty( $member->groups );
 	}
 }
