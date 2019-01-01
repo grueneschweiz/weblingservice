@@ -11,6 +11,7 @@ namespace App\Repository\Member;
 
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
+use App\Repository\Group\Group;
 use App\Repository\Group\GroupRepository;
 use Tests\TestCase;
 
@@ -171,5 +172,22 @@ class MemberTest extends TestCase {
 		$this->assertGreaterThan( 1, count( $member->groups ) );
 		$member->removeGroups( $member->groups );
 		$this->assertEmpty( $member->groups );
+	}
+	
+	public function test__getRootPaths() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$rootPaths = [];
+		/** @var Group $group */
+		foreach ( $this->groups as $group ) {
+			/** @noinspection PhpUnhandledExceptionInspection */
+			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
+		}
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertEquals( $rootPaths, $member->getRootPaths() );
 	}
 }

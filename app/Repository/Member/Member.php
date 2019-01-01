@@ -158,6 +158,13 @@ class Member {
 	private $id;
 	
 	/**
+	 * The group paths of this member
+	 *
+	 * @var Group[]|null
+	 */
+	private $rootPaths;
+	
+	/**
 	 * Member constructor.
 	 *
 	 * NOTE: To prevent accidental overwriting of MultiSelect fields, this
@@ -314,21 +321,19 @@ class Member {
 	 * @throws \Webling\API\ClientException
 	 */
 	public function getFirstLevelGroupIds( int $rootGroupId ): array {
-		if ( empty( $this->groups ) ) {
+		$rootPaths = $this->getRootPaths();
+		
+		if ( empty( $rootPaths ) ) {
 			return [];
 		}
 		
-		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
-		
 		$rootGroups = [];
-		foreach ( $this->groups as $group ) {
-			$rootPath = $group->getRootPath( $groupRepository );
-			
-			if ( empty( $rootPath ) ) {
+		foreach ( $rootPaths as $groupId => $path ) {
+			if ( empty( $path ) ) {
 				continue;
 			}
 			
-			$rootGroupKey = array_search( $rootGroupId, $rootPath );
+			$rootGroupKey = array_search( $rootGroupId, $path );
 			
 			// discard other branches
 			if ( false === $rootGroupKey ) {
@@ -337,12 +342,12 @@ class Member {
 			
 			// get id of first level group
 			$firstLevelGroupId = null;
-			if ( ! isset( $rootPath[ $rootGroupKey + 1 ] ) ) {
+			if ( ! isset( $path[ $rootGroupKey + 1 ] ) ) {
 				// the group itself is the first level group
-				$firstLevelGroupId = $group->getId();
+				$firstLevelGroupId = $groupId;
 			} else {
 				// get first level group from root path
-				$firstLevelGroupId = $rootPath[ $rootGroupKey + 1 ];
+				$firstLevelGroupId = $path[ $rootGroupKey + 1 ];
 			}
 			
 			// prevent duplicates
@@ -379,5 +384,33 @@ class Member {
 		}
 		
 		return $dirty;
+	}
+	
+	/**
+	 * Return array with group paths
+	 *
+	 * @return Group[]
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \Webling\API\ClientException
+	 */
+	public function getRootPaths(): array {
+		if ( empty( $this->groups ) ) {
+			return [];
+		}
+		
+		if ( null !== $this->rootPaths ) {
+			return $this->rootPaths;
+		}
+		
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$rootPaths = [];
+		foreach ( $this->groups as $group ) {
+			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
+		}
+		
+		return $rootPaths;
 	}
 }
