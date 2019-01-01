@@ -13,6 +13,8 @@ use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingFieldMappingConfigException;
+use App\Repository\Group\Group;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Field\DateField;
 use App\Repository\Member\Field\Field;
 use App\Repository\Member\Field\FieldFactory;
@@ -29,7 +31,6 @@ use App\Repository\Member\Field\TextField;
  * properties:
  *
  * @property null|int $id
- * @property null|Group[] $rootGroups
  * @property null|Group[] $groups
  * @property TextField $company
  * @property TextField $firstName
@@ -147,7 +148,7 @@ class Member {
 	 *
 	 * @var null|Group[]
 	 */
-	private $groups;
+	private $groups = null;
 	
 	/**
 	 * The id of the member in webling
@@ -155,6 +156,13 @@ class Member {
 	 * @var int|null
 	 */
 	private $id;
+	
+	/**
+	 * The group paths of this member
+	 *
+	 * @var Group[]|null
+	 */
+	private $rootPaths;
 	
 	/**
 	 * Member constructor.
@@ -168,7 +176,7 @@ class Member {
 	 *                    variant 3: $data[][weblingKey] = value
 	 *                    variant 4: $data[][weblingKey] = weblingValue
 	 * @param int|null $id the id in webling
-	 * @param Groups[] $groups
+	 * @param Group[] $groups
 	 * @param bool $allowSettingMultiSelectFields
 	 *
 	 * @throws MultiSelectOverwriteException
@@ -183,8 +191,11 @@ class Member {
 		array $groups = null,
 		bool $allowSettingMultiSelectFields = false
 	) {
-		$this->id     = $id;
-		$this->groups = $groups;
+		$this->id = $id;
+		
+		if ( is_array( $groups ) ) {
+			$this->addGroups( $groups );
+		}
 		
 		// create fields from given data
 		foreach ( $data as $key => $value ) {
@@ -229,6 +240,32 @@ class Member {
 	}
 	
 	/**
+	 * Add a single or multiple groups to this member. Duplicates impossible.
+	 *
+	 * @param Group|Group[] $groups
+	 */
+	public function addGroups( $groups ) {
+		$groups = is_array( $groups ) ? $groups : [ $groups ];
+		
+		foreach ( $groups as $group ) {
+			$this->groups[ $group->getId() ] = $group;
+		}
+	}
+	
+	/**
+	 * Remove a single or multiple groups from this member.
+	 *
+	 * @param Group|Group[] $groups
+	 */
+	public function removeGroups( $groups ) {
+		$groups = is_array( $groups ) ? $groups : [ $groups ];
+		
+		foreach ( $groups as $group ) {
+			unset( $this->groups[ $group->getId() ] );
+		}
+	}
+	
+	/**
 	 * Magic access to member properties.
 	 *
 	 * @param $name
@@ -246,23 +283,7 @@ class Member {
 			return $this->groups;
 		}
 		
-		if ( 'rootGroups' === $name ) {
-			return $this->getRootGroups();
-		}
-		
 		return $this->getField( $name );
-	}
-	
-	/**
-	 * Returns an array with the root groups of this member.
-	 *
-	 * Access this function using magic property access.
-	 *
-	 * @return Group[]
-	 */
-	private function getRootGroups() {
-		// todo: implement this
-		// make sure to filter duplicate root groups
 	}
 	
 	/**
@@ -285,6 +306,57 @@ class Member {
 		
 		$trace = debug_backtrace();
 		throw new MemberUnknownFieldException( "Tried to access undefined field: {$name} in {$trace[0]['file']} on line {$trace[0]['line']}" );
+	}
+	
+	/**
+	 * Return an array with the ids of the first groups below the given root group.
+	 *
+	 * @param int $rootGroupId the id of the group that should be considered to
+	 *                         be the root group.
+	 *
+	 * @return int[]
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \Webling\API\ClientException
+	 */
+	public function getFirstLevelGroupIds( int $rootGroupId ): array {
+		$rootPaths = $this->getRootPaths();
+		
+		if ( empty( $rootPaths ) ) {
+			return [];
+		}
+		
+		$rootGroups = [];
+		foreach ( $rootPaths as $groupId => $path ) {
+			if ( empty( $path ) ) {
+				continue;
+			}
+			
+			$rootGroupKey = array_search( $rootGroupId, $path );
+			
+			// discard other branches
+			if ( false === $rootGroupKey ) {
+				continue;
+			}
+			
+			// get id of first level group
+			$firstLevelGroupId = null;
+			if ( ! isset( $path[ $rootGroupKey + 1 ] ) ) {
+				// the group itself is the first level group
+				$firstLevelGroupId = $groupId;
+			} else {
+				// get first level group from root path
+				$firstLevelGroupId = $path[ $rootGroupKey + 1 ];
+			}
+			
+			// prevent duplicates
+			if ( ! in_array( $firstLevelGroupId, $rootGroups ) ) {
+				$rootGroups[] = $firstLevelGroupId;
+			}
+		}
+		
+		return $rootGroups;
 	}
 	
 	/**
@@ -314,5 +386,31 @@ class Member {
 		return $dirty;
 	}
 	
-	
+	/**
+	 * Return array with group paths
+	 *
+	 * @return Group[]
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \Webling\API\ClientException
+	 */
+	public function getRootPaths(): array {
+		if ( empty( $this->groups ) ) {
+			return [];
+		}
+		
+		if ( null !== $this->rootPaths ) {
+			return $this->rootPaths;
+		}
+		
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$rootPaths = [];
+		foreach ( $this->groups as $group ) {
+			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
+		}
+		
+		return $rootPaths;
+	}
 }

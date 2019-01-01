@@ -130,8 +130,15 @@ class Group implements \JsonSerializable
     {
         $this->members = $members;
     }
-
-
+	
+	
+	/**
+	 * @return int
+	 */
+	public function getId(): int {
+		return $this->id;
+	}
+    
     /**
      * @return string
      */

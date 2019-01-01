@@ -24,7 +24,6 @@ class Loader {
 	 */
 	const RESERVED = [
 		'groups',
-		'rootGroups',
 		'id'
 	];
 	
