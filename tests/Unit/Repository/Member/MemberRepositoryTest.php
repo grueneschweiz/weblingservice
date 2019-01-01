@@ -10,6 +10,7 @@ namespace App\Repository\Member;
 
 
 use App\Exceptions\MemberNotFoundException;
+use App\Exceptions\NoGroupException;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Revision\RevisionRepository;
 use Tests\TestCase;
@@ -112,6 +113,19 @@ class MemberRepositoryTest extends TestCase {
 		
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->repository->delete( $member );
+	}
+	
+	public function testSaveNoGroupException() {
+		$this->addMember();
+		$member = &$this->member;
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$member->removeGroups( $member->groups );
+		
+		$this->expectException( NoGroupException::class );
+		$this->repository->save( $member );
+		
+		$this->removeMember();
 	}
 	
 	public function testFindExisting() {
