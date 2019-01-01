@@ -10,6 +10,7 @@
 namespace App\Repository\Member;
 
 
+use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\InvalidRevisionArgumentsException;
 use App\Exceptions\MemberNotFoundException;
@@ -19,6 +20,8 @@ use App\Exceptions\RevisionNotFoundException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
+use App\Repository\Group\Group;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Field\Field;
 use App\Repository\Repository;
 use App\Repository\Revision\RevisionRepository;
@@ -61,6 +64,7 @@ class MemberRepository extends Repository {
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws InvalidRevisionArgumentsException
+	 * @throws GroupNotFoundException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#replicate
 	 */
@@ -94,6 +98,7 @@ class MemberRepository extends Repository {
 	 * @throws ValueTypeException
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
 	 */
 	private function getMultiple( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
 		$blocks = array_chunk( $memberIds, $membersPerRequest );
@@ -102,7 +107,7 @@ class MemberRepository extends Repository {
 		foreach ( $blocks as $block ) {
 			$ids = implode( ',', $block );
 			
-			$resp = $this->apiGet( "member/$ids" );
+			$resp           = $this->apiGet( "member/$ids" );
 			
 			if ( $resp->getStatusCode() === 200 ) {
 				$newMembers = $this->getMembersFromWeblingPayload( $resp->getData(), $block );
@@ -125,8 +130,8 @@ class MemberRepository extends Repository {
 				
 				// recursive cases
 				$recursiveMembersPerRequest = ( $membersPerRequest % 2 == 1 ) ? ( $membersPerRequest + 1 ) / 2 : $membersPerRequest / 2;
-				$newMembers                 = $this->getMultiple( $block, $recursiveMembersPerRequest );
-				$members                    += $newMembers;
+				$newMembers = $this->getMultiple( $block, $recursiveMembersPerRequest );
+				$members    += $newMembers;
 			} else {
 				throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
 			}
@@ -143,11 +148,14 @@ class MemberRepository extends Repository {
 	 *
 	 * @return Member[] with the webling ids as key and the member as value
 	 *
+	 * @throws ClientException
 	 * @throws InvalidFixedValueException
 	 * @throws MemberUnknownFieldException
 	 * @throws MultiSelectOverwriteException
 	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
 	 */
 	private function getMembersFromWeblingPayload( array $payload, array $ids ): array {
 		/*
@@ -179,18 +187,20 @@ class MemberRepository extends Repository {
 	 * @param int[] $groupIds
 	 *
 	 * @return Group[]
+	 *
+	 * @throws ClientException
+	 * @throws WeblingAPIException
+	 * @throws GroupNotFoundException
 	 */
 	private function getGroups( array $groupIds ): array {
-		// todo: implement this
-		return [ 100 ]; // todo: remove this mock
-//		$groupRepository = new GroupRepository();
-//
-//		$groups = [];
-//		foreach ( $groupIds as $groupId ) {
-//			$groups[] = $groupRepository->get( $groupId );
-//		}
-//
-//		return $groups;
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$groups = [];
+		foreach ( $groupIds as $groupId ) {
+			$groups[] = $groupRepository->get( $groupId );
+		}
+		
+		return $groups;
 	}
 	
 	/**
@@ -201,22 +211,24 @@ class MemberRepository extends Repository {
 	 * Note: The query string must not be encoded. Use the Webling field names
 	 * and values.
 	 *
-	 * @param string $query
+	 * @param string $query the query string in the webling syntax
+	 * @param array $rootGroups the groups to search below
 	 *
 	 * @return Member[]
 	 *
 	 * @throws ClientException
-	 * @throws WeblingAPIException
 	 * @throws InvalidFixedValueException
 	 * @throws MemberNotFoundException
 	 * @throws MemberUnknownFieldException
 	 * @throws MultiSelectOverwriteException
 	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#header-query-language
 	 */
-	public function find( string $query ): array {
+	public function find( string $query, array $rootGroups = [] ): array {
 		$resp = $this->apiGet( "member/?filter=$query" );
 		if ( $resp->getStatusCode() !== 200 ) {
 			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
@@ -227,7 +239,11 @@ class MemberRepository extends Repository {
 			return [];
 		}
 		
-		return $this->getMultiple( $ids );
+		$members = $this->getMultiple( $ids );
+		
+		foreach ( $members as $member ) {
+			$rootPath = $member->getRootPaths();
+		}
 	}
 	
 	/**
@@ -245,6 +261,7 @@ class MemberRepository extends Repository {
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws MemberNotFoundException
 	 * @throws WeblingAPIException
+	 * @throws GroupNotFoundException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#member-member-list-post
 	 * @see https://gruenesandbox.webling.ch/api#member-member-put
@@ -257,8 +274,9 @@ class MemberRepository extends Repository {
 		$fields = $this->makeWeblingFieldArray( $dirtyFields );
 		
 		// get array of groups formed for the webling api
-		// todo: implement this
-		$groups = [ '100' ]; // todo: remove this mock
+		$groups = array_map( function ( Group $group ) {
+			return $group->getId();
+		}, $member->groups );
 		
 		// bring data into the form, webling wants
 		$data = [
@@ -321,6 +339,7 @@ class MemberRepository extends Repository {
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws MemberNotFoundException
 	 * @throws WeblingAPIException
+	 * @throws GroupNotFoundException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
 	 */
@@ -342,8 +361,23 @@ class MemberRepository extends Repository {
 	 *
 	 * @return MemberMatch unambiguous matches return the
 	 * matched Member else a MemberMatch object is returned.
+	 *
+	 * @throws ClientException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
 	 */
 	public function findExisting( Member $member, array $rootGroups ): MemberMatch {
+		$mappings = Loader::getInstance();
+		if ( $member->email1->getValue() || $member->email2->getValue() ) {
+			$query   = "`{$member->email1->getWeblingKey()}`,`{$member->email1->getWeblingKey()}` = '{$member->email1->getWeblingValue()}'" .
+			           "OR `{$member->email1->getWeblingKey()}`,`{$member->email1->getWeblingKey()}` = '{$member->email2->getWeblingValue()}'";
+			$members = $this->find( $query, $rootGroups );
+		}
 		// todo: implement this
 	}
 	
