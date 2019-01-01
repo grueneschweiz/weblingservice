@@ -3,6 +3,7 @@
 namespace App\Repository\Member\Field\Mapping;
 
 use App\Exceptions\InvalidFixedValueException;
+use App\Repository\Member\Field\FieldFactory;
 
 /**
  * Holds the configuration to map a field to Webling.
@@ -78,24 +79,20 @@ class Mapping {
 	/**
 	 * Tests if the given value is a possible value
 	 *
-	 * @param string? $value
+	 * @param string|null $value
 	 *
 	 * @return bool
 	 */
-	public function isPossibleValue( $value ): bool {
-		if ( empty( $this->values ) || null === $value ) {
+	public function isPossibleValue( ?string $value ): bool {
+		try {
+			$field = FieldFactory::create( $this->getKey() );
+			$field->setValue( $value );
 			return true;
+		} catch ( \Exception $e ) {
+			return false;
+		} catch ( \TypeError $e ) {
+			return false;
 		}
-		
-		if ( in_array( $value, $this->getWeblingValues() ) ) {
-			return true;
-		}
-		
-		if ( in_array( $value, $this->getInternalValues() ) ) {
-			return true;
-		}
-		
-		return false;
 	}
 	
 	/**

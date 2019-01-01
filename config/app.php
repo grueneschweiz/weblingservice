@@ -135,6 +135,52 @@ return [
     |
     */
     'webling_field_mappings_config_path' => env('WEBLING_FIELD_MAPPINGS_CONFIG_PATH'),
+  /*
+    |--------------------------------------------------------------------------
+    | Member Json Fields
+    |--------------------------------------------------------------------------
+    |
+    | Path to the YAML file that holds the internal field names that we want
+    | to expose in the Rest API answers for regular callers.
+    | Make sure the path is relative to the project root (where the .env file is).
+    | Note that it should be set in the local .env file (see also .env.example file)
+    | See also 'webling_field_mappings_config_path'
+    |
+    */
+    'member_json_fields_config_path' => env('MEMBER_JSON_FIELDS_CONFIG_PATH'),
+
+    /*
+     |--------------------------------------------------------------------------
+     | Cache directory
+     |--------------------------------------------------------------------------
+     | Directory to use for caching json data from webling
+     |
+     */
+    'cache_directory' => env('CACHE_DIRECTORY'),
+
+    /*
+     |--------------------------------------------------------------------------
+     | Cache max age
+     |--------------------------------------------------------------------------
+     | Maximal age of cached data after which no longer be used and should be
+     | reloaded from the API instead.
+     | Value in DateInterval format:
+     | http://php.net/manual/en/dateinterval.construct.php
+     |
+     */
+    'cache_max_age' => env('CACHE_MAX_AGE'),
+
+    /*
+     |--------------------------------------------------------------------------
+     | Cache delete after
+     |--------------------------------------------------------------------------
+     | Delete cached data older than this to prevent orphan copies of deleted
+     | groups in the cache.
+     | Value in DateInterval format:
+     | http://php.net/manual/en/dateinterval.construct.php
+     |
+     */
+    'cache_delete_after' => env('CACHE_DELETE_AFTER'),
 
     /*
       |--------------------------------------------------------------------------
