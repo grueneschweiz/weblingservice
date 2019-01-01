@@ -9,9 +9,10 @@
 namespace App\Repository\Member;
 
 
-use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\MemberUnknownFieldException;
-use App\Exceptions\WeblingFieldMappingException;
+use App\Exceptions\MultiSelectOverwriteException;
+use App\Repository\Group\Group;
+use App\Repository\Group\GroupRepository;
 use Tests\TestCase;
 
 class MemberTest extends TestCase {
@@ -24,7 +25,9 @@ class MemberTest extends TestCase {
 	private $multiSelectField = 'interests';
 	private $multiSelectValue = 'digitisation';
 	private $data = [];
-	private $groups; // todo: test groups as soon as they are implemented
+	private $groups = [];
+	private $firstLevelRootGroups = [];
+	private $rootGroup = 100;
 	
 	public function setUp() {
 		parent::setUp();
@@ -33,6 +36,20 @@ class MemberTest extends TestCase {
 			$this->someKey          => $this->someValue,
 			$this->someWeblingKey   => $this->someValue,
 			$this->multiSelectField => $this->multiSelectValue,
+		];
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->groups = [
+			100 => $groupRepository->get( 100 ),
+			207 => $groupRepository->get( 207 ),
+			201 => $groupRepository->get( 201 ),
+		];
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->firstLevelRootGroups = [
+			201 => $groupRepository->get( 201 ),
+			202 => $groupRepository->get( 202 ),
 		];
 	}
 	
@@ -53,6 +70,7 @@ class MemberTest extends TestCase {
 		$member = new Member( $this->data, $this->id, $this->groups, true );
 		$this->assertEquals( $this->someValue, $member->{$this->someKey}->getValue() );
 		$this->assertEquals( null, $member->{$this->someOtherField}->getValue() );
+		$this->assertEquals( $this->groups, $member->groups );
 	}
 	
 	public function test__constructemberUnknownFieldException() {
@@ -72,8 +90,8 @@ class MemberTest extends TestCase {
 	public function test__get() {
 		$member = $this->getMember();
 		$this->assertEquals( $this->someValue, $member->{$this->someKey}->getValue() );
-		$this->assertEquals($this->id, $member->id);
-		// todo: test groups and rootGroup
+		$this->assertEquals( $this->id, $member->id );
+		$this->assertEquals( $this->groups, $member->groups );
 	}
 	
 	public function test__getMemberUnknownFieldException() {
@@ -83,9 +101,93 @@ class MemberTest extends TestCase {
 		$member->{$this->noneExistingField}->getValue();
 	}
 	
-	public function testGetField() {
+	public function test__getField() {
 		$member = $this->getMember();
+		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertEquals( $this->someValue, $member->getField( $this->someKey )->getValue() );
+		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertEquals( $this->someValue, $member->getField( $this->someWeblingKey )->getValue() );
+	}
+	
+	public function test__getFirstLevelGroupIds() {
+		$member   = $this->getMember();
+		$expected = array_keys( $this->firstLevelRootGroups );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$actual = $member->getFirstLevelGroupIds( $this->rootGroup );
+		$this->assertEmpty( array_diff( $expected, $actual ) );
+		$this->assertEmpty( array_diff( $actual, $expected ) );
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertEquals( [ 207 ], $member->getFirstLevelGroupIds( 202 ) );
+		
+		$member->removeGroups( $member->groups );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertEmpty( $member->getFirstLevelGroupIds( $this->rootGroup ) );
+	}
+	
+	public function test__addGroups() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$group = $groupRepository->get( 202 );
+		
+		// single add
+		$member->addGroups( $group );
+		$this->assertContains( $group, $member->groups );
+		
+		// no duplicates
+		$count = count( $member->groups );
+		$member->addGroups( $group );
+		$this->assertEquals( $count, count( $member->groups ) );
+		
+		// multiple add
+		$member = $this->getMember();
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groups = [
+			202 => $groupRepository->get( 202 ),
+			203 => $groupRepository->get( 203 ),
+		];
+		$member->addGroups( $groups );
+		$this->assertContains( $groups[202], $member->groups );
+		$this->assertContains( $groups[203], $member->groups );
+	}
+	
+	public function test__removeGroups() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$group = $groupRepository->get( 203 );
+		
+		// single remove
+		$member->addGroups( $group );
+		$this->assertContains( $group, $member->groups );
+		$member->removeGroups( $group );
+		$this->assertNotContains( $group, $member->groups );
+		
+		// multiple remove
+		$this->assertGreaterThan( 1, count( $member->groups ) );
+		$member->removeGroups( $member->groups );
+		$this->assertEmpty( $member->groups );
+	}
+	
+	public function test__getRootPaths() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$rootPaths = [];
+		/** @var Group $group */
+		foreach ( $this->groups as $group ) {
+			/** @noinspection PhpUnhandledExceptionInspection */
+			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
+		}
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertEquals( $rootPaths, $member->getRootPaths() );
 	}
 }

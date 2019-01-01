@@ -16,6 +16,7 @@ use App\Exceptions\InvalidRevisionArgumentsException;
 use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
+use App\Exceptions\NoGroupException;
 use App\Exceptions\RevisionNotFoundException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
@@ -107,7 +108,7 @@ class MemberRepository extends Repository {
 		foreach ( $blocks as $block ) {
 			$ids = implode( ',', $block );
 			
-			$resp           = $this->apiGet( "member/$ids" );
+			$resp = $this->apiGet( "member/$ids" );
 			
 			if ( $resp->getStatusCode() === 200 ) {
 				$newMembers = $this->getMembersFromWeblingPayload( $resp->getData(), $block );
@@ -262,11 +263,17 @@ class MemberRepository extends Repository {
 	 * @throws MemberNotFoundException
 	 * @throws WeblingAPIException
 	 * @throws GroupNotFoundException
+	 * @throws NoGroupException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#member-member-list-post
 	 * @see https://gruenesandbox.webling.ch/api#member-member-put
 	 */
 	public function save( Member $member ): Member {
+		// make sure we do have any groups, else webling isn't happy
+		if ( ! $member->groups ) {
+			throw new NoGroupException( 'To save a member, it must have at least one group.' );
+		}
+		
 		// only save dirty fields
 		$dirtyFields = $member->getDirtyFields();
 		

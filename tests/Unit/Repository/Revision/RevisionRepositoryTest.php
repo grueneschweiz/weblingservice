@@ -12,6 +12,7 @@ namespace App\Repository\Revision;
 
 use App\Exceptions\InvalidRevisionArgumentsException;
 use App\Exceptions\RevisionNotFoundException;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberRepository;
 use Tests\TestCase;
@@ -37,6 +38,10 @@ class RevisionRepositoryTest extends TestCase {
 		$member = new Member();
 		$member->firstName->setValue( 'Revision' );
 		$member->lastName->setValue( 'Unit Test' );
+		
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		$member->addGroups( $groupRepository->get( 100 ) );
+		
 		$memberRepository = new MemberRepository( config( 'app.webling_api_key' ) );
 		$member           = $memberRepository->save( $member );
 		
