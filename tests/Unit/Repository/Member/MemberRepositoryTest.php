@@ -161,6 +161,25 @@ class MemberRepositoryTest extends TestCase {
 		$this->removeMember();
 	}
 	
+	public function testFindWithRootGroups() {
+		$this->addMember();
+		
+		$query = '`' . $this->member->email1->getWeblingKey() . '` = "' . $this->member->email1->getValue() . '"';
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$found = $this->repository->find( $query, [ $groupRepository->get( 100 ), $groupRepository->get( 203 ) ] );
+		$this->assertEquals( 1, count( $found ) );
+		$this->assertEquals( $this->member->id, array_values( $found )[0]->id );
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$found = $this->repository->find( $query, [ $groupRepository->get( 203 ) ] );
+		$this->assertEmpty( $found );
+		
+		$this->removeMember();
+	}
+	
 	public function testDelete() {
 		$this->addMember();
 		

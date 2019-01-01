@@ -88,7 +88,7 @@ class MemberRepository extends Repository {
 	 * @param int $membersPerRequest the maximum number of members to get per
 	 * request.
 	 *
-	 * @return Member[]? Array with the member ids as keys and the members as
+	 * @return Member[] Array with the member ids as keys and the members as
 	 * values. If the member was not found, the value is NULL.
 	 *
 	 * @throws ClientException
@@ -131,8 +131,8 @@ class MemberRepository extends Repository {
 				
 				// recursive cases
 				$recursiveMembersPerRequest = ( $membersPerRequest % 2 == 1 ) ? ( $membersPerRequest + 1 ) / 2 : $membersPerRequest / 2;
-				$newMembers = $this->getMultiple( $block, $recursiveMembersPerRequest );
-				$members    += $newMembers;
+				$newMembers                 = $this->getMultiple( $block, $recursiveMembersPerRequest );
+				$members                    += $newMembers;
 			} else {
 				throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
 			}
@@ -202,49 +202,6 @@ class MemberRepository extends Repository {
 		}
 		
 		return $groups;
-	}
-	
-	/**
-	 * Find members using a webling query string.
-	 *
-	 * Use the query syntax as documented by webling (without the '?filter=').
-	 *
-	 * Note: The query string must not be encoded. Use the Webling field names
-	 * and values.
-	 *
-	 * @param string $query the query string in the webling syntax
-	 * @param array $rootGroups the groups to search below
-	 *
-	 * @return Member[]
-	 *
-	 * @throws ClientException
-	 * @throws InvalidFixedValueException
-	 * @throws MemberNotFoundException
-	 * @throws MemberUnknownFieldException
-	 * @throws MultiSelectOverwriteException
-	 * @throws ValueTypeException
-	 * @throws WeblingAPIException
-	 * @throws WeblingFieldMappingConfigException
-	 * @throws GroupNotFoundException
-	 *
-	 * @see https://gruenesandbox.webling.ch/api#header-query-language
-	 */
-	public function find( string $query, array $rootGroups = [] ): array {
-		$resp = $this->apiGet( "member/?filter=$query" );
-		if ( $resp->getStatusCode() !== 200 ) {
-			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
-		}
-		
-		$ids = $resp->getData()['objects'];
-		if ( empty( $ids ) ) {
-			return [];
-		}
-		
-		$members = $this->getMultiple( $ids );
-		
-		foreach ( $members as $member ) {
-			$rootPath = $member->getRootPaths();
-		}
 	}
 	
 	/**
@@ -386,6 +343,62 @@ class MemberRepository extends Repository {
 			$members = $this->find( $query, $rootGroups );
 		}
 		// todo: implement this
+	}
+	
+	/**
+	 * Find members using a webling query string.
+	 *
+	 * Use the query syntax as documented by webling (without the '?filter=').
+	 *
+	 * Note: The query string must not be encoded. Use the Webling field names
+	 * and values.
+	 *
+	 * @param string $query the query string in the webling syntax
+	 * @param Group[] $rootGroups the groups to search below
+	 *
+	 * @return Member[]
+	 *
+	 * @throws ClientException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
+	 *
+	 * @see https://gruenesandbox.webling.ch/api#header-query-language
+	 */
+	public function find( string $query, array $rootGroups = [] ): array {
+		$resp = $this->apiGet( "member/?filter=$query" );
+		if ( $resp->getStatusCode() !== 200 ) {
+			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
+		}
+		
+		$ids = $resp->getData()['objects'];
+		if ( empty( $ids ) ) {
+			return [];
+		}
+		
+		$members = $this->getMultiple( $ids );
+		
+		if ( empty( $rootGroups ) ) {
+			return $members;
+		}
+		
+		$matches = [];
+		/** @var Member $member */
+		foreach ( $members as &$member ) {
+			foreach ( $rootGroups as &$rootGroup ) {
+				if ( $member->isDescendantOf( $rootGroup ) ) {
+					$matches[] = $member;
+					continue 2;
+				}
+			}
+		}
+		
+		return $matches;
 	}
 	
 	/**
