@@ -11,7 +11,7 @@ namespace App\Repository\Member;
 
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
-use App\Exceptions\WeblingFieldMappingException;
+use App\Repository\Group\GroupRepository;
 use Tests\TestCase;
 
 class MemberTest extends TestCase {
@@ -24,7 +24,9 @@ class MemberTest extends TestCase {
 	private $multiSelectField = 'interests';
 	private $multiSelectValue = 'digitisation';
 	private $data = [];
-	private $groups; // todo: test groups as soon as they are implemented
+	private $groups = [];
+	private $firstLevelRootGroups = [];
+	private $rootGroup = 100;
 	
 	public function setUp() {
 		parent::setUp();
@@ -33,6 +35,20 @@ class MemberTest extends TestCase {
 			$this->someKey          => $this->someValue,
 			$this->someWeblingKey   => $this->someValue,
 			$this->multiSelectField => $this->multiSelectValue,
+		];
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->groups = [
+			100 => $groupRepository->get( 100 ),
+			207 => $groupRepository->get( 207 ),
+			201 => $groupRepository->get( 201 ),
+		];
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->firstLevelRootGroups = [
+			201 => $groupRepository->get( 201 ),
+			202 => $groupRepository->get( 202 ),
 		];
 	}
 	
@@ -53,6 +69,7 @@ class MemberTest extends TestCase {
 		$member = new Member( $this->data, $this->id, $this->groups, true );
 		$this->assertEquals( $this->someValue, $member->{$this->someKey}->getValue() );
 		$this->assertEquals( null, $member->{$this->someOtherField}->getValue() );
+		$this->assertEquals( $this->groups, $member->groups );
 	}
 	
 	public function test__constructemberUnknownFieldException() {
@@ -72,8 +89,8 @@ class MemberTest extends TestCase {
 	public function test__get() {
 		$member = $this->getMember();
 		$this->assertEquals( $this->someValue, $member->{$this->someKey}->getValue() );
-		$this->assertEquals($this->id, $member->id);
-		// todo: test groups and rootGroup
+		$this->assertEquals( $this->id, $member->id );
+		$this->assertEquals( $this->groups, $member->groups );
 	}
 	
 	public function test__getMemberUnknownFieldException() {
@@ -83,13 +100,23 @@ class MemberTest extends TestCase {
 		$member->{$this->noneExistingField}->getValue();
 	}
 	
-	public function testGetField() {
+	public function test__getField() {
 		$member = $this->getMember();
+		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertEquals( $this->someValue, $member->getField( $this->someKey )->getValue() );
+		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertEquals( $this->someValue, $member->getField( $this->someWeblingKey )->getValue() );
 	}
 	
-	public function getFirstLevelGroupIds() {
-		// todo implement this test
+	public function test__getFirstLevelGroupIds() {
+		$member   = $this->getMember();
+		$expected = array_keys( $this->firstLevelRootGroups );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$actual = $member->getFirstLevelGroupIds( $this->rootGroup );
+		$this->assertEmpty( array_diff( $expected, $actual ) );
+		$this->assertEmpty( array_diff( $actual, $expected ) );
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertEquals( [ 207 ], $member->getFirstLevelGroupIds( 202 ) );
 	}
 }

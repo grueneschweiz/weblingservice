@@ -322,12 +322,15 @@ class Member {
 				continue;
 			}
 			
-			// discard if level below root group doesn't exist
+			// get id of first level group
+			$firstLevelGroupId = null;
 			if ( ! isset( $rootPath[ $rootGroupKey + 1 ] ) ) {
-				continue;
+				// the group itself is the first level group
+				$firstLevelGroupId = $group->getId();
+			} else {
+				// get first level group from root path
+				$firstLevelGroupId = $rootPath[ $rootGroupKey + 1 ];
 			}
-			
-			$firstLevelGroupId = $rootPath[ $rootGroupKey + 1 ];
 			
 			// prevent duplicates
 			if ( ! in_array( $firstLevelGroupId, $rootGroups ) ) {
