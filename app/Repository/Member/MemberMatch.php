@@ -102,7 +102,7 @@ class MemberMatch {
 			}
 		}
 		
-		// don't proceed, if we dont have first and last name
+		// don't proceed, if we don't have first and last name
 		if ( ! ( $member->firstName->getValue() && $member->lastName->getValue() ) ) {
 			return new MemberMatch( self::NO_MATCH, [] );
 		}
@@ -194,13 +194,34 @@ class MemberMatch {
 	private static function selectByFirstName( array &$matches, string $firstName ) {
 		// remove matches with different first name
 		foreach ( $matches as $idx => &$match ) {
-			if ( $match->firstName->getValue()
-			     && ! strcasecmp( $match->firstName->getValue(), $firstName ) ) {
-				if ( ! preg_match( "/^{$firstName}[- ]/i", $match->firstName->getValue() ) ) {
+			if ( $match->firstName->getValue() ) {
+				if ( ! self::isShortNameOf( $firstName, $match->firstName->getValue() )
+				     && ! self::isShortNameOf( $match->firstName->getValue(), $firstName ) ) {
 					unset( $matches[ $idx ] );
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Compare names (case insensitive). If they are not equal, test if the
+	 * additional characters are separated either by a hyphen or a space.
+	 *
+	 * @param string $shortName
+	 * @param string $fullName
+	 *
+	 * @return bool
+	 */
+	private static function isShortNameOf( string $shortName, string $fullName ) {
+		if ( 0 === strcasecmp( $shortName, $fullName ) ) {
+			return true;
+		}
+		
+		if ( preg_match( "/^{$shortName}[- ]/i", $fullName ) ) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -241,11 +262,11 @@ class MemberMatch {
 	private static function buildNameQuery( Member $member ): string {
 		$query = [];
 		if ( $member->firstName->getWeblingValue() ) {
-			$query[] = "`{$member->firstName->getWeblingKey()}` LIKE '{$member->firstName->getWeblingValue()}'";
+			$query[] = "`{$member->firstName->getWeblingKey()}` FILTER '{$member->firstName->getWeblingValue()}'";
 		}
 		
 		if ( $member->lastName->getWeblingValue() ) {
-			$query[] = "`{$member->lastName->getWeblingKey()}` LIKE '{$member->lastName->getWeblingValue()}'";
+			$query[] = "`{$member->lastName->getWeblingKey()}` FILTER '{$member->lastName->getWeblingValue()}'";
 		}
 		
 		return implode( ' AND ', $query );
@@ -265,15 +286,13 @@ class MemberMatch {
 	 */
 	private static function removeWrongNameMatches( array &$matches, string $firstName, string $lastName ) {
 		foreach ( $matches as $idx => $match ) {
-			if ( ! strcasecmp( $match->firstName->getValue(), $firstName ) ) {
-				if ( ! preg_match( "/^{$firstName}[- ]/i", $match->firstName->getValue() ) ) {
-					unset( $matches[ $idx ] );
-				}
+			if ( ! self::isShortNameOf( $firstName, $match->firstName->getValue() )
+			     && ! self::isShortNameOf( $match->firstName->getValue(), $lastName ) ) {
+				unset( $matches[ $idx ] );
 			}
-			if ( ! strcasecmp( $match->lastName->getValue(), $lastName ) ) {
-				if ( ! preg_match( "/^{$lastName}[- ]/i", $match->lastName->getValue() ) ) {
-					unset( $matches[ $idx ] );
-				}
+			if ( ! self::isShortNameOf( $firstName, $match->lastName->getValue() )
+			     && ! self::isShortNameOf( $match->lastName->getValue(), $lastName ) ) {
+				unset( $matches[ $idx ] );
 			}
 		}
 	}
@@ -285,10 +304,10 @@ class MemberMatch {
 	 * @param string $zip
 	 */
 	private static function removeWrongZipMatches( array &$matches, string $zip ) {
-		$zip = (int) filter_var( $zip, FILTER_SANITIZE_NUMBER_INT );
+		$zip = abs( (int) filter_var( $zip, FILTER_SANITIZE_NUMBER_INT ) );
 		foreach ( $matches as $idx => $match ) {
 			if ( $match->zip->getValue() ) {
-				$matchZip = (int) filter_var( $match->zip->getValue(), FILTER_SANITIZE_NUMBER_INT );
+				$matchZip = abs( (int) filter_var( $match->zip->getValue(), FILTER_SANITIZE_NUMBER_INT ) );
 				if ( $matchZip != $zip ) {
 					unset( $matches[ $idx ] );
 				}
@@ -308,7 +327,7 @@ class MemberMatch {
 	/**
 	 * Return the matches
 	 *
-	 * @return array empty on no match
+	 * @return Member[] empty on no match
 	 */
 	public function getMatches(): array {
 		return $this->matches;

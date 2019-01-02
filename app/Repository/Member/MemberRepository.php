@@ -318,13 +318,12 @@ class MemberRepository extends Repository {
 	
 	/**
 	 * Check if the given member does already exists in Webling somewhere below
-	 * the given root group.
+	 * the given root group and return a MemberMatch object.
 	 *
 	 * @param Member $member
 	 * @param Group[] $rootGroups
 	 *
-	 * @return MemberMatch unambiguous matches return the
-	 * matched Member else a MemberMatch object is returned.
+	 * @return MemberMatch
 	 *
 	 * @throws ClientException
 	 * @throws GroupNotFoundException
@@ -378,7 +377,15 @@ class MemberRepository extends Repository {
 		
 		$matches = [];
 		/** @var Member $member */
-		foreach ( $members as &$member ) {
+		foreach ( $members as $idx => &$member ) {
+			/**
+			 * remove not found members from search results
+			 * @see getMultiple()
+			 */
+			if ( empty( $member ) ) {
+				unset( $members[ $idx ] );
+			}
+			
 			foreach ( $rootGroups as &$rootGroup ) {
 				if ( $member->isDescendantOf( $rootGroup ) ) {
 					$matches[] = $member;

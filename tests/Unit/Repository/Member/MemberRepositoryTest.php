@@ -128,11 +128,6 @@ class MemberRepositoryTest extends TestCase {
 		$this->removeMember();
 	}
 	
-	public function testFindExisting() {
-		// todo: implement this
-		$this->assertTrue( true );
-	}
-	
 	public function testGetUpdated() {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$updated = $this->repository->getUpdated( self::REVISION_ID );
