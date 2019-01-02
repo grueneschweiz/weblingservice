@@ -55,6 +55,14 @@ class MemberMatchTest extends TestCase {
 	public function test__match() {
 		$member = $this->getNewMember();
 		
+		// precondition: make sure we start clean
+		$match = MemberMatch::match( $member, [ $this->group ], $this->memberRepo );
+		if ( $match->count() ) {
+			foreach ( $match->getMatches() as $match ) {
+				$this->memberRepo->delete( $match );
+			}
+		}
+		
 		/**
 		 * no email, incomplete name
 		 */
