@@ -9,6 +9,8 @@
 namespace App\Repository\Group;
 
 
+use App\Exceptions\GroupNotFoundException;
+use App\Exceptions\WeblingAPIException;
 use Tests\TestCase;
 
 class GroupRepositoryTest extends TestCase
@@ -26,10 +28,9 @@ class GroupRepositoryTest extends TestCase
 
     public function testGetUncached()
     {
-        $this->repository = new GroupRepository(config( 'app.webling_api_key' ));
         $group = $this->groupRepository->get(1081, false);
 
-        $this->assertEquals("Unit Group 1", $group->getName());
+        $this->assertEquals('Unit Group 1', $group->getName());
         $this->assertEquals(100, $group->getParent());
         $this->assertEquals([1084, 1086], $group->getChildren());
         $this->assertEquals([1082, 1083], $group->getMembers());
@@ -37,16 +38,15 @@ class GroupRepositoryTest extends TestCase
 
     public function testGet()
     {
-        $this->repository = new GroupRepository(config( 'app.webling_api_key' ));
         $group = $this->groupRepository->get(1081);
 
-        $this->assertEquals("Unit Group 1", $group->getName());
+        $this->assertEquals('Unit Group 1', $group->getName());
         $this->assertEquals(100, $group->getParent());
         $this->assertEquals([1084, 1086], $group->getChildren());
         $this->assertEquals([1082, 1083], $group->getMembers());
     }
 
-    public function testUpdateCache()
+    public function testUpdateCache($cacheDeleteAfter = 'PT1M')
     {
         $timestamp = time();
 
@@ -55,7 +55,7 @@ class GroupRepositoryTest extends TestCase
             $timestamp -= 20;
         }
 
-        \config(['app.cache_delete_after' => 'PT1M']);
+        \config(['app.cache_delete_after' => $cacheDeleteAfter]);
         $this->groupRepository->updateCache();
 
         //assert that all files in cache were created after starting this test
@@ -78,5 +78,47 @@ class GroupRepositoryTest extends TestCase
         foreach([1082, 1083, 1085] as $needle) {
             $this->assertContains($needle, $allMembers);
         }
+    }
+
+    public function testGetNonExisting() {
+        $this->expectException(GroupNotFoundException::class);
+        $this->groupRepository->get(1);
+    }
+
+    /**
+     * Triggers a ClientException which is to be caught and replaced with a WeblingAPIException by GroupRepository
+     * @throws GroupNotFoundException
+     * @throws WeblingAPIException
+     * @throws \Webling\API\ClientException
+     */
+    public function testClientException() {
+        $repository = new GroupRepository('notActualKey_notActualKey_789012', 'https://lorem.ipsum');
+
+        $this->expectException(WeblingAPIException::class);
+        $repository->get(1081, false);
+
+        $this->assertTrue(true);
+    }
+
+    /**
+     * Triggers Exceptions when parsing the DateIntervals for caching.
+     * The functionality must still work if these Exceptions occur.
+     */
+    public function testInvalidDateStrings() {
+        //backup config
+        $cacheMaxAge = config('app.cache_max_age');
+        $cacheDeleteAfter = config('app.cache_delete_after');
+
+        //make config invalid
+        config(['app.cache_max_age' => 'not_a_valid_time_interval']);
+        config(['app.cache_delete_after' => 'not_a_valid_time_interval']);
+
+        // redo tests with invalid config
+        $this->testGet();
+        $this->testUpdateCache(config('app.cache_delete_after'));
+
+        //reset config
+        config(['app.cache_max_age' => $cacheMaxAge]);
+        config(['app.cache_delete_after' => $cacheDeleteAfter]);
     }
 }
