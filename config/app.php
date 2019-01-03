@@ -183,6 +183,15 @@ return [
     'cache_delete_after' => env('CACHE_DELETE_AFTER'),
 
     /*
+     |--------------------------------------------------------------------------
+     | Cache root group id
+     |--------------------------------------------------------------------------
+     | ID of root group to start loading groups in cache. The root group itself
+     | all its descending groups are loaded from webling and stored in the cache
+     */
+    'cache_root_group_id' => env('CACHE_ROOT_GROUP_ID'),
+
+    /*
       |--------------------------------------------------------------------------
       | Member Json Fields
       |--------------------------------------------------------------------------

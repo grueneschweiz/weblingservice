@@ -11,6 +11,7 @@ namespace App\Repository\Group;
 use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\WeblingAPIException;
 use App\Repository\Repository;
+use Illuminate\Support\Facades\Log;
 use Webling\API\ClientException;
 
 class GroupRepository extends Repository {
@@ -104,7 +105,7 @@ class GroupRepository extends Repository {
             $maxAge = new \DateInterval(config('app.cache_max_age'));
             $fileNewerThan = (new \DateTime('now'))->sub($maxAge);
         } catch (\Exception $e) {
-            //ToDo: log Format error
+            Log::warning('"' . config('app.cache_max_age') . '" cannot be parsed as DateInterval. This disables caching. Please check .env file.');
             return null;
         }
 
@@ -141,12 +142,17 @@ class GroupRepository extends Repository {
      * Update the groups cache.
      *
      * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
+     * @param int|null $rootId
      * @throws GroupNotFoundException
      * @throws WeblingAPIException
      */
-	public function updateCache(): void
+	public function updateCache(int $rootId = null): void
     {
-        $rootGroup = $this->get(100); //Todo: rootId entweder übergeben oder aus config lesen
+        if($rootId === null) {
+            $rootId = (int) config('app.cache_root_group_id');
+        }
+
+        $rootGroup = $this->get($rootId);
         $iterator = GroupIterator::createRecursiveGroupIterator($rootGroup, $this, false);
 
         /** @noinspection PhpUnusedLocalVariableInspection */
@@ -168,7 +174,7 @@ class GroupRepository extends Repository {
     	    $interval = new \DateInterval($intervalString);
     	    $timestamp = (new \DateTime('now'))->sub($interval)->getTimestamp();
 	    } catch (\Exception $e) {
-	        //ToDo: log format error
+            Log::warning('"' . $intervalString . '" cannot be parsed as DateInterval. This disables deleting old cache files. Please check .env file.');
             return;
         }
 	    $files = scandir($directory, SCANDIR_SORT_NONE);

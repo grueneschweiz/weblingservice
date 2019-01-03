@@ -77,7 +77,6 @@ class Group implements \JsonSerializable
      */
     public function calculateRootPath($groupRepository): array
     {
-        //ToDo
         if($this->parent === null) {
             $this->rootPath = [];
         } else {
