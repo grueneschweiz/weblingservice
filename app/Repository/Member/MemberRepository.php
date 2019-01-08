@@ -10,15 +10,19 @@
 namespace App\Repository\Member;
 
 
+use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\InvalidRevisionArgumentsException;
 use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
+use App\Exceptions\NoGroupException;
 use App\Exceptions\RevisionNotFoundException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
+use App\Repository\Group\Group;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Field\Field;
 use App\Repository\Repository;
 use App\Repository\Revision\RevisionRepository;
@@ -42,7 +46,7 @@ class MemberRepository extends Repository {
 	public function getMaster( $input ): Member {
 		// todo: implement this
 	}
-
+	
 	/**
 	 * Return array of members that have changed since the given revision
 	 *
@@ -61,6 +65,7 @@ class MemberRepository extends Repository {
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws InvalidRevisionArgumentsException
+	 * @throws GroupNotFoundException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#replicate
 	 */
@@ -94,6 +99,7 @@ class MemberRepository extends Repository {
 	 * @throws ValueTypeException
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
 	 */
 	private function getMultiple( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
 		$blocks = array_chunk( $memberIds, $membersPerRequest );
@@ -143,11 +149,14 @@ class MemberRepository extends Repository {
 	 *
 	 * @return Member[] with the webling ids as key and the member as value
 	 *
+	 * @throws ClientException
 	 * @throws InvalidFixedValueException
 	 * @throws MemberUnknownFieldException
 	 * @throws MultiSelectOverwriteException
 	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
 	 */
 	private function getMembersFromWeblingPayload( array $payload, array $ids ): array {
 		/*
@@ -179,20 +188,22 @@ class MemberRepository extends Repository {
 	 * @param int[] $groupIds
 	 *
 	 * @return Group[]
+	 *
+	 * @throws ClientException
+	 * @throws WeblingAPIException
+	 * @throws GroupNotFoundException
 	 */
 	private function getGroups( array $groupIds ): array {
-		// todo: implement this
-		return [ 100 ]; // todo: remove this mock
-//		$groupRepository = new GroupRepository();
-//
-//		$groups = [];
-//		foreach ( $groupIds as $groupId ) {
-//			$groups[] = $groupRepository->get( $groupId );
-//		}
-//
-//		return $groups;
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$groups = [];
+		foreach ( $groupIds as $groupId ) {
+			$groups[] = $groupRepository->get( $groupId );
+		}
+		
+		return $groups;
 	}
-
+	
 	/**
 	 * Find members using a webling query string.
 	 *
@@ -210,7 +221,7 @@ class MemberRepository extends Repository {
 	public function find( string $query ): array {
 		// todo: implement this
 	}
-
+	
 	/**
 	 * Save member in Webling.
 	 *
@@ -226,29 +237,37 @@ class MemberRepository extends Repository {
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws MemberNotFoundException
 	 * @throws WeblingAPIException
+	 * @throws GroupNotFoundException
+	 * @throws NoGroupException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#member-member-list-post
 	 * @see https://gruenesandbox.webling.ch/api#member-member-put
 	 */
 	public function save( Member $member ): Member {
+		// make sure we do have any groups, else webling isn't happy
+		if ( ! $member->groups ) {
+			throw new NoGroupException( 'To save a member, it must have at least one group.' );
+		}
+		
 		// only save dirty fields
 		$dirtyFields = $member->getDirtyFields();
-
+		
 		// get array of fields formed for the webling api
 		$fields = $this->makeWeblingFieldArray( $dirtyFields );
-
+		
 		// get array of groups formed for the webling api
-		// todo: implement this
-		$groups = [ '100' ]; // todo: remove this mock
-
+		$groups = array_map( function ( Group $group ) {
+			return $group->getId();
+		}, $member->groups );
+		
 		// bring data into the form, webling wants
 		$data = [
 			'properties' => $fields,
 			'parents'    => $groups
 		];
-
+		
 		$id = $member->id;
-
+		
 		if ( $id ) {
 			// update
 			if ( $data ) { // only send request, if data has changed
@@ -257,7 +276,7 @@ class MemberRepository extends Repository {
 					throw new WeblingAPIException( "Put request to Webling failed with status code {$resp->getStatusCode()}" );
 				}
 			}
-
+			
 		} else {
 			// create
 			$resp = $this->apiPost( 'member', $data );
@@ -266,10 +285,10 @@ class MemberRepository extends Repository {
 			}
 			$id = $resp->getData();
 		}
-
+		
 		return $this->get( $id );
 	}
-
+	
 	/**
 	 * Transform fields into an array the webling api understands
 	 *
@@ -279,14 +298,14 @@ class MemberRepository extends Repository {
 	 */
 	private function makeWeblingFieldArray( array $fields ): array {
 		$apiData = [];
-
+		
 		foreach ( $fields as $field ) {
 			$apiData[ $field->getWeblingKey() ] = $field->getWeblingValue();
 		}
-
+		
 		return $apiData;
 	}
-
+	
 	/**
 	 * Get member from webling by id
 	 *
@@ -302,6 +321,7 @@ class MemberRepository extends Repository {
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws MemberNotFoundException
 	 * @throws WeblingAPIException
+	 * @throws GroupNotFoundException
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
 	 */
@@ -313,7 +333,7 @@ class MemberRepository extends Repository {
 		
 		return $result[ $id ];
 	}
-
+	
 	/**
 	 * Check if the given member does already exists in Webling somewhere below
 	 * the given root group.
@@ -327,7 +347,7 @@ class MemberRepository extends Repository {
 	public function findExisting( Member $member, array $rootGroups ): MemberMatch {
 		// todo: implement this
 	}
-
+	
 	/**
 	 * Delete member in Webling.
 	 *
@@ -341,9 +361,9 @@ class MemberRepository extends Repository {
 	 */
 	public function delete( $input ) {
 		$id = $input instanceof Member ? $input->id : $input;
-
+		
 		$data = $this->apiDelete( "member/$id" );
-
+		
 		if ( $data->getStatusCode() !== 204 ) {
 			throw new WeblingAPIException( "Delete request to Webling failed with status code {$data->getStatusCode()}" );
 		}
