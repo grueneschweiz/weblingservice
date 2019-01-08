@@ -170,11 +170,15 @@ class MemberMatch {
 		try {
 			return $memberRepository->find( $query, $rootGroups );
 		} catch ( InvalidFixedValueException
-		| MemberNotFoundException
 		| MemberUnknownFieldException
 		| MultiSelectOverwriteException
 		| ValueTypeException
 		| WeblingFieldMappingConfigException $e ) {
+			Log::error( $e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
+				[ 'Query' => $query, 'Root Groups' => $rootGroups ] );
+			
+			return [];
+		} catch ( MemberNotFoundException $e ) {
 			Log::debug( $e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
 				[ 'Query' => $query, 'Root Groups' => $rootGroups ] );
 			
