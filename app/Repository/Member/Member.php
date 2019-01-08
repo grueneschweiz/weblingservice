@@ -158,13 +158,6 @@ class Member {
 	private $id;
 	
 	/**
-	 * The group paths of this member
-	 *
-	 * @var Group[]|null
-	 */
-	private $rootPaths;
-	
-	/**
 	 * Member constructor.
 	 *
 	 * NOTE: To prevent accidental overwriting of MultiSelect fields, this
@@ -371,10 +364,6 @@ class Member {
 	public function getRootPaths(): array {
 		if ( empty( $this->groups ) ) {
 			return [];
-		}
-		
-		if ( null !== $this->rootPaths ) {
-			return $this->rootPaths;
 		}
 		
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
