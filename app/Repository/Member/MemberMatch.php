@@ -290,7 +290,7 @@ class MemberMatch {
 			     && ! self::isShortNameOf( $match->firstName->getValue(), $lastName ) ) {
 				unset( $matches[ $idx ] );
 			}
-			if ( ! self::isShortNameOf( $firstName, $match->lastName->getValue() )
+ 			if ( ! self::isShortNameOf( $lastName, $match->lastName->getValue() )
 			     && ! self::isShortNameOf( $match->lastName->getValue(), $lastName ) ) {
 				unset( $matches[ $idx ] );
 			}
