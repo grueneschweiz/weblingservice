@@ -88,7 +88,7 @@ class MemberRepository extends Repository {
 	 * @param int $membersPerRequest the maximum number of members to get per
 	 * request.
 	 *
-	 * @return Member[]? Array with the member ids as keys and the members as
+	 * @return Member[] Array with the member ids as keys and the members as
 	 * values. If the member was not found, the value is NULL.
 	 *
 	 * @throws ClientException
@@ -205,24 +205,6 @@ class MemberRepository extends Repository {
 	}
 	
 	/**
-	 * Find members using a webling query string.
-	 *
-	 * Use the query syntax as documented by webling (without the '?filter=').
-	 * You may use the internal field names and values.
-	 *
-	 * Note: The query string must not be encoded.
-	 *
-	 * @param string $query
-	 *
-	 * @return Member[]
-	 *
-	 * @see https://gruenesandbox.webling.ch/api#header-query-language
-	 */
-	public function find( string $query ): array {
-		// todo: implement this
-	}
-	
-	/**
 	 * Save member in Webling.
 	 *
 	 * @param Member $member
@@ -336,16 +318,83 @@ class MemberRepository extends Repository {
 	
 	/**
 	 * Check if the given member does already exists in Webling somewhere below
-	 * the given root group.
+	 * the given root group and return a MemberMatch object.
 	 *
 	 * @param Member $member
 	 * @param Group[] $rootGroups
 	 *
-	 * @return MemberMatch unambiguous matches return the
-	 * matched Member else a MemberMatch object is returned.
+	 * @return MemberMatch
+	 *
+	 * @throws ClientException
+	 * @throws GroupNotFoundException
+	 * @throws WeblingAPIException
 	 */
 	public function findExisting( Member $member, array $rootGroups ): MemberMatch {
-		// todo: implement this
+		return MemberMatch::match( $member, $rootGroups, $this );
+	}
+	
+	/**
+	 * Find members using a webling query string.
+	 *
+	 * Use the query syntax as documented by webling (without the '?filter=').
+	 *
+	 * Note: The query string must not be encoded. Use the Webling field names
+	 * and values.
+	 *
+	 * @param string $query the query string in the webling syntax
+	 * @param Group[] $rootGroups the groups to search below
+	 *
+	 * @return Member[]
+	 *
+	 * @throws ClientException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
+	 *
+	 * @see https://gruenesandbox.webling.ch/api#header-query-language
+	 */
+	public function find( string $query, array $rootGroups = [] ): array {
+		$resp = $this->apiGet( "member/?filter=$query" );
+		if ( $resp->getStatusCode() !== 200 ) {
+			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
+		}
+		
+		$ids = $resp->getData()['objects'];
+		if ( empty( $ids ) ) {
+			return [];
+		}
+		
+		$members = $this->getMultiple( $ids );
+		
+		if ( empty( $rootGroups ) ) {
+			return $members;
+		}
+		
+		$matches = [];
+		/** @var Member $member */
+		foreach ( $members as $idx => &$member ) {
+			/**
+			 * remove not found members from search results
+			 * @see getMultiple()
+			 */
+			if ( empty( $member ) ) {
+				unset( $members[ $idx ] );
+			}
+			
+			foreach ( $rootGroups as &$rootGroup ) {
+				if ( $member->isDescendantOf( $rootGroup ) ) {
+					$matches[] = $member;
+					continue 2;
+				}
+			}
+		}
+		
+		return $matches;
 	}
 	
 	/**

@@ -158,13 +158,6 @@ class Member {
 	private $id;
 	
 	/**
-	 * The group paths of this member
-	 *
-	 * @var Group[]|null
-	 */
-	private $rootPaths;
-	
-	/**
 	 * Member constructor.
 	 *
 	 * NOTE: To prevent accidental overwriting of MultiSelect fields, this
@@ -360,6 +353,30 @@ class Member {
 	}
 	
 	/**
+	 * Return array with group paths
+	 *
+	 * @return int[][]
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \Webling\API\ClientException
+	 */
+	public function getRootPaths(): array {
+		if ( empty( $this->groups ) ) {
+			return [];
+		}
+		
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		
+		$rootPaths = [];
+		foreach ( $this->groups as $group ) {
+			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
+		}
+		
+		return $rootPaths;
+	}
+	
+	/**
 	 * Return all fields in an array.
 	 *
 	 * @return array
@@ -387,30 +404,29 @@ class Member {
 	}
 	
 	/**
-	 * Return array with group paths
+	 * Check if this member is in the given group or in one of its subgroups.
 	 *
-	 * @return Group[]
+	 * @param Group $group
+	 *
+	 * @return bool
 	 *
 	 * @throws \App\Exceptions\GroupNotFoundException
 	 * @throws \App\Exceptions\WeblingAPIException
 	 * @throws \Webling\API\ClientException
 	 */
-	public function getRootPaths(): array {
-		if ( empty( $this->groups ) ) {
-			return [];
+	public function isDescendantOf( Group $group ): bool {
+		if ( in_array( $group, $this->groups ) ) {
+			return true;
 		}
 		
-		if ( null !== $this->rootPaths ) {
-			return $this->rootPaths;
+		$rootPaths = $this->getRootPaths();
+		
+		foreach ( $rootPaths as $path ) {
+			if ( in_array( $group->getId(), $path ) ) {
+				return true;
+			}
 		}
 		
-		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
-		
-		$rootPaths = [];
-		foreach ( $this->groups as $group ) {
-			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
-		}
-		
-		return $rootPaths;
+		return false;
 	}
 }
