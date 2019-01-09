@@ -190,4 +190,20 @@ class MemberTest extends TestCase {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertEquals( $rootPaths, $member->getRootPaths() );
 	}
+	
+	public function test__isDescendantOf() {
+		$member = $this->getMember();
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertTrue( $member->isDescendantOf( $groupRepository->get( 100 ) ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertTrue( $member->isDescendantOf( $groupRepository->get( 202 ) ) );
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertTrue( $member->isDescendantOf( $groupRepository->get( 207 ) ) );
+		
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$this->assertFalse( $member->isDescendantOf( $groupRepository->get( 203 ) ) );
+	}
 }
