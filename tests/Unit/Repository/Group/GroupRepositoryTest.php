@@ -96,8 +96,6 @@ class GroupRepositoryTest extends TestCase
 
         $this->expectException(WeblingAPIException::class);
         $repository->get(1081, false);
-
-        $this->assertTrue(true);
     }
 
     /**
