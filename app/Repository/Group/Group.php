@@ -204,6 +204,9 @@ class Group implements \JsonSerializable
             }
         }
 
+        // unset elements that must not be in json
+        unset($array['groupRepository']);
+
         return $array;
     }
 }
