@@ -4,7 +4,6 @@ namespace App\Repository\Group;
 
 
 use App\Exceptions\WeblingAPIException;
-use App\Repository\Member\Member;
 
 class Group implements \JsonSerializable
 {
@@ -28,28 +27,45 @@ class Group implements \JsonSerializable
 
     /**
      * Subgroups/Children
-     * @var Group[]
+     * @var int[]
      */
     private $children;
 
     /**
      * Direct group members, without members of subgroups
-     * @var Member[]
+     * @var int[]
      */
     private $members;
 
     /**
      * @var int[]
      */
-    private $rootPath = null;
+    private $rootPath;
+
+    /**
+     * @var GroupRepository
+     */
+    private $groupRepository;
+
+    public function __construct(GroupRepository $groupRepository)
+    {
+        $this->groupRepository = $groupRepository;
+    }
 
     /**
      * Returns the members of this group and all subgroups
-     * @return Member[]
+     * @return int[]
      */
-    public function getAllMembers() {
-        //ToDo
-        return [];
+    public function getAllMembers(): array {
+        $iterator = GroupIterator::createRecursiveGroupIterator($this, $this->groupRepository);
+
+        $memberArrays = [[]];
+
+        foreach ($iterator as $group) {
+            $memberArrays[] = $group->getMembers();
+        }
+
+        return array_unique(array_merge(...$memberArrays));
     }
 
     /**
@@ -58,11 +74,9 @@ class Group implements \JsonSerializable
      * @return int[]
      * @throws WeblingAPIException
      * @throws \App\Exceptions\GroupNotFoundException
-     * @throws \Webling\API\ClientException
      */
     public function calculateRootPath($groupRepository): array
     {
-        //ToDo
         if($this->parent === null) {
             $this->rootPath = [];
         } else {
@@ -80,7 +94,6 @@ class Group implements \JsonSerializable
      * @return int[]
      * @throws WeblingAPIException
      * @throws \App\Exceptions\GroupNotFoundException
-     * @throws \Webling\API\ClientException
      */
     public function getRootPath(GroupRepository $groupRepository): array
     {
@@ -97,6 +110,11 @@ class Group implements \JsonSerializable
     public function setId(int $id): void
     {
         $this->id = $id;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     /**
@@ -116,7 +134,7 @@ class Group implements \JsonSerializable
     }
 
     /**
-     * @param Group[] $children
+     * @param int[] $children
      */
     public function setChildren(array $children): void
     {
@@ -124,7 +142,7 @@ class Group implements \JsonSerializable
     }
 
     /**
-     * @param Member[] $members
+     * @param int[] $members
      */
     public function setMembers(array $members): void
     {
@@ -133,13 +151,6 @@ class Group implements \JsonSerializable
 	
 	
 	/**
-	 * @return int
-	 */
-	public function getId(): int {
-		return $this->id;
-	}
-    
-    /**
      * @return string
      */
     public function getName(): string
@@ -148,18 +159,24 @@ class Group implements \JsonSerializable
     }
 
     /**
-     * @return Group[]
+     * @return int[]
      */
     public function getChildren(): array
     {
+        if($this->children === null) {
+            return [];
+        }
         return $this->children;
     }
 
     /**
-     * @return Member[]
+     * @return int[]
      */
     public function getMembers(): array
     {
+        if($this->members === null) {
+            return [];
+        }
         return $this->members;
     }
 
@@ -186,6 +203,9 @@ class Group implements \JsonSerializable
                 unset($array[$key]);
             }
         }
+
+        // unset elements that must not be in json
+        unset($array['groupRepository']);
 
         return $array;
     }

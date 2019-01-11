@@ -11,6 +11,7 @@ namespace App\Repository\Group;
 use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\WeblingAPIException;
 use App\Repository\Repository;
+use Illuminate\Support\Facades\Log;
 use Webling\API\ClientException;
 
 class GroupRepository extends Repository {
@@ -34,19 +35,18 @@ class GroupRepository extends Repository {
     }
 
     /**
-	 * Get group by id. Serve from cache if not specified otherwise.
-	 *
-	 * @param int $id
-	 * @param bool $cached
-	 *
-	 * @return Group
-	 *
-	 * @throws GroupNotFoundException
-	 * @throws ClientException on connection error
-	 * @throws WeblingAPIException
-	 *
-	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
-	 */
+     * Get group by id. Serve from cache if not specified otherwise.
+     *
+     * @param int $id
+     * @param bool $cached
+     *
+     * @return Group
+     *
+     * @throws GroupNotFoundException
+     * @throws WeblingAPIException
+     *
+     * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
+     */
 	public function get(int $id, bool $cached = true): Group {
         /**
          * @var Group
@@ -71,15 +71,16 @@ class GroupRepository extends Repository {
      * @return string
      *
      * @throws GroupNotFoundException
-     * @throws ClientException on connection error
      * @throws WeblingAPIException
      */
 	private function getFromApi(int $id): ?string
     {
-	    //ToDo
-
         $endpoint = "membergroup/$id";
-        $data = $this->apiGet($endpoint);
+        try {
+            $data = $this->apiGet($endpoint);
+        } catch (ClientException $clientException) {
+            throw new WeblingAPIException('Failed to load group from webling api', 500, $clientException);
+        }
         /** @noinspection TypeUnsafeComparisonInspection */
         if($data->getStatusCode() == 200) {
             return $data->getRawData();
@@ -104,7 +105,7 @@ class GroupRepository extends Repository {
             $maxAge = new \DateInterval(config('app.cache_max_age'));
             $fileNewerThan = (new \DateTime('now'))->sub($maxAge);
         } catch (\Exception $e) {
-            //ToDo: log Format error
+            Log::warning('"' . config('app.cache_max_age') . '" cannot be parsed as DateInterval. This disables caching. Please check .env file.');
             return null;
         }
 
@@ -136,19 +137,30 @@ class GroupRepository extends Repository {
     {
         return $this->cacheDirectory . '/group/' . $id . '.json';
     }
-	
-	/**
-	 * Update the groups cache.
-	 *
-     *
-	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
-	 */
-	public function updateCache(): void
-    {
-		// todo: implement this
-		// note: we have to handle php timeouts
 
-        //Todo: delete json files older than eg. 36h
+    /**
+     * Update the groups cache.
+     *
+     * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
+     * @param int|null $rootId
+     * @throws GroupNotFoundException
+     * @throws WeblingAPIException
+     */
+	public function updateCache(int $rootId = null): void
+    {
+        if($rootId === null) {
+            $rootId = (int) config('app.cache_root_group_id');
+        }
+
+        $rootGroup = $this->get($rootId);
+        $iterator = GroupIterator::createRecursiveGroupIterator($rootGroup, $this, false);
+
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        foreach ($iterator as $group) {
+		    //reset time limit after each group
+		    set_time_limit(60);
+        }
+
         $this->deleteCacheOlderThan(rtrim(config('app.cache_directory'), '/') . '/group/', config('app.cache_delete_after'));
 	}
 
@@ -162,7 +174,7 @@ class GroupRepository extends Repository {
     	    $interval = new \DateInterval($intervalString);
     	    $timestamp = (new \DateTime('now'))->sub($interval)->getTimestamp();
 	    } catch (\Exception $e) {
-	        //ToDo: log format error
+            Log::warning('"' . $intervalString . '" cannot be parsed as DateInterval. This disables deleting old cache files. Please check .env file.');
             return;
         }
 	    $files = scandir($directory, SCANDIR_SORT_NONE);
@@ -178,18 +190,16 @@ class GroupRepository extends Repository {
      * @param int $id
      * @param $jsonString string
      * @return Group
-     * @throws ClientException
      * @throws GroupNotFoundException
      * @throws WeblingAPIException
      */
 	private function groupFromWeblingJson(int $id, string $jsonString): ?Group
     {
-	    $group = new Group();
+	    $group = new Group($this);
 	    $group->setId($id);
 
         $data = json_decode($jsonString);
-        /** @noinspection TypeUnsafeComparisonInspection */
-        if(json_last_error() == JSON_ERROR_NONE) {
+        if(json_last_error() === JSON_ERROR_NONE) {
             if(isset($data->properties, $data->properties->title)) {
                 $group->setName($data->properties->title);
             }
