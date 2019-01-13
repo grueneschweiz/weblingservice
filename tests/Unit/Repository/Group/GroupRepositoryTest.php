@@ -119,4 +119,24 @@ class GroupRepositoryTest extends TestCase
         config(['app.cache_max_age' => $cacheMaxAge]);
         config(['app.cache_delete_after' => $cacheDeleteAfter]);
     }
+
+    /**
+     * Tests if the GroupRepository constructor can create the missing group directory in the cache directory.
+     * @throws \Webling\API\ClientException
+     */
+    public function testCreateGroupCacheDirectory() {
+        $directory = realpath(config('app.cache_directory') . '/group');
+
+        $files = scandir($directory, SCANDIR_SORT_NONE);
+        foreach ($files as $file) {
+            $file = $directory . '/' . $file;
+            if(is_file($file)) {
+                unlink($file);
+            }
+        }
+
+        rmdir($directory);
+        new GroupRepository(config('app.webling_api_key'));
+        $this->assertFileExists($directory);
+    }
 }
