@@ -18,7 +18,7 @@ and start contributing 😍.
 1. Clone this repo `git clone https://github.com/grueneschweiz/weblingservice.git`
 1. `cd` into the folder containing the repo
 1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while 
-it installs. `wsnode_install` and `wscomposer_install` should exit with `code 0`.
+it installs. `wsnode_install_webling` and `wscomposer_install_webling` should exit with `code 0`.
 1. Execute `docker-compose -f docker-compose.install.yml run composer 
 cp .env.example .env && php artisan key:generate` to generate the app secrets
 1. Execute `docker-compose up -d` to start up the stack. The first time you run
@@ -30,7 +30,7 @@ get a connection error, wait 30 seconds then try again.
 - Install: `docker-compose -f docker-compose.install.yml up`
 - Start up: `docker-compose up -d`
 - Shut down: `docker-compose down`
-- Execute Laravel CLI commands (enter container): `docker exec -it wsapp bash` use `exit` to escape the container.
+- Execute Laravel CLI commands (enter container): `docker exec -it wsapp_webling bash` use `exit` to escape the container.
 - Add dependency using composer: `docker-compose -f docker-compose.install.yml 
 run composer composer require DEPENDENCY` (yes, `composer composer` is correct,
 the first one defines the container to start the second one is the command to

@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/app
     command: composer install --ignore-platform-reqs
-    container_name: wscomposer_install
+    container_name: wscomposer_install_webling
 
   node:
     image: node
@@ -16,4 +16,4 @@ services:
     ports:
       - '8030:8081'
     command: npm install
-    container_name: wsnode_install
+    container_name: wsnode_install_webling
