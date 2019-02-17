@@ -166,7 +166,7 @@ class GroupRepository extends Repository {
             $rootId = (int) config('app.cache_root_group_id');
         }
 
-        $rootGroup = $this->get($rootId);
+        $rootGroup = $this->get($rootId, false);
         $iterator = GroupIterator::createRecursiveGroupIterator($rootGroup, $this, false);
 
         /** @noinspection PhpUnusedLocalVariableInspection */
