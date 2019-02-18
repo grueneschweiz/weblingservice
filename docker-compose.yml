@@ -38,7 +38,7 @@ services:
         MYSQL_DATABASE: laravel
         MYSQL_USER: laravel
         MYSQL_PASSWORD: laravel
-    container_name: wsmysql
+    container_name: wsmysql_webling
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -50,13 +50,13 @@ services:
       PMA_PORT: '3306'
       PMA_USER: laravel
       PMA_PASSWORD: laravel
-    container_name: wsphpmyadmin
+    container_name: wsphpmyadmin_webling
 
   mailhog:
     image: mailhog/mailhog
     ports:
       - '8020:8025'
-    container_name: wsmailhog
+    container_name: wsmailhog_webling
 
   node:
     image: node
@@ -66,4 +66,4 @@ services:
     ports:
       - '8030:8081'
     command: npm run watch
-    container_name: wsnode
+    container_name: wsnode_webling

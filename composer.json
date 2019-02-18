@@ -1,6 +1,6 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
+    "name": "grueneschweiz/webling",
+    "description": "The Webling Service for the Swiss Greens.",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "type": "project",
