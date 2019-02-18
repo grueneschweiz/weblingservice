@@ -48,24 +48,27 @@ class GroupRepositoryTest extends TestCase
 
     public function testUpdateCache($cacheDeleteAfter = 'PT1M')
     {
-        $timestamp = time();
+        $directory = rtrim(config('app.cache_directory'), '/') . '/group/';
+        $newestFileMTime = 0;
+        $files = scandir($directory, SCANDIR_SORT_NONE);
+        foreach ($files as $file) {
+            $file = $directory . $file;
 
-        // Travis filemtime seems to be out of sync with time()
-        if(config('app.env') === 'testing') {
-            $timestamp -= 20;
+            if(is_file($file) && filemtime($file) > $newestFileMTime) {
+                $newestFileMTime = filemtime($file);
+            }
         }
 
         \config(['app.cache_delete_after' => $cacheDeleteAfter]);
         $this->groupRepository->updateCache();
 
         //assert that all files in cache were created after starting this test
-        $directory = rtrim(config('app.cache_directory'), '/') . '/group/';
         $files = scandir($directory, SCANDIR_SORT_NONE);
         foreach ($files as $file) {
             $file = $directory . $file;
 
             if(is_file($file)) {
-                $this->assertGreaterThanOrEqual($timestamp, filemtime($file), $file . ' seems to be too new.');
+                $this->assertGreaterThanOrEqual($newestFileMTime, filemtime($file), $file . ' seems to be too new.');
             }
         }
     }
