@@ -1,29 +1,20 @@
 language: php
 
-php:
-  - 7.1
-  - 7.2.14
-  - 7.2
+services:
+  - docker
 
-before_script:
-  - cp .env.travis .env
-  - composer self-update
-  - composer install --no-interaction
-  - composer require php-coveralls/php-coveralls
-  - php artisan key:generate
-  - php artisan migrate
-
-before_install:
-  - mysql -e 'CREATE DATABASE travis_test;'
+install:
+  - docker-compose -f docker-compose.install.yml up
+  - docker-compose -f docker-compose.install.yml run composer cp .env.travis .env && php artisan key:generate
+  - docker-compose -f docker-compose.install.yml run composer composer require php-coveralls/php-coveralls
+  - docker-compose stop
+  - docker-compose up -d
 
 script:
-  - phpunit --coverage-clover build/logs/clover.xml
-
-services:
-  - mysql
+  - docker-compose run -e WEBLING_API_KEY=${WEBLING_API_KEY} wsapp php /var/www/html/vendor/phpunit/phpunit/phpunit --configuration /var/www/html/phpunit.xml --coverage-clover /var/www/html/build/logs/clover.xml
 
 after_success:
-  - travis_retry php vendor/bin/php-coveralls -v
+  - travis_retry docker-compose run wsapp php /var/www/html/vendor/bin/php-coveralls -v
 
 notifications:
   email: false
