@@ -17,6 +17,7 @@ services:
         DB_DATABASE: laravel
         DB_USERNAME: laravel
         DB_PASSWORD: laravel
+        DB_PORT: 3307
         # play with mailhog
         MAIL_HOST: mailhog
         MAIL_PORT: 1025
@@ -29,7 +30,7 @@ services:
   mysql:
     image: mysql:5.6
     ports:
-        - '3306:3306'
+        - '3307:3306'
     volumes:
         - .docker/mysql/data:/var/lib/mysql
     restart: always
