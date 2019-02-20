@@ -202,7 +202,7 @@ class Member {
 			// throw error if a MultiSelect value should be set and this is not
 			// explicitly allowed
 			if ( $field instanceof MultiSelectField
-			     && $allowSettingMultiSelectFields !== null
+			     && ! $allowSettingMultiSelectFields
 			     && $value !== null
 			) {
 				throw new MultiSelectOverwriteException( 'The initialisation of members with MultiSelectFields must explicitly be allowed to prevent accidental overwrite of existing values.' );
