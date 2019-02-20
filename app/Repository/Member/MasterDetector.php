@@ -34,9 +34,13 @@ class MasterDetector {
 	 * MasterDetector constructor.
 	 *
 	 * @param MemberRepository $memberRepository
-	 * @param Group[] $rootGroups
+	 * @param Group|Group[] $rootGroups
 	 */
-	public function __construct( MemberRepository $memberRepository, array $rootGroups ) {
+	public function __construct( MemberRepository $memberRepository, $rootGroups ) {
+		if ( ! is_array( $rootGroups ) ) {
+			$rootGroups = [ $rootGroups ];
+		}
+
 		$this->rootGroups       = $rootGroups;
 		$this->memberRepository = $memberRepository;
 	}
@@ -93,7 +97,7 @@ class MasterDetector {
 	 *
 	 * @return int
 	 */
-	private function rateMembership( Member $member ): int {
+	public function rateMembership( Member $member ): int {
 		$rating = 0;
 
 		$values = [

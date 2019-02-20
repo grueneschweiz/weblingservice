@@ -17,6 +17,7 @@ use App\Exceptions\MultiSelectOverwriteException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
+use App\Repository\Group\Group;
 use Illuminate\Support\Facades\Log;
 use Webling\API\ClientException;
 
@@ -76,7 +77,7 @@ class MemberMatch {
 	 * first and last name.
 	 *
 	 * @param Member $member
-	 * @param array $rootGroups
+	 * @param Group[] $rootGroups
 	 * @param MemberRepository $memberRepository
 	 *
 	 * @return MemberMatch
@@ -153,7 +154,7 @@ class MemberMatch {
 	 * should not occur here.
 	 *
 	 * @param string $query
-	 * @param array $rootGroups
+	 * @param Group[] $rootGroups
 	 * @param MemberRepository $memberRepository
 	 *
 	 * @return Member[]
