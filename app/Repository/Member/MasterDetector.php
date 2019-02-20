@@ -97,7 +97,7 @@ class MasterDetector {
 	 *
 	 * @return int
 	 */
-	public function rateMembership( Member $member ): int {
+	private function rateMembership( Member $member ): int {
 		$rating = 0;
 
 		$values = [
