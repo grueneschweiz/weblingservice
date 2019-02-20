@@ -182,7 +182,7 @@ class Member {
 		array $data = [],
 		int $id = null,
 		array $groups = null,
-		bool $allowSettingMultiSelectFields = false
+		bool $allowSettingMultiSelectFields = null
 	) {
 		$this->id = $id;
 		
@@ -202,7 +202,7 @@ class Member {
 			// throw error if a MultiSelect value should be set and this is not
 			// explicitly allowed
 			if ( $field instanceof MultiSelectField
-			     && ! $allowSettingMultiSelectFields
+			     && $allowSettingMultiSelectFields !== null
 			     && $value !== null
 			) {
 				throw new MultiSelectOverwriteException( 'The initialisation of members with MultiSelectFields must explicitly be allowed to prevent accidental overwrite of existing values.' );
