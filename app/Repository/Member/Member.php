@@ -135,28 +135,28 @@ class Member {
 	 * @var array
 	 */
 	private $fields = [];
-	
+
 	/**
 	 * Alias to the $fields field, but using the webling key as key
 	 *
 	 * @var array
 	 */
 	private $fieldsByWeblingKey;
-	
+
 	/**
 	 * The groups the member belongs to
 	 *
 	 * @var null|Group[]
 	 */
 	private $groups = null;
-	
+
 	/**
 	 * The id of the member in webling
 	 *
 	 * @var int|null
 	 */
 	private $id;
-	
+
 	/**
 	 * Member constructor.
 	 *
@@ -185,20 +185,20 @@ class Member {
 		bool $allowSettingMultiSelectFields = null
 	) {
 		$this->id = $id;
-		
+
 		if ( is_array( $groups ) ) {
 			$this->addGroups( $groups );
 		}
-		
+
 		// create fields from given data
 		foreach ( $data as $key => $value ) {
 			$field = FieldFactory::create( $key );
-			
+
 			if ( ! $field ) {
 				// handle the 'Skip' field type
 				continue;
 			}
-			
+
 			// throw error if a MultiSelect value should be set and this is not
 			// explicitly allowed
 			if ( $field instanceof MultiSelectField
@@ -207,18 +207,18 @@ class Member {
 			) {
 				throw new MultiSelectOverwriteException( 'The initialisation of members with MultiSelectFields must explicitly be allowed to prevent accidental overwrite of existing values.' );
 			}
-			
+
 			// as we set the value after creating the field, make sure the field
 			// is yet not marked dirty
 			$field->setValue( $value, false );
-			
+
 			$internalKey = $field->getKey();
 			$weblingKey  = $field->getWeblingKey();
-			
+
 			$this->fields[ $internalKey ]            = $field;
 			$this->fieldsByWeblingKey[ $weblingKey ] = &$this->fields[ $internalKey ];
 		}
-		
+
 		// create other fields
 		$setFields = array_keys( $this->fields );
 		foreach ( Loader::getInstance()->getFieldKeys() as $key ) {
@@ -231,7 +231,26 @@ class Member {
 			}
 		}
 	}
-	
+
+	/**
+	 * Make sure the members properties get cloned as well
+	 */
+	public function __clone() {
+		$fields = get_object_vars( $this );
+		foreach ( $fields as $fieldKey => $fieldValue ) {
+			if ( is_object( $fieldValue ) ) {
+				$this->$fieldKey = clone $fieldValue;
+			} else if ( is_array( $fieldValue ) ) {
+				// Note: This copies only one dimensional arrays
+				foreach ( $fieldValue as $arrayFieldKey => $arrayFieldValue ) {
+					if ( is_object( $arrayFieldValue ) ) {
+						$this->$fieldKey[ $arrayFieldKey ] = clone $arrayFieldValue;
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Add a single or multiple groups to this member. Duplicates impossible.
 	 *
@@ -239,12 +258,12 @@ class Member {
 	 */
 	public function addGroups( $groups ) {
 		$groups = is_array( $groups ) ? $groups : [ $groups ];
-		
+
 		foreach ( $groups as $group ) {
 			$this->groups[ $group->getId() ] = $group;
 		}
 	}
-	
+
 	/**
 	 * Remove a single or multiple groups from this member.
 	 *
@@ -252,12 +271,12 @@ class Member {
 	 */
 	public function removeGroups( $groups ) {
 		$groups = is_array( $groups ) ? $groups : [ $groups ];
-		
+
 		foreach ( $groups as $group ) {
 			unset( $this->groups[ $group->getId() ] );
 		}
 	}
-	
+
 	/**
 	 * Magic access to member properties.
 	 *
@@ -271,14 +290,14 @@ class Member {
 		if ( 'id' === $name ) {
 			return $this->id;
 		}
-		
+
 		if ( 'groups' === $name ) {
 			return $this->groups;
 		}
-		
+
 		return $this->getField( $name );
 	}
-	
+
 	/**
 	 * Return field by internal key or by webling key.
 	 *
@@ -292,15 +311,15 @@ class Member {
 		if ( array_key_exists( $name, $this->fields ) ) {
 			return $this->fields[ $name ];
 		}
-		
+
 		if ( array_key_exists( $name, $this->fieldsByWeblingKey ) ) {
 			return $this->fieldsByWeblingKey[ $name ];
 		}
-		
+
 		$trace = debug_backtrace();
 		throw new MemberUnknownFieldException( "Tried to access undefined field: {$name} in {$trace[0]['file']} on line {$trace[0]['line']}" );
 	}
-	
+
 	/**
 	 * Return an array with the ids of the first groups below the given root group.
 	 *
@@ -315,24 +334,24 @@ class Member {
 	 */
 	public function getFirstLevelGroupIds( int $rootGroupId ): array {
 		$rootPaths = $this->getRootPaths();
-		
+
 		if ( empty( $rootPaths ) ) {
 			return [];
 		}
-		
+
 		$rootGroups = [];
 		foreach ( $rootPaths as $groupId => $path ) {
 			if ( empty( $path ) ) {
 				continue;
 			}
-			
+
 			$rootGroupKey = array_search( $rootGroupId, $path );
-			
+
 			// discard other branches
 			if ( false === $rootGroupKey ) {
 				continue;
 			}
-			
+
 			// get id of first level group
 			$firstLevelGroupId = null;
 			if ( ! isset( $path[ $rootGroupKey + 1 ] ) ) {
@@ -342,16 +361,16 @@ class Member {
 				// get first level group from root path
 				$firstLevelGroupId = $path[ $rootGroupKey + 1 ];
 			}
-			
+
 			// prevent duplicates
 			if ( ! in_array( $firstLevelGroupId, $rootGroups ) ) {
 				$rootGroups[] = $firstLevelGroupId;
 			}
 		}
-		
+
 		return $rootGroups;
 	}
-	
+
 	/**
 	 * Return array with group paths
 	 *
@@ -365,17 +384,17 @@ class Member {
 		if ( empty( $this->groups ) ) {
 			return [];
 		}
-		
+
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
-		
+
 		$rootPaths = [];
 		foreach ( $this->groups as $group ) {
 			$rootPaths[ $group->getId() ] = $group->getRootPath( $groupRepository );
 		}
-		
+
 		return $rootPaths;
 	}
-	
+
 	/**
 	 * Return all fields in an array.
 	 *
@@ -384,7 +403,7 @@ class Member {
 	public function getFields(): array {
 		return $this->fields;
 	}
-	
+
 	/**
 	 * Return only the dirty fields in an array.
 	 *
@@ -392,17 +411,17 @@ class Member {
 	 */
 	public function getDirtyFields(): array {
 		$dirty = [];
-		
+
 		/** @var Field $field */
 		foreach ( $this->fields as $field ) {
 			if ( $field->isDirty() ) {
 				$dirty[] = $field;
 			}
 		}
-		
+
 		return $dirty;
 	}
-	
+
 	/**
 	 * Check if this member is in the given group or in one of its subgroups.
 	 *
@@ -418,15 +437,15 @@ class Member {
 		if ( in_array( $group, $this->groups ) ) {
 			return true;
 		}
-		
+
 		$rootPaths = $this->getRootPaths();
-		
+
 		foreach ( $rootPaths as $path ) {
 			if ( in_array( $group->getId(), $path ) ) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 }
