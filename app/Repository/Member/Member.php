@@ -241,9 +241,9 @@ class Member {
 			if ( is_object( $fieldValue ) ) {
 				$this->$fieldKey = clone $fieldValue;
 			} else if ( is_array( $fieldValue ) ) {
-				// Note: This copies only one dimensional arrays
 				foreach ( $fieldValue as $arrayFieldKey => $arrayFieldValue ) {
 					if ( is_object( $arrayFieldValue ) ) {
+						unset($this->$fieldKey[ $arrayFieldKey ]); // yes, this line is necessary!
 						$this->$fieldKey[ $arrayFieldKey ] = clone $arrayFieldValue;
 					}
 				}
