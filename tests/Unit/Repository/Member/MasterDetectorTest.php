@@ -87,11 +87,35 @@ class MasterDetectorTest extends TestCase {
 		$this->memberRepo->delete( $member2 );
 	}
 
-	public function testGetMaster__higherRating() {
+	public function testGetMaster__memberRating() {
 		// given has higher rating to similar
 		$member1 = $this->getNewMember();
 		$member2 = clone $member1;
 		$member1->memberStatusCountry->setValue( self::MEMBER_STATUS );
+		$member1 = $this->saveMember( $member1 );
+		$member2 = $this->saveMember( $member2 );
+		$this->assertEquals( $member1, $this->masterDetector->getMaster( $member1 ) );
+		$this->memberRepo->delete( $member1 );
+		$this->memberRepo->delete( $member2 );
+	}
+
+	public function testGetMaster__unconfirmedRating() {
+		// given has higher rating to similar
+		$member1 = $this->getNewMember();
+		$member2 = clone $member1;
+		$member1->memberStatusCountry->setValue( self::UNCONFIRMED_STATUS );
+		$member1 = $this->saveMember( $member1 );
+		$member2 = $this->saveMember( $member2 );
+		$this->assertEquals( $member1, $this->masterDetector->getMaster( $member1 ) );
+		$this->memberRepo->delete( $member1 );
+		$this->memberRepo->delete( $member2 );
+	}
+
+	public function testGetMaster__sympathiserRating() {
+		// given has higher rating to similar
+		$member1 = $this->getNewMember();
+		$member2 = clone $member1;
+		$member1->memberStatusCountry->setValue( self::SYMPATHISER_STATUS );
 		$member1 = $this->saveMember( $member1 );
 		$member2 = $this->saveMember( $member2 );
 		$this->assertEquals( $member1, $this->masterDetector->getMaster( $member1 ) );
