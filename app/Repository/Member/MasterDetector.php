@@ -18,7 +18,7 @@ use App\Repository\Group\Group;
 class MasterDetector {
 	const MEMBER_STATUS = 'member';
 	const UNCONFIRMED_STATUS = 'unconfirmed';
-	const SYMPATHIZER_STATUS = 'sympathizer';
+	const SYMPATHISER_STATUS = 'sympathiser';
 
 	/**
 	 * @var Group[]
@@ -116,7 +116,7 @@ class MasterDetector {
 				case self::UNCONFIRMED_STATUS:
 					$rating += 6;
 					continue;
-				case self::SYMPATHIZER_STATUS:
+				case self::SYMPATHISER_STATUS:
 					$rating += 1;
 					continue;
 				default:
