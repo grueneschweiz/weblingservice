@@ -31,7 +31,19 @@ class GroupRepository extends Repository {
     public function __construct(string $api_key, ?string $api_url = null)
     {
         parent::__construct($api_key, $api_url);
+
         $this->cacheDirectory = rtrim(config('app.cache_directory'), '/');
+        if(file_exists($this->cacheDirectory)) {
+            if(!file_exists($this->cacheDirectory . '/group')) {
+                if (!mkdir($concurrentDirectory = $this->cacheDirectory . '/group') && !is_dir($concurrentDirectory)) {
+                    Log::warning('Cache directory "' . $this->cacheDirectory . '/group" does not exist and could not be created. This disables caching. Please check .env file.');
+                } else {
+                    Log::notice('Cache directory "' . $this->cacheDirectory . '/group" did not exist but was successfully created.');
+                }
+            }
+        } else {
+            Log::warning('Cache directory "' . $this->cacheDirectory . '" does not exist. This disables caching. Please check .env file.');
+        }
     }
 
     /**
@@ -126,7 +138,9 @@ class GroupRepository extends Repository {
      */
     private function putToCache(int $id, string $jsonString): void
     {
-        file_put_contents($this->generateCacheFileName($id), $jsonString);
+        if(file_exists($this->cacheDirectory . '/group')) {
+            file_put_contents($this->generateCacheFileName($id), $jsonString);
+        }
     }
 
     /**
@@ -152,7 +166,7 @@ class GroupRepository extends Repository {
             $rootId = (int) config('app.cache_root_group_id');
         }
 
-        $rootGroup = $this->get($rootId);
+        $rootGroup = $this->get($rootId, false);
         $iterator = GroupIterator::createRecursiveGroupIterator($rootGroup, $this, false);
 
         /** @noinspection PhpUnusedLocalVariableInspection */
@@ -161,7 +175,7 @@ class GroupRepository extends Repository {
 		    set_time_limit(60);
         }
 
-        $this->deleteCacheOlderThan(rtrim(config('app.cache_directory'), '/') . '/group/', config('app.cache_delete_after'));
+        $this->deleteCacheOlderThan($this->cacheDirectory . '/group', config('app.cache_delete_after'));
 	}
 
     /**
@@ -177,11 +191,14 @@ class GroupRepository extends Repository {
             Log::warning('"' . $intervalString . '" cannot be parsed as DateInterval. This disables deleting old cache files. Please check .env file.');
             return;
         }
-	    $files = scandir($directory, SCANDIR_SORT_NONE);
-	    foreach ($files as $file) {
-	        $file = $directory . $file;
-	        if(is_file($file) && filemtime($file) < $timestamp) {
-	            unlink($file);
+
+        if(file_exists($directory)) {
+            $files = scandir($directory, SCANDIR_SORT_NONE);
+            foreach ($files as $file) {
+                $file = $directory . $file;
+                if (is_file($file) && filemtime($file) < $timestamp) {
+                    unlink($file);
+                }
             }
         }
     }
