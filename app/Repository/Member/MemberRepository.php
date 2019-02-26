@@ -35,18 +35,39 @@ class MemberRepository extends Repository {
 	 * If more members are queried, it is split up in multiple requests.
 	 */
 	const QUERY_MEMBER_MAX = 100;
-	
+
 	/**
-	 * Find the master record of a given member (or member id)
+	 * Find the master record of a given member (or member id) in Webling somewhere below the given root group.
+	 *
+	 * @see MasterDetector for detailed description.
 	 *
 	 * @param int|Member $input id or member instance
+	 * @param Group[] $rootGroups
 	 *
 	 * @return Member
+	 *
+	 * @throws ClientException
+	 * @throws GroupNotFoundException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
 	 */
-	public function getMaster( $input ): Member {
-		// todo: implement this
+	public function getMaster( $input, array $rootGroups ): Member {
+		if ( $input instanceof Member ) {
+			$member = $input;
+		} else {
+			$member = $this->get( $input );
+		}
+
+		$masterDetector = new MasterDetector( $this, $rootGroups );
+
+		return $masterDetector->getMaster( $member );
 	}
-	
+
 	/**
 	 * Return array of members that have changed since the given revision
 	 *
@@ -72,12 +93,12 @@ class MemberRepository extends Repository {
 	public function getUpdated( int $revisionId ): array {
 		$repository = new RevisionRepository( $this->api_key, $this->api_url );
 		$revision   = $repository->get( $revisionId );
-		
+
 		// todo: timeout handling
-		
+
 		return $this->getMultiple( $revision->getMemberIds() );
 	}
-	
+
 	/**
 	 * Get multiple members by id.
 	 *
@@ -103,13 +124,13 @@ class MemberRepository extends Repository {
 	 */
 	private function getMultiple( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
 		$blocks = array_chunk( $memberIds, $membersPerRequest );
-		
+
 		$members = [];
 		foreach ( $blocks as $block ) {
 			$ids = implode( ',', $block );
-			
+
 			$resp = $this->apiGet( "member/$ids" );
-			
+
 			if ( $resp->getStatusCode() === 200 ) {
 				$newMembers = $this->getMembersFromWeblingPayload( $resp->getData(), $block );
 				$members    += $newMembers;
@@ -122,13 +143,13 @@ class MemberRepository extends Repository {
 				 * We do this by recursively halving the input, to minimize the
 				 * amount of requests needed.
 				 */
-				
+
 				// base case
 				if ( 1 === count( $block ) ) {
 					$members += [ $block[0] => null ];
 					continue;
 				}
-				
+
 				// recursive cases
 				$recursiveMembersPerRequest = ( $membersPerRequest % 2 == 1 ) ? ( $membersPerRequest + 1 ) / 2 : $membersPerRequest / 2;
 				$newMembers                 = $this->getMultiple( $block, $recursiveMembersPerRequest );
@@ -137,10 +158,10 @@ class MemberRepository extends Repository {
 				throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
 			}
 		}
-		
+
 		return $members;
 	}
-	
+
 	/**
 	 * Convert the payload of a webling member response into an array of members
 	 *
@@ -169,19 +190,19 @@ class MemberRepository extends Repository {
 			$payload['id'] = $ids[0];
 			$payload       = [ $payload ];
 		}
-		
+
 		$members = [];
 		foreach ( $payload as $memberData ) {
 			$fieldData = $memberData['properties'];
 			$groups    = $this->getGroups( $memberData['parents'] );
 			$id        = $memberData['id'];
-			
+
 			$members[ $id ] = new Member( $fieldData, $id, $groups, true );
 		}
-		
+
 		return $members;
 	}
-	
+
 	/**
 	 * Convert group ids in array into Groups
 	 *
@@ -195,15 +216,15 @@ class MemberRepository extends Repository {
 	 */
 	private function getGroups( array $groupIds ): array {
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
-		
+
 		$groups = [];
 		foreach ( $groupIds as $groupId ) {
 			$groups[] = $groupRepository->get( $groupId );
 		}
-		
+
 		return $groups;
 	}
-	
+
 	/**
 	 * Save member in Webling.
 	 *
@@ -230,26 +251,26 @@ class MemberRepository extends Repository {
 		if ( ! $member->groups ) {
 			throw new NoGroupException( 'To save a member, it must have at least one group.' );
 		}
-		
+
 		// only save dirty fields
 		$dirtyFields = $member->getDirtyFields();
-		
+
 		// get array of fields formed for the webling api
 		$fields = $this->makeWeblingFieldArray( $dirtyFields );
-		
+
 		// get array of groups formed for the webling api
 		$groups = array_map( function ( Group $group ) {
 			return $group->getId();
 		}, $member->groups );
-		
+
 		// bring data into the form, webling wants
 		$data = [
 			'properties' => $fields,
 			'parents'    => $groups
 		];
-		
+
 		$id = $member->id;
-		
+
 		if ( $id ) {
 			// update
 			if ( $data ) { // only send request, if data has changed
@@ -258,7 +279,7 @@ class MemberRepository extends Repository {
 					throw new WeblingAPIException( "Put request to Webling failed with status code {$resp->getStatusCode()}" );
 				}
 			}
-			
+
 		} else {
 			// create
 			$resp = $this->apiPost( 'member', $data );
@@ -267,10 +288,10 @@ class MemberRepository extends Repository {
 			}
 			$id = $resp->getData();
 		}
-		
+
 		return $this->get( $id );
 	}
-	
+
 	/**
 	 * Transform fields into an array the webling api understands
 	 *
@@ -280,14 +301,14 @@ class MemberRepository extends Repository {
 	 */
 	private function makeWeblingFieldArray( array $fields ): array {
 		$apiData = [];
-		
+
 		foreach ( $fields as $field ) {
 			$apiData[ $field->getWeblingKey() ] = $field->getWeblingValue();
 		}
-		
+
 		return $apiData;
 	}
-	
+
 	/**
 	 * Get member from webling by id
 	 *
@@ -312,10 +333,10 @@ class MemberRepository extends Repository {
 		if ( null === $result[ $id ] ) {
 			throw new MemberNotFoundException( "Member with id '$id' not found in Webling." );
 		}
-		
+
 		return $result[ $id ];
 	}
-	
+
 	/**
 	 * Check if the given member does already exists in Webling somewhere below
 	 * the given root group and return a MemberMatch object.
@@ -332,7 +353,7 @@ class MemberRepository extends Repository {
 	public function findExisting( Member $member, array $rootGroups ): MemberMatch {
 		return MemberMatch::match( $member, $rootGroups, $this );
 	}
-	
+
 	/**
 	 * Find members using a webling query string.
 	 *
@@ -363,18 +384,18 @@ class MemberRepository extends Repository {
 		if ( $resp->getStatusCode() !== 200 ) {
 			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
 		}
-		
+
 		$ids = $resp->getData()['objects'];
 		if ( empty( $ids ) ) {
 			return [];
 		}
-		
+
 		$members = $this->getMultiple( $ids );
-		
+
 		if ( empty( $rootGroups ) ) {
 			return $members;
 		}
-		
+
 		$matches = [];
 		/** @var Member $member */
 		foreach ( $members as $idx => &$member ) {
@@ -385,7 +406,7 @@ class MemberRepository extends Repository {
 			if ( empty( $member ) ) {
 				unset( $members[ $idx ] );
 			}
-			
+
 			foreach ( $rootGroups as &$rootGroup ) {
 				if ( $member->isDescendantOf( $rootGroup ) ) {
 					$matches[] = $member;
@@ -393,10 +414,10 @@ class MemberRepository extends Repository {
 				}
 			}
 		}
-		
+
 		return $matches;
 	}
-	
+
 	/**
 	 * Delete member in Webling.
 	 *
@@ -410,9 +431,9 @@ class MemberRepository extends Repository {
 	 */
 	public function delete( $input ) {
 		$id = $input instanceof Member ? $input->id : $input;
-		
+
 		$data = $this->apiDelete( "member/$id" );
-		
+
 		if ( $data->getStatusCode() !== 204 ) {
 			throw new WeblingAPIException( "Delete request to Webling failed with status code {$data->getStatusCode()}" );
 		}
