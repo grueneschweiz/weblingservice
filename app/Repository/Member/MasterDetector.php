@@ -86,8 +86,9 @@ class MasterDetector {
 	}
 
 	/**
-	 * Look at the five member fields and value the 'member' status with 11, 'unconfirmed' with 6 and
-	 * 'sympathizer' with 1.
+	 * Look at the five member fields (memberStatusCountry, memberStatusCanton, memberStatusRegion,
+	 * memberStatusMunicipality, memberStatusYoung) and value the 'member' status with 11, 'unconfirmed'
+	 * with 6 and 'sympathizer' with 1.
 	 *
 	 * The weights of 11, 6 and 1 assure that one member status always wins over five sympathizer status
 	 * and one unconfirmed status wins over five sympathizer status as well. Moreover one member status will
