@@ -233,7 +233,7 @@ class Member {
 	}
 
 	/**
-	 * Make sure the members properties get cloned as well
+	 * Make sure the none primitive members properties get cloned instead of shallow copied
 	 */
 	public function __clone() {
 		$fields = get_object_vars( $this );
@@ -246,6 +246,7 @@ class Member {
 						unset($this->$fieldKey[ $arrayFieldKey ]); // yes, this line is necessary!
 						$this->$fieldKey[ $arrayFieldKey ] = clone $arrayFieldValue;
 					}
+					// implement support for multidimensional arrays here, if needed.
 				}
 			}
 		}
