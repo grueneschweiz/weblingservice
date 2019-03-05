@@ -33,7 +33,7 @@ class GroupRepositoryTest extends TestCase
         $this->assertEquals('Unit Group 1', $group->getName());
         $this->assertEquals(100, $group->getParent());
         $this->assertEquals([1084, 1086], $group->getChildren());
-        $this->assertEquals([1082, 1083], $group->getMembers());
+        $this->assertEquals([5469, 5470], $group->getMembers());
     }
 
     public function testGet()
@@ -43,7 +43,7 @@ class GroupRepositoryTest extends TestCase
         $this->assertEquals('Unit Group 1', $group->getName());
         $this->assertEquals(100, $group->getParent());
         $this->assertEquals([1084, 1086], $group->getChildren());
-        $this->assertEquals([1082, 1083], $group->getMembers());
+        $this->assertEquals([5469, 5470], $group->getMembers());
     }
 
     public function testUpdateCache($cacheDeleteAfter = 'PT1M')
@@ -78,7 +78,7 @@ class GroupRepositoryTest extends TestCase
 
         $allMembers = $group->getAllMembers();
 
-        foreach([1082, 1083, 1085] as $needle) {
+        foreach([5469, 5470, 5471] as $needle) {
             $this->assertContains($needle, $allMembers);
         }
     }
