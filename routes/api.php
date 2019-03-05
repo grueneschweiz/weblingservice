@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\RestApi\RestApiRevision;
 use Illuminate\Http\Request;
 use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
 use \App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
@@ -15,41 +16,70 @@ use \App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
 |
 */
 
-/*
-|--------------------------------------------------------------------------
-| Member Resources
-|--------------------------------------------------------------------------
-*/
-Route::group(['prefix' => 'v1/member'], function() {
+Route::group( [ 'prefix' => 'v1' ], function () {
+	/*
+	|--------------------------------------------------------------------------
+	| Member Resources
+	|--------------------------------------------------------------------------
+	*/
+	Route::group( [ 'prefix' => 'member' ], function () {
 
-  Route::get('{id}', function (Request $request, $id) {
-      $controller = new RestApiMember();
-      return $controller->getMember($request, $id, $is_admin = false);
-  });
+		Route::get( '{id}', function ( Request $request, $id ) {
+			$controller = new RestApiMember();
 
-  Route::get('changed/{revisionId}', function (Request $request, $revisionId) {
-      $controller = new RestApiMember();
-      return $controller->getChanged($request, $revisionId);
-  });
+			return $controller->getMember( $request, $id, $is_admin = false );
+		} );
 
-});
+		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
+			$controller = new RestApiMember();
 
-/*
-|--------------------------------------------------------------------------
-| Admin Resources
-|--------------------------------------------------------------------------
-*/
-Route::group(['prefix' => 'v1/admin'], function() {
+			return $controller->getChanged( $request, $revisionId );
+		} );
 
-  Route::get('member/{id}', function (Request $request, $id) {
-      $controller = new RestApiMember();
-      return $controller->getMember($request, $id, $is_admin = true);
-  });
+	} );
 
-});
+	/*
+	|--------------------------------------------------------------------------
+	| Admin Resources
+	|--------------------------------------------------------------------------
+	*/
+	Route::group( [ 'prefix' => 'admin' ], function () {
 
-$version = 'v1';
-Route::get($version . '/group/{id}', function (Request $request, $id) {
-   $controller = new RestApiGroup();
-   return $controller->getGroup($id);
-});
+		Route::get( 'member/{id}', function ( Request $request, $id ) {
+			$controller = new RestApiMember();
+
+			return $controller->getMember( $request, $id, $is_admin = true );
+		} );
+
+	} );
+
+	/*
+	|--------------------------------------------------------------------------
+	| Groups Resources
+	|--------------------------------------------------------------------------
+	*/
+	Route::group( [ 'prefix' => 'group' ], function () {
+
+		Route::get( '{id}', function ( Request $request, $id ) {
+			$controller = new RestApiGroup();
+
+			return $controller->getGroup( $id );
+		} );
+
+	} );
+
+	/*
+	|--------------------------------------------------------------------------
+	| Revision Resources
+	|--------------------------------------------------------------------------
+	*/
+	Route::group( [ 'prefix' => 'revision' ], function () {
+
+		Route::get( '', function ( Request $request ) {
+			$controller = new RestApiRevision();
+
+			return $controller->getRevision();
+		} );
+
+	} );
+} );
