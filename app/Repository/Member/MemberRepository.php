@@ -100,6 +100,24 @@ class MemberRepository extends Repository {
 	}
 
 	/**
+	 * @param array $rootGroups
+	 *
+	 * @return array
+	 * @throws ClientException
+	 * @throws GroupNotFoundException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
+	 */
+	public function getAll( array $rootGroups = [] ): array {
+		return $this->find( '', $rootGroups );
+	}
+
+	/**
 	 * Get multiple members by id.
 	 *
 	 * If more than $membersPerRequest ids are queried, Webling ist queried
@@ -358,6 +376,7 @@ class MemberRepository extends Repository {
 	 * Find members using a webling query string.
 	 *
 	 * Use the query syntax as documented by webling (without the '?filter=').
+	 * If no query string is provided, all members are returned.
 	 *
 	 * Note: The query string must not be encoded. Use the Webling field names
 	 * and values.
@@ -380,7 +399,12 @@ class MemberRepository extends Repository {
 	 * @see https://gruenesandbox.webling.ch/api#header-query-language
 	 */
 	public function find( string $query, array $rootGroups = [] ): array {
-		$resp = $this->apiGet( "member/?filter=$query" );
+		if ( empty( $query ) ) {
+			$resp = $this->apiGet( "member/?filter=$query" );
+		} else {
+			$resp = $this->apiGet( 'member' );
+		}
+
 		if ( $resp->getStatusCode() !== 200 ) {
 			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
 		}
