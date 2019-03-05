@@ -1,4 +1,5 @@
 <?php /** @noinspection PhpUnhandledExceptionInspection */
+
 /**
  * Created by PhpStorm.
  * User: cyrillbolliger
@@ -40,10 +41,10 @@ class MemberRepositoryTest extends TestCase {
 		$member1 = $this->getNewLocalMember();
 		$member2 = clone $member1;
 		$member2->memberStatusCountry->setValue( self::MEMBER_STATUS );
-		$member1        = $this->repository->save( $member1 );
-		$member2        = $this->repository->save( $member2 );
-		$master1         = $this->repository->getMaster( $member1, $member1->groups );
-		$master2         = $this->repository->getMaster( $member1->id, $member1->groups );
+		$member1 = $this->repository->save( $member1 );
+		$member2 = $this->repository->save( $member2 );
+		$master1 = $this->repository->getMaster( $member1, $member1->groups );
+		$master2 = $this->repository->getMaster( $member1->id, $member1->groups );
 		$this->repository->delete( $member1 );
 		$this->repository->delete( $member2 );
 		$this->assertEquals( $member2, $master1 );
@@ -68,7 +69,7 @@ class MemberRepositoryTest extends TestCase {
 		$member->email1->setValue( 'unittest+' . str_random() . '@unittest.ut' );
 
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
-		$rootGroup = $groupRepository->get( 100 );
+		$rootGroup       = $groupRepository->get( 100 );
 		$member->addGroups( $rootGroup );
 
 		return $member;
@@ -145,10 +146,28 @@ class MemberRepositoryTest extends TestCase {
 		$this->removeMember();
 	}
 
+	public function testFind_all() {
+		$this->addMember();
+
+		$found = $this->repository->find( '' );
+		$this->assertTrue( in_array( $this->member, $found ) );
+
+		$this->removeMember();
+	}
+
+	public function testGetAll() {
+		$this->addMember();
+
+		$found = $this->repository->getAll();
+		$this->assertTrue( in_array( $this->member, $found ) );
+
+		$this->removeMember();
+	}
+
 	public function testFindWithRootGroups() {
 		$this->addMember();
 
-		$query = '`' . $this->member->email1->getWeblingKey() . '` = "' . $this->member->email1->getValue() . '"';
+		$query           = '`' . $this->member->email1->getWeblingKey() . '` = "' . $this->member->email1->getValue() . '"';
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
 
 		$found = $this->repository->find( $query, [ $groupRepository->get( 100 ), $groupRepository->get( 203 ) ] );
