@@ -11,7 +11,6 @@ namespace App\Exceptions;
 
 class MemberSaveException extends \Exception {
 
-  //TODO this Exception is not thrown yet (24.11. anss)
   /**
    * Render the exception into an HTTP response.
    *
