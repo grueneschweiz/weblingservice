@@ -399,7 +399,7 @@ class MemberRepository extends Repository {
 	 * @see https://gruenesandbox.webling.ch/api#header-query-language
 	 */
 	public function find( string $query, array $rootGroups = [] ): array {
-		if ( empty( $query ) ) {
+		if ( ! empty( $query ) ) {
 			$resp = $this->apiGet( "member/?filter=$query" );
 		} else {
 			$resp = $this->apiGet( 'member' );
