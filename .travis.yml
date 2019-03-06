@@ -6,6 +6,9 @@ install:
   - docker-compose -f docker-compose.install.yml run composer composer require php-coveralls/php-coveralls
   - docker-compose up -d
   - docker exec wsapp cp .env.travis .env
+  - docker exec wsapp printenv
+  - docker-compose restart app
+  - docker exec wsapp printenv
   - docker exec wsapp php artisan key:generate
   - docker exec wsapp php artisan migrate
   - docker exec wsapp php artisan passport:install
