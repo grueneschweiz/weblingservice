@@ -16,7 +16,7 @@ use \App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
 |
 */
 
-Route::group( [ 'prefix' => 'v1' ], function () {
+Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 	/*
 	|--------------------------------------------------------------------------
 	| Member Resources
