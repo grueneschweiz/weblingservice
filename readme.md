@@ -8,7 +8,7 @@
 This project aims to add some crucial but missing functionality to Webling,
 while using Weblings RESTful API and exposing a new, higher lever RESTful
 API. It is based on the fabulous [Laravel](https://laravel.com/) framework
-to speed up the development. Check out the [docs](https://laravel.com/docs/5.6)
+to speed up the development. Check out the [docs](https://laravel.com/docs/5.7)
 and start contributing 😍.
 
 ## Contributing ...
