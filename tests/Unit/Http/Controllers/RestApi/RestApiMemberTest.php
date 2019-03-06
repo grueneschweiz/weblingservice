@@ -10,10 +10,28 @@ use Tests\TestCase;
 use App\Http\Controllers\RestApi\RestApiMember;
 use Illuminate\Http\Request as Request;
 use App\Exceptions\MemberNotFoundException;
+use Tests\Unit\Http\Controllers\RestApi\AuthHelper;
 use Webling\API\ClientException;
 
 class RestApiMemberTest extends TestCase {
 	const EMAIL_FIELD = 'email1';
+
+	/**
+	 * @var AuthHelper
+	 */
+	private $auth;
+
+	public function setUp() {
+		parent::setUp();
+
+		$this->auth = new AuthHelper($this);
+	}
+
+	public function tearDown() {
+		$this->auth->deleteToken();
+
+		parent::tearDown();
+	}
 
 	private function getRestApiMember() {
 		return new RestApiMember();
@@ -57,7 +75,7 @@ class RestApiMemberTest extends TestCase {
 	}
 
 	public function testGetChanged_changed() {
-		$response = $this->json( 'GET', '/api/v1/revision' );
+		$response = $this->json( 'GET', '/api/v1/revision', [], $this->auth->getAuthHeader() );
 		$response->assertStatus( 200 );
 		$lastRevisionId = json_decode( $response->getContent() );
 
