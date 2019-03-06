@@ -19,12 +19,17 @@ and start contributing 😍.
 1. `cd` into the folder containing the repo
 1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while 
 it installs. `wsnode_install_webling` and `wscomposer_install_webling` should exit with `code 0`.
-1. Execute `docker-compose -f docker-compose.install.yml run composer 
-cp .env.example .env && php artisan key:generate` to generate the app secrets
 1. Execute `docker-compose up -d` to start up the stack. The first time you run
-this command, it will take a minute or two. Subsequent calls will be much faster.
-1. After a few seconds: Visit [localhost:8000](http://localhost:8000). If you
-get a connection error, wait 30 seconds then try again. 
+   this command, it will take a minute or two. Subsequent calls will be much faster.
+1. Execute `docker exec wsapp cp .env.travis .env` to get an instance of the environment variables
+1. Execute `docker exec wsapp php artisan key:generate` to generate the app secrets
+1. Execute `docker exec wsapp php artisan migrate` to initialise the database tables
+1. Execute `docker exec wsapp php artisan passport:install` to setup oAuth2
+
+Yupii, you're nearly done. Just add the `WEBLING_API_KEY` and `WEBLING_BASE_URL`
+to the `.env` file and your ready to go. From now on, you can just start up the
+stack with a single `docker-compose up -d`, without repeating all the commands
+from above.
 
 ### Docker Cheat Sheet
 - Install: `docker-compose -f docker-compose.install.yml up`
