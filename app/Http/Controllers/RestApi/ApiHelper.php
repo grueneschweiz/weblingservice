@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\RestApi;
 
+use App\Exceptions\IllegalArgumentException;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberRepository;
-use App\Repository\Member\Field\FieldFactory;
-use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
-use App\Exceptions\IllegalArgumentException;
-
-use Illuminate\Http\Request;
 
 /**
  * Class ApiHelper
@@ -41,6 +38,8 @@ class ApiHelper
       }
     }
 
+    $data['id'] = $member->id;
+
     return $data;
   }
   /**
@@ -69,5 +68,18 @@ class ApiHelper
     }
       return new MemberRepository($api_key);
   }
+
+	/**
+	 * Creates a GroupRepository to deal with Group entities.
+	 *
+	 * @param string [optional] the db key (as of 24.11.2018 the webling api key) for the repo
+	 * @return MemberRepository
+	 */
+	public static function createGroupRepo(String $api_key = null) {
+		if (!$api_key) {
+			$api_key = config('app.webling_api_key'); // default on server
+		}
+		return new GroupRepository($api_key);
+	}
 
 }
