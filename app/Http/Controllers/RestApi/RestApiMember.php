@@ -68,9 +68,14 @@ class RestApiMember {
 	/**
 	 * Return a json with the all member that changed since the $revisionId
 	 *
+	 * @param $request - the http Request
+	 * @param $revisionId - the id of the revision we want to get changes since
+	 * @param $is_admin - is the call by an admin resource (i.e. should we return
+	 *                     all information about the member)
+	 *
 	 * @return string the JSON
 	 */
-	public function getChanged( $request, $revisionId ) {
+	public function getChanged( $request, $revisionId, $is_admin = false ) {
 		ApiHelper::checkIntegerInput( $revisionId );
 		$memberRepo = ApiHelper::createMemberRepo( $request->header( $key = 'db_key' ) );
 
@@ -82,7 +87,7 @@ class RestApiMember {
 
 		$data = [];
 		foreach ( $members as $member ) {
-			$data[ $member->id ] = ApiHelper::getMemberAsArray( $member );
+			$data[ $member->id ] = ApiHelper::getMemberAsArray( $member, $is_admin );
 		}
 
 		return json_encode( $data );

@@ -62,6 +62,12 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 
 			return $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = true );
 		} );
+
+		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
+			$controller = new RestApiMember();
+
+			return $controller->getChanged( $request, $revisionId, $is_admin = true );
+		} );
 	} );
 
 	/*

@@ -163,8 +163,36 @@ class RestApiMemberTest extends TestCase {
 		$this->deleteMember( $member );
 
 		$this->assertCount( 1, get_object_vars( $members ) );
-		$this->assertEquals( $member->email1->getValue(), reset( $members )->email1 );
+
+		$m = reset( $members );
+
+		$this->assertEquals( $member->email1->getValue(), $m->email1 );
+		$this->assertObjectNotHasAttribute( 'iban', $m );
 	}
+
+	public function testGetAdminChanged_changed() {
+		$response = $this->json( 'GET', '/api/v1/revision', [], $this->auth->getAuthHeader() );
+		$response->assertStatus( 200 );
+		$lastRevisionId = json_decode( $response->getContent() );
+
+		$member = $this->addMember();
+
+		$response = $this->json( 'GET', '/api/v1/admin/member/changed/' . $lastRevisionId, [], $this->auth->getAuthHeader() );
+		$response->assertStatus( 200 );
+		$members = json_decode( $response->getContent() );
+
+		// call this before asserting anythins so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$this->assertCount( 1, get_object_vars( $members ) );
+
+		$m = reset( $members );
+
+		$this->assertEquals( $member->email1->getValue(), $m->email1 );
+		$this->assertEquals( $member->iban->getValue(), $m->iban );
+	}
+
 
 	private function addMember() {
 		$member = $this->getMember();
