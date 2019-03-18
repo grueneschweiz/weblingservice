@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
+use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
 use App\Http\Controllers\RestApi\RestApiRevision;
 use Illuminate\Http\Request;
-use App\Http\Controllers\RestApi\RestApiMember as RestApiMember;
-use \App\Http\Controllers\RestApi\RestApiGroup as RestApiGroup;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +30,12 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 			return $controller->getMember( $request, $id, $is_admin = false );
 		} );
 
+		Route::get( '{id}/main/{groups}', function ( Request $request, $memberId, $groupIds ) {
+			$controller = new RestApiMember();
+
+			return $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = false );
+		} );
+
 		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
 			$controller = new RestApiMember();
 
@@ -43,14 +49,19 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 	| Admin Resources
 	|--------------------------------------------------------------------------
 	*/
-	Route::group( [ 'prefix' => 'admin' ], function () {
+	Route::group( [ 'prefix' => 'admin/member' ], function () {
 
-		Route::get( 'member/{id}', function ( Request $request, $id ) {
+		Route::get( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiMember();
 
 			return $controller->getMember( $request, $id, $is_admin = true );
 		} );
 
+		Route::get( '{id}/main/{groups}', function ( Request $request, $memberId, $groupIds ) {
+			$controller = new RestApiMember();
+
+			return $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = true );
+		} );
 	} );
 
 	/*
