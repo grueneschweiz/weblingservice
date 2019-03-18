@@ -29,4 +29,9 @@ class RestApiRevisionTest extends TestCase {
 		$response->assertStatus( 200 );
 		$this->assertGreaterThan( 0, json_decode( $response->getContent() ) );
 	}
+
+	public function test_getRevision_401() {
+		$response = $this->json( 'GET', '/api/v1/revision' );
+		$response->assertStatus( 401 );
+	}
 }
