@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\RestApi;
 
 
+use Tests\Feature\Http\Controllers\RestApi\AuthHelper;
 use Tests\TestCase;
-use Tests\Unit\Http\Controllers\RestApi\AuthHelper;
 
 class RestApiRevisionTest extends TestCase {
 	/**

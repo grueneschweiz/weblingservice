@@ -5,8 +5,8 @@ namespace App\Http\Controllers\RestApi\RestApiMember;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberRepository;
+use Tests\Feature\Http\Controllers\RestApi\AuthHelper;
 use Tests\TestCase;
-use Tests\Unit\Http\Controllers\RestApi\AuthHelper;
 
 class RestApiMemberTest extends TestCase {
 	const EMAIL_FIELD = 'email1';

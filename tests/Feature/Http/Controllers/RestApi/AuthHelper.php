@@ -6,7 +6,7 @@
  * Time: 11:12
  */
 
-namespace Tests\Unit\Http\Controllers\RestApi;
+namespace Tests\Feature\Http\Controllers\RestApi;
 
 
 use Illuminate\Support\Facades\Artisan;

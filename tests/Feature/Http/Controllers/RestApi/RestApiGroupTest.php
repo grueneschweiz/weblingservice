@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\RestApi\RestApiGroup;
 
+use Tests\Feature\Http\Controllers\RestApi\AuthHelper;
 use Tests\TestCase;
-use Tests\Unit\Http\Controllers\RestApi\AuthHelper;
 
 class RestApiGroupTest extends TestCase {
 	const GROUP_ID = 1081;
