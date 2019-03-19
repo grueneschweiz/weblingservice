@@ -100,7 +100,7 @@ class MemberRepository extends Repository {
 	}
 
 	/**
-	 * @param array $rootGroups
+	 * @param Group[] $rootGroups
 	 *
 	 * @return array
 	 * @throws ClientException
@@ -382,7 +382,7 @@ class MemberRepository extends Repository {
 	 * and values.
 	 *
 	 * @param string $query the query string in the webling syntax
-	 * @param Group[] $rootGroups the groups to search below
+	 * @param Group[] $rootGroups the groups to search below, all members if left empty
 	 *
 	 * @return Member[]
 	 *
