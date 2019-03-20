@@ -17,27 +17,23 @@ class AuthHelper {
 	private $token;
 	private $id;
 	private $testClass;
+	private $secret;
 
 	public function __construct( TestCase $testClass ) {
 		$this->testClass = $testClass;
 	}
 
-	public function getToken( string $scope ) {
+	public function getToken( array $allowedGroups, string $scope ) {
 		if ( $this->token ) {
 			return $this->token;
 		}
 
-		Artisan::call( 'passport:client', [ '--client' => true, '--name' => 'unit test token' ] );
-
-		preg_match("/Client ID: (\d+)\s*Client secret: (\w+)/", Artisan::output(), $matches);
-
-		$this->id = $matches[1];
-		$secret = $matches[2];
+		$this->addClient()->addRootGroups( $allowedGroups );
 
 		$auth = $this->testClass->post( '/oauth/token', [
 				'grant_type'    => 'client_credentials',
 				'client_id'     => $this->id,
-				'client_secret' => $secret,
+				'client_secret' => $this->secret,
 				'scope'         => $scope,
 			]
 		);
@@ -47,11 +43,32 @@ class AuthHelper {
 		return $this->token;
 	}
 
-	public function getAuthHeader( string $scope = '' ) {
-		return [ 'Authorization' => 'Bearer ' . $this->getToken( $scope ) ];
+	public function getAuthHeader( array $allowedGroups = [ 100 ], string $scope = '' ) {
+		return [ 'Authorization' => 'Bearer ' . $this->getToken( $allowedGroups, $scope ) ];
 	}
 
 	public function deleteToken() {
+		DB::table( 'groups_clients' )->where( 'client_id', '=', $this->id )->delete();
 		DB::table( 'oauth_clients' )->where( 'id', '=', $this->id )->delete();
+	}
+
+	private function addRootGroups( array $rootGroups ) {
+		foreach ( $rootGroups as $group ) {
+			DB::table( 'groups_clients' )->insert( [
+				'client_id'  => $this->id,
+				'root_group' => $group
+			] );
+		}
+	}
+
+	private function addClient() {
+		Artisan::call( 'passport:client', [ '--client' => true, '--name' => 'unit test token' ] );
+
+		preg_match( "/Client ID: (\d+)\s*Client secret: (\w+)/", Artisan::output(), $matches );
+
+		$this->id     = $matches[1];
+		$this->secret = $matches[2];
+
+		return $this;
 	}
 }

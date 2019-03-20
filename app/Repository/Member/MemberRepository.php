@@ -72,6 +72,7 @@ class MemberRepository extends Repository {
 	 * Return array of members that have changed since the given revision
 	 *
 	 * @param int $revisionId
+	 * @param Group[] $rootGroups
 	 *
 	 * @return Member[]? The array keys hold the member id, while the value
 	 * holds the member. If the member was deleted, the value is NULL.
@@ -90,13 +91,19 @@ class MemberRepository extends Repository {
 	 *
 	 * @see https://gruenesandbox.webling.ch/api#replicate
 	 */
-	public function getUpdated( int $revisionId ): array {
+	public function getUpdated( int $revisionId, array $rootGroups = [] ): array {
 		$repository = new RevisionRepository( $this->api_key, $this->api_url );
 		$revision   = $repository->get( $revisionId );
 
 		// todo: timeout handling
 
-		return $this->getMultiple( $revision->getMemberIds() );
+		$members = $this->getMultiple( $revision->getMemberIds() );
+
+		if ( empty( $rootGroups ) ) {
+			return $members;
+		}
+
+		return $this->filterByRootGroups( $members, $rootGroups );
 	}
 
 	/**
@@ -420,7 +427,6 @@ class MemberRepository extends Repository {
 			return $members;
 		}
 
-		$matches = [];
 		/** @var Member $member */
 		foreach ( $members as $idx => &$member ) {
 			/**
@@ -430,16 +436,9 @@ class MemberRepository extends Repository {
 			if ( empty( $member ) ) {
 				unset( $members[ $idx ] );
 			}
-
-			foreach ( $rootGroups as &$rootGroup ) {
-				if ( $member->isDescendantOf( $rootGroup ) ) {
-					$matches[] = $member;
-					continue 2;
-				}
-			}
 		}
 
-		return $matches;
+		return $this->filterByRootGroups( $members, $rootGroups );
 	}
 
 	/**
@@ -461,5 +460,31 @@ class MemberRepository extends Repository {
 		if ( $data->getStatusCode() !== 204 ) {
 			throw new WeblingAPIException( "Delete request to Webling failed with status code {$data->getStatusCode()}" );
 		}
+	}
+
+	/**
+	 * Filter the given members so only members below the given root groups are returned.
+	 *
+	 * @param Member[] $unfilteredMembers
+	 * @param Group[] $rootGroups
+	 *
+	 * @return Member[]
+	 *
+	 * @throws ClientException
+	 * @throws GroupNotFoundException
+	 * @throws WeblingAPIException
+	 */
+	private function filterByRootGroups( array $unfilteredMembers, array $rootGroups ): array {
+		$filtered = [];
+		foreach ( $unfilteredMembers as $key => &$member ) {
+			foreach ( $rootGroups as &$rootGroup ) {
+				if ( $member->isDescendantOf( $rootGroup ) ) {
+					$filtered[ $key ] = &$member;
+					continue 2;
+				}
+			}
+		}
+
+		return $filtered;
 	}
 }

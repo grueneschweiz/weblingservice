@@ -33,6 +33,11 @@ class RestApiGroupTest extends TestCase {
 		$this->assertEquals( self::GROUP_ID, $group->id );
 	}
 
+	public function test_getGroup_403() {
+		$response = $this->json( 'GET', '/api/v1/group/' . self::GROUP_ID, [], $this->auth->getAuthHeader( [ 1084 ] ) );
+		$response->assertStatus( 403 );
+	}
+
 	public function test_getGroup_401() {
 		$response = $this->json( 'GET', '/api/v1/group/' . self::GROUP_ID );
 		$response->assertStatus( 401 );

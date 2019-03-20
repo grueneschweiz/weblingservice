@@ -80,7 +80,7 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 		Route::get( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiGroup();
 
-			return $controller->getGroup( $id );
+			return $controller->getGroup( $request, $id );
 		} );
 
 	} );

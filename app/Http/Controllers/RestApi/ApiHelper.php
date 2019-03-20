@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\RestApi;
 
 use App\Exceptions\IllegalArgumentException;
+use App\Repository\Group\Group;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberRepository;
+use Illuminate\Http\Request;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -82,4 +84,92 @@ class ApiHelper
 		return new GroupRepository($api_key);
 	}
 
+	/**
+	 * Get the allowed groups as Group instances from the allowed_groups parameter
+	 * of the request.
+	 *
+	 * Use the AddRootGroups middleware to add the root_groups to the request.
+	 *
+	 * If the request does not contain any root_groups, the action is aborted
+	 * with a 403 status code.
+	 *
+	 * @param $request
+	 *
+	 * @return Group[]
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\InvalidFixedValueException
+	 * @throws \App\Exceptions\MemberNotFoundException
+	 * @throws \App\Exceptions\MemberUnknownFieldException
+	 * @throws \App\Exceptions\MultiSelectOverwriteException
+	 * @throws \App\Exceptions\ValueTypeException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \App\Exceptions\WeblingFieldMappingConfigException
+	 * @throws \Webling\API\ClientException
+	 */
+	public static function getAllowedGroups( Request $request ) {
+		$allowedGroups = $request->get( 'allowed_groups' );
+
+		if ( empty( $allowedGroups ) ) {
+			abort( 403, 'Not authorized.' );
+		}
+
+		$groupRepository = self::createGroupRepo( $request->header( $key = 'db_key' ) );
+
+		$groups = [];
+		foreach ( $allowedGroups as $groupId ) {
+			$groups[] = $groupRepository->get( $groupId );
+		}
+
+		return $groups;
+	}
+
+	/**
+	 * Asserts that the given group is a descendant of any of the given root groups.
+	 * Else the request is aborted with a 403 status code.
+	 *
+	 * @param Group[] $allowedGroups
+	 * @param Group $group
+	 *
+	 * @return Group
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 */
+	public static function assertAllowedGroup( array $allowedGroups, Group $group ): Group {
+		/** @var GroupRepository $groupRepository */
+		$groupRepository = self::createGroupRepo();
+
+		foreach ( $allowedGroups as &$allowedGroup ) {
+			if ( $group->getId() === $allowedGroup->getId() ||
+			     in_array( $allowedGroup->getId(), $group->calculateRootPath( $groupRepository ) ) ) {
+				return $group;
+			}
+		}
+
+		abort( 403, 'Not authorized.' );
+	}
+
+	/**
+	 * Asserts that the given member is in any of the given root groups.
+	 * Else the request is aborted with a 403 status code.
+	 *
+	 * @param Group[] $allowedGroups
+	 * @param Member $member
+	 *
+	 * @return Member
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \Webling\API\ClientException
+	 */
+	public static function assertAllowedMember( array $allowedGroups, Member $member ): Member {
+		foreach ( $allowedGroups as &$rootGroup ) {
+			if ( $member->isDescendantOf( $rootGroup ) ) {
+				return $member;
+			}
+		}
+
+		abort( 403, 'Not authorized.' );
+	}
 }
