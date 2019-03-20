@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGroupsClientsTable extends Migration
+class CreateClientGroupsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateGroupsClientsTable extends Migration
      */
     public function up()
     {
-        Schema::create('groups_clients', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create('client_groups', function (Blueprint $table) {
+	        $table->increments('id');
 	        $table->unsignedInteger('client_id');
 	        $table->unsignedInteger('root_group');
-            $table->timestamps();
+	        $table->timestamps();
 
 	        $table->foreign('client_id')->references('id')->on('oauth_clients');
         });
@@ -30,6 +30,6 @@ class CreateGroupsClientsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('groups_clients');
+        Schema::dropIfExists('client_groups');
     }
 }

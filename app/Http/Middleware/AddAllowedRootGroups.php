@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Support\Facades\DB;
 use Laravel\Passport\ClientRepository;
 use Lcobucci\JWT\Parser;
 
@@ -38,7 +37,7 @@ class AddAllowedRootGroups {
 		$client_id = $jwt->getClaim( 'aud' );
 
 		// add root groups to header
-		$rootGroups = DB::table( 'groups_clients' )->where( 'client_id', '=', $client_id )->get();
+		$rootGroups = \App\ClientGroup::where('client_id', $client_id);
 
 		$groupIds = [];
 		foreach ( $rootGroups as $group ) {

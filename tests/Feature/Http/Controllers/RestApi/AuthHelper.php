@@ -48,13 +48,13 @@ class AuthHelper {
 	}
 
 	public function deleteToken() {
-		DB::table( 'groups_clients' )->where( 'client_id', '=', $this->id )->delete();
+		DB::table( 'client_groups' )->where( 'client_id', '=', $this->id )->delete();
 		DB::table( 'oauth_clients' )->where( 'id', '=', $this->id )->delete();
 	}
 
 	private function addRootGroups( array $rootGroups ) {
 		foreach ( $rootGroups as $group ) {
-			DB::table( 'groups_clients' )->insert( [
+			DB::table( 'client_groups' )->insert( [
 				'client_id'  => $this->id,
 				'root_group' => $group
 			] );
