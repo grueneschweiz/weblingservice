@@ -17,7 +17,7 @@ services:
         DB_DATABASE: laravel
         DB_USERNAME: laravel
         DB_PASSWORD: laravel
-        DB_PORT: 3307
+        DB_PORT: 3306
         # play with mailhog
         MAIL_HOST: mailhog
         MAIL_PORT: 1025

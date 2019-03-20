@@ -8,7 +8,7 @@
 This project aims to add some crucial but missing functionality to Webling,
 while using Weblings RESTful API and exposing a new, higher lever RESTful
 API. It is based on the fabulous [Laravel](https://laravel.com/) framework
-to speed up the development. Check out the [docs](https://laravel.com/docs/5.6)
+to speed up the development. Check out the [docs](https://laravel.com/docs/5.7)
 and start contributing 😍.
 
 ## Contributing ...
@@ -19,12 +19,17 @@ and start contributing 😍.
 1. `cd` into the folder containing the repo
 1. Execute `docker-compose -f docker-compose.install.yml up` and have a ☕️ while 
 it installs. `wsnode_install_webling` and `wscomposer_install_webling` should exit with `code 0`.
-1. Execute `docker-compose -f docker-compose.install.yml run composer 
-cp .env.example .env && php artisan key:generate` to generate the app secrets
 1. Execute `docker-compose up -d` to start up the stack. The first time you run
-this command, it will take a minute or two. Subsequent calls will be much faster.
-1. After a few seconds: Visit [localhost:8000](http://localhost:8000). If you
-get a connection error, wait 30 seconds then try again. 
+   this command, it will take a minute or two. Subsequent calls will be much faster.
+1. Execute `docker exec wsapp cp .env.travis .env` to get an instance of the environment variables
+1. Execute `docker exec wsapp php artisan key:generate` to generate the app secrets
+1. Execute `docker exec wsapp php artisan migrate` to initialise the database tables
+1. Execute `docker exec wsapp php artisan passport:install` to setup oAuth2
+
+Yupii, you're nearly done. Just add the `WEBLING_API_KEY` and `WEBLING_BASE_URL`
+to the `.env` file and your ready to go. From now on, you can just start up the
+stack with a single `docker-compose up -d`, without repeating all the commands
+from above.
 
 ### Docker Cheat Sheet
 - Install: `docker-compose -f docker-compose.install.yml up`
@@ -52,3 +57,23 @@ Works out of the box ☺️
 
 #### NPM
 Access the watching container using `docker exec -it wsnode bash`
+
+## Consuming the API
+### Authentication
+The API is secured with OAuth2. Use the client credentials flow to authenticate yourself.
+To do so send a `POST` request to the `/oauth/token` endpoint containing the following
+data (replace the `%values%` with your credentials).
+```JSON
+{
+  "grant_type"    : "client_credentials",
+  "client_id"     : "%client-id%",
+  "client_secret" : "%client-secret%",
+  "scope"         : ""
+}
+```
+The Webling Service will respond with the access token. You may now access the
+protected api endpoints adding the token to your request header. The header field
+must satisfy the following form.
+```
+Authorization: Bearer %token%
+```
