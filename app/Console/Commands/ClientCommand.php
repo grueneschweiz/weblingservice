@@ -28,7 +28,7 @@ abstract class ClientCommand extends Command {
 		$client = DB::table( 'oauth_clients' )->find( $id );
 
 		if ( empty( $client ) ) {
-			$this->error( '<comment>No client with id:</comment>' . $id );
+			$this->error( '<comment>No client with id:</comment> ' . $id );
 
 			return false;
 		}

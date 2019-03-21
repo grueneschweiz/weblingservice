@@ -45,6 +45,14 @@ class EditClientTest extends TestCase {
 		     ->assertExitCode( 0 );
 	}
 
+	public function testHandle_nonExistingClient() {
+		$this->artisan( 'client:edit', [
+			'id'     => PHP_INT_MAX,
+			'--name' => 'Edit Unit Test'
+		] )->expectsOutput( 'No client with id: ' . PHP_INT_MAX )
+		     ->assertExitCode( 1 );
+	}
+
 	public function testHandle_successfulGroup() {
 		$this->artisan( 'client:edit', [
 			'id'           => $this->clientId,
