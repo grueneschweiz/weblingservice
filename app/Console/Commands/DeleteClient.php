@@ -10,7 +10,7 @@ class DeleteClient extends ClientCommand {
 	 *
 	 * @var string
 	 */
-	protected $signature = 'client:delete {id : Client ID}';
+	protected $signature = 'client:delete {id* : List of Client IDs separated by a space.}';
 
 	/**
 	 * The console command description.
@@ -34,15 +34,24 @@ class DeleteClient extends ClientCommand {
 	 * @return mixed
 	 */
 	public function handle() {
-		$id = (int) $this->argument( 'id' );
+		$ids = $this->argument( 'id' );
 
-		$client = $this->getClientById( $id );
+		foreach ( $ids as $id ) {
+			$client = $this->getClientById( $id );
+			if ( ! $client ) {
+				if (1 === count( $ids )){
+					return 1;
+				} else {
+					continue;
+				}
+			}
 
-		\App\ClientGroup::where( 'client_id', $id )->delete();
-		DB::table( 'oauth_access_tokens' )->where( 'client_id', '=', $id )->delete();
-		DB::table( 'oauth_clients' )->where( 'id', '=', $id )->delete();
+			\App\ClientGroup::where( 'client_id', $id )->delete();
+			DB::table( 'oauth_access_tokens' )->where( 'client_id', '=', $id )->delete();
+			DB::table( 'oauth_clients' )->where( 'id', '=', $id )->delete();
 
-		$this->info( "Successfully deleted client '{$client->name}'" );
+			$this->info( "Successfully deleted client '{$client->name}'" );
+		}
 
 		return 0;
 	}
