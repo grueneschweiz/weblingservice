@@ -37,7 +37,7 @@ class AddAllowedRootGroups {
 		$client_id = $jwt->getClaim( 'aud' );
 
 		// add root groups to header
-		$rootGroups = \App\ClientGroup::where('client_id', $client_id);
+		$rootGroups = \App\ClientGroup::where('client_id', (int) $client_id)->get();
 
 		$groupIds = [];
 		foreach ( $rootGroups as $group ) {
