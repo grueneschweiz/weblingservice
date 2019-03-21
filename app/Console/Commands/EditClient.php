@@ -62,7 +62,7 @@ class EditClient extends ClientCommand {
 			\App\ClientGroup::where( 'client_id', $id )->whereNotIn( 'root_group', $groups )->delete();
 
 			if ( ! empty( $toDelete ) ) {
-				$this->info( 'Deleted groups: ' . implode( $toDelete ) );
+				$this->info( '<comment>Deleted groups:</comment> ' . implode( $toDelete ) );
 			}
 
 			// add the new ones
@@ -82,7 +82,7 @@ class EditClient extends ClientCommand {
 			}
 
 			if ( ! empty( $added ) ) {
-				$this->info( 'Added groups: ' . implode( $added ) );
+				$this->info( '<comment>Added groups:</comment> ' . implode( $added ) );
 			}
 		}
 

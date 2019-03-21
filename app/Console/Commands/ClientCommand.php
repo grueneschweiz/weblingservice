@@ -20,7 +20,7 @@ abstract class ClientCommand extends Command {
 	 */
 	protected function getClientById( int $id ) {
 		if ( 0 >= $id ) {
-			$this->error( 'Invalid id "' . $id . '"' );
+			$this->error( '<comment>Invalid id:</comment> ' . $id );
 
 			return false;
 		}
@@ -28,7 +28,7 @@ abstract class ClientCommand extends Command {
 		$client = DB::table( 'oauth_clients' )->find( $id );
 
 		if ( empty( $client ) ) {
-			$this->error( 'No client with id "' . $id . '"' );
+			$this->error( '<comment>No client with id:</comment>' . $id );
 
 			return false;
 		}
@@ -36,7 +36,7 @@ abstract class ClientCommand extends Command {
 		return $client;
 	}
 
-	protected function validateGroups(array $groups) {
+	protected function validateGroups( array $groups ) {
 		if ( empty( $groups ) ) {
 			$this->error( 'Missing option: You must specify at least one root group. Use --root-group={group_id}' );
 
@@ -45,7 +45,7 @@ abstract class ClientCommand extends Command {
 
 		foreach ( $groups as $group ) {
 			if ( ! is_numeric( $group ) || 0 >= (int) $group ) {
-				$this->error( 'Invalid group id "' . $group . '"' );
+				$this->error( '<comment>Invalid group id:</comment> ' . $group );
 
 				return false;
 			}

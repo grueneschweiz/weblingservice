@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\Artisan;
+use Laravel\Passport\ClientRepository;
 
 class AddClient extends ClientCommand {
 	/**
@@ -32,6 +32,8 @@ class AddClient extends ClientCommand {
 
 	/**
 	 * Execute the console command.
+	 *
+	 * @param ClientRepository $clientRepository injected by laravel
 	 *
 	 * @return mixed
 	 */
@@ -64,12 +66,13 @@ class AddClient extends ClientCommand {
 			$g->save();
 		}
 
-		$this->info( 'Root groups: ' . implode( $rootGroups, ', ' ) );
+		$this->info( '<comment>Root groups:</comment> ' . implode( $rootGroups, ', ' ) );
 	}
 
 	/**
 	 * Add a Client Credentials Grant Tokens using the passport command
 	 *
+	 * @param ClientRepository $clientRepository
 	 * @param string $name
 	 *
 	 * @return int the client id

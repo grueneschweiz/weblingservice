@@ -50,7 +50,7 @@ class DeleteClient extends ClientCommand {
 			DB::table( 'oauth_access_tokens' )->where( 'client_id', '=', $id )->delete();
 			DB::table( 'oauth_clients' )->where( 'id', '=', $id )->delete();
 
-			$this->info( "Successfully deleted client '{$client->name}'" );
+			$this->info( "<comment>Successfully deleted client:</comment> {$client->name}" );
 		}
 
 		return 0;
