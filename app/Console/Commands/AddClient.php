@@ -38,7 +38,9 @@ class AddClient extends ClientCommand {
 	public function handle() {
 		$groups = $this->option( 'root-group' );
 
-		$this->validateGroups( $groups );
+		if ( ! $this->validateGroups( $groups ) ) {
+			return 1;
+		}
 
 		$clientId = $this->addClient( $this->argument( 'name' ) );
 		$this->addRootGroups( $clientId, $groups );
