@@ -37,14 +37,14 @@ class AddClient extends ClientCommand {
 	 *
 	 * @return mixed
 	 */
-	public function handle() {
+	public function handle( ClientRepository $clientRepository ) {
 		$groups = $this->option( 'root-group' );
 
 		if ( ! $this->validateGroups( $groups ) ) {
 			return 1;
 		}
 
-		$clientId = $this->addClient( $this->argument( 'name' ) );
+		$clientId = $this->addClient( $clientRepository, $this->argument( 'name' ) );
 		$this->addRootGroups( $clientId, $groups );
 
 		return 0;
@@ -77,14 +77,13 @@ class AddClient extends ClientCommand {
 	 *
 	 * @return int the client id
 	 */
-	private function addClient( string $name ) {
-		Artisan::call( 'passport:client', [ '--client' => true, '--name' => $name ] );
-		$output = trim( Artisan::output() );
+	private function addClient( ClientRepository $clientRepository, string $name ) {
+		$client = $clientRepository->create( null, $name, '' );
 
-		$this->info( $output );
+		$this->info( 'New client created successfully.' );
+		$this->line( '<comment>Client ID:</comment> ' . $client->id );
+		$this->line( '<comment>Client secret:</comment> ' . $client->secret );
 
-		preg_match( "/Client ID: (\d+)/", $output, $matches );
-
-		return (int) $matches[1]; // client id
+		return $client->id;
 	}
 }
