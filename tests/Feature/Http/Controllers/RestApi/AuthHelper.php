@@ -10,7 +10,6 @@ namespace Tests\Feature\Http\Controllers\RestApi;
 
 
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class AuthHelper {
@@ -28,7 +27,7 @@ class AuthHelper {
 			return $this->token;
 		}
 
-		$this->addClient()->addRootGroups( $allowedGroups );
+		$this->addClient( $allowedGroups );
 
 		$auth = $this->testClass->post( '/oauth/token', [
 				'grant_type'    => 'client_credentials',
@@ -48,27 +47,23 @@ class AuthHelper {
 	}
 
 	public function deleteToken() {
-		DB::table( 'client_groups' )->where( 'client_id', '=', $this->id )->delete();
-		DB::table( 'oauth_clients' )->where( 'id', '=', $this->id )->delete();
-	}
-
-	private function addRootGroups( array $rootGroups ) {
-		foreach ( $rootGroups as $group ) {
-			DB::table( 'client_groups' )->insert( [
-				'client_id'  => $this->id,
-				'root_group' => $group
-			] );
+		if ( $this->id ) {
+			Artisan::call( 'client:delete', [ 'id' => [ $this->id ] ] );
 		}
 	}
 
-	private function addClient() {
-		Artisan::call( 'passport:client', [ '--client' => true, '--name' => 'unit test token' ] );
+	private function addClient( array $rootGroups ) {
+		Artisan::call( 'client:add', [
+			'name'         => 'Unit Test',
+			'--root-group' => $rootGroups
+		] );
 
-		preg_match( "/Client ID: (\d+)\s*Client secret: (\w+)/", Artisan::output(), $matches );
+		$output = Artisan::output();
 
-		$this->id     = $matches[1];
-		$this->secret = $matches[2];
+		preg_match( "/Client ID: (\d+)/", $output, $clientId );
+		preg_match( "/Client secret: (\w+)/", $output, $secret );
 
-		return $this;
+		$this->id     = (int) $clientId[1];
+		$this->secret = $secret[1];
 	}
 }
