@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\RestApi\RestApiGroup;
+namespace App\Http\Controllers\RestApi\RestApiAuth;
 
 use Tests\Feature\Http\Controllers\RestApi\AuthHelper;
 use Tests\TestCase;
 
-class RestApiGroupTest extends TestCase {
+class RestApiAuthTest extends TestCase {
 	/**
 	 * @var AuthHelper
 	 */
