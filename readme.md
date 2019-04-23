@@ -82,8 +82,8 @@ Authorization: Bearer %token%
 The CLI is your interface.
 - `php artisan client:list` lists all clients
 - `php artisan client:add <name> (--root-group=<id>)...` adds new clients.
-You may add multiple root groups while repeating the option (speed thins up using
-the `-g` shorthand.
+You may add multiple root groups while repeating the option (speed things up using
+the `-g` shorthand).
 - `php artisan client:delete <client-id>` deletes your client. Add multiple
 client_ids separated by a space to delete several clients at a time.
 - `php artisan client:edit <client-id> [--name=<new-name>] [--root-group=<id>]...`
