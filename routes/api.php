@@ -99,4 +99,18 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 		} );
 
 	} );
+
+	/*
+	|--------------------------------------------------------------------------
+	| Access Token
+	|--------------------------------------------------------------------------
+	*/
+	Route::group( [ 'prefix' => 'auth' ], function () {
+
+		Route::get( '', function () {
+			// if we can reach this point, we do have a valid access token
+			return '';
+		} );
+
+	} );
 } );
