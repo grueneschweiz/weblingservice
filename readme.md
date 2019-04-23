@@ -77,3 +77,15 @@ must satisfy the following form.
 ```
 Authorization: Bearer %token%
 ```
+
+## Manage Client Credentials Grant Tokens
+The CLI is your interface.
+- `php artisan client:list` lists all clients
+- `php artisan client:add <name> (--root-group=<id>)...` adds new clients.
+You may add multiple root groups while repeating the option (speed thins up using
+the `-g` shorthand.
+- `php artisan client:delete <client-id>` deletes your client. Add multiple
+client_ids separated by a space to delete several clients at a time.
+- `php artisan client:edit <client-id> [--name=<new-name>] [--root-group=<id>]...`
+updates your client. If you provide any group ids, the client is linked to only
+the given groups. Earlier assignments that are not in the list, are removed.

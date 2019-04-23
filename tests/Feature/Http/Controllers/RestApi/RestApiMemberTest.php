@@ -75,6 +75,57 @@ class RestApiMemberTest extends TestCase {
 		$this->assertObjectNotHasAttribute( 'iban', $m );
 	}
 
+	public function testGetMember_200_subgroup() {
+		$member = $this->getMember();
+
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		$rootGroup       = $groupRepository->get( 1084 );
+		$member->addGroups( $rootGroup );
+
+		$member = $this->saveMember( $member );
+
+		$response = $this->json( 'GET', '/api/v1/member/' . $member->id, [], $this->auth->getAuthHeader( [ 1081 ] ) );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$response->assertStatus( 200 );
+	}
+
+	public function testGetMember_200_multigroup() {
+		$member = $this->getMember();
+
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		$rootGroup       = $groupRepository->get( 1084 );
+		$member->addGroups( $rootGroup );
+
+		$member = $this->saveMember( $member );
+
+		$response = $this->json( 'GET', '/api/v1/member/' . $member->id, [], $this->auth->getAuthHeader( [
+			1086,
+			1081
+		] ) );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$response->assertStatus( 200 );
+	}
+
+	public function testGetMember_403() {
+		$member = $this->addMember();
+
+		$response = $this->json( 'GET', '/api/v1/member/' . $member->id, [], $this->auth->getAuthHeader( [ 1081 ] ) );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$response->assertStatus( 403 );
+	}
+
 	public function testGetAdminMember_200() {
 		$member = $this->addMember();
 
@@ -112,6 +163,43 @@ class RestApiMemberTest extends TestCase {
 		$this->assertEquals( $member2->email1->getValue(), $m->email1 );
 		$this->assertEquals( $member2->id, $m->id );
 		$this->assertObjectNotHasAttribute( 'iban', $m );
+	}
+
+	public function testGetMainMember_403() {
+		$member1 = $this->addMember();
+
+		$response = $this->json( 'GET', '/api/v1/member/' . $member1->id . '/main/100', [], $this->auth->getAuthHeader( [ 1081 ] ) );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member1 );
+
+		$response->assertStatus( 403 );
+	}
+
+	public function testGetMainMember_200_subgroup() {
+		$member1 = $this->getMember();
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		$rootGroup       = $groupRepository->get( 1084 );
+		$member1->addGroups( $rootGroup );
+		$member1 = $this->saveMember( $member1 );
+
+		$member2 = $this->getMember();
+		$member2->email1->setValue( $member1->email1->getValue() );
+		$member2->memberStatusCountry->setValue( 'member' );
+		$member2 = $this->saveMember( $member2 );
+
+		$response = $this->json( 'GET', '/api/v1/member/' . $member1->id . '/main/1081', [], $this->auth->getAuthHeader([ 1081 ]) );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member1 );
+		$this->deleteMember( $member2 );
+
+		$m = json_decode( $response->getContent() );
+
+		$response->assertStatus( 200 );
+		$this->assertEquals( $member1->id, $m->id );
 	}
 
 	public function testGetAdminMainMember_200() {
