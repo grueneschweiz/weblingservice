@@ -449,4 +449,23 @@ class Member {
 
 		return false;
 	}
+
+	/**
+	 * Return the ids of this member's groups
+	 *
+	 * @return int[]
+	 */
+	public function getGroupIds(): array {
+		return array_keys( $this->groups );
+	}
+
+	/**
+	 * Make sure the member only in the given groups
+	 *
+	 * @param Group|Group[] $groups
+	 */
+	public function setGroups( $groups ) {
+		$this->removeGroups( $this->groups );
+		$this->addGroups( $groups );
+	}
 }

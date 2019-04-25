@@ -219,4 +219,19 @@ class MemberTest extends TestCase {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertFalse( $member->isDescendantOf( $groupRepository->get( 203 ) ) );
 	}
+
+	public function test__getGroupIds() {
+		$member = $this->getMember();
+		$this->assertEquals( array_keys( $this->groups ), $member->getGroupIds() );
+	}
+
+	public function test__setGroups() {
+		$member = $this->getMember();
+		$this->assertGreaterThan( 1, count( $member->groups ) );
+
+		$group = reset( $this->groups );
+		$member->setGroups( $group );
+
+		$this->assertEquals( [ $group ], array_values( $member->groups ) );
+	}
 }
