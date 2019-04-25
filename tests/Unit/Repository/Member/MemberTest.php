@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
+
 /**
  * Created by PhpStorm.
  * User: cyrillbolliger
@@ -223,6 +224,13 @@ class MemberTest extends TestCase {
 	public function test__getGroupIds() {
 		$member = $this->getMember();
 		$this->assertEquals( array_keys( $this->groups ), $member->getGroupIds() );
+	}
+
+	public function test__getGroupIds_noPreset() {
+		$member = new Member( $this->data, $this->id, null, true );
+		$this->assertEmpty( $member->groups );
+
+		$this->assertEquals( [], $member->getGroupIds() );
 	}
 
 	public function test__setGroups() {

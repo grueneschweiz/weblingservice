@@ -459,7 +459,7 @@ class Member {
 	 * @return int[]
 	 */
 	public function getGroupIds(): array {
-		return array_keys( $this->groups );
+		return array_keys( (array) $this->groups );
 	}
 
 	/**
