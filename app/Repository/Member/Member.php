@@ -468,7 +468,7 @@ class Member {
 	 * @param Group|Group[] $groups
 	 */
 	public function setGroups( $groups ) {
-		$this->removeGroups( $this->groups );
+		$this->removeGroups( (array) $this->groups );
 		$this->addGroups( $groups );
 	}
 }

@@ -234,4 +234,14 @@ class MemberTest extends TestCase {
 
 		$this->assertEquals( [ $group ], array_values( $member->groups ) );
 	}
+
+	public function test__setGroups_noPreset() {
+		$member = new Member( $this->data, $this->id, null, true );
+		$this->assertEmpty( $member->groups );
+
+		$group = reset( $this->groups );
+		$member->setGroups( $group );
+
+		$this->assertEquals( [ $group ], array_values( $member->groups ) );
+	}
 }
