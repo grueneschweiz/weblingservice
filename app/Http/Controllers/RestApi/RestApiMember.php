@@ -150,7 +150,7 @@ class RestApiMember {
 	/**
 	 * Update the given member.
 	 *
-	 * @param Request $request - the http Request with the member data accessible on the 'member' key
+	 * @param Request $request - the http Request with the member data
 	 * @param number $memberId
 	 *
 	 * @return int member id
@@ -185,7 +185,7 @@ class RestApiMember {
 	/**
 	 * Update or insert the given member.
 	 *
-	 * @param Request $request - the http Request with the member data accessible on the 'member' key
+	 * @param Request $request - the http Request with the member data
 	 *
 	 * @return int member id
 	 *
@@ -225,7 +225,7 @@ class RestApiMember {
 				return $memberRepo->save( $patched )->id;
 
 			case MemberMatch::MATCH:
-				$matches = $match->getMatches();
+				$matches       = $match->getMatches();
 				$matchedMember = reset( $matches );
 				$patched       = $this->patchMember( $request, $matchedMember, $memberData );
 
@@ -298,7 +298,7 @@ class RestApiMember {
 	 * @throws BadRequestException
 	 */
 	private function extractMemberData( Request &$request ): array {
-		$memberData = $request->get( 'member' );
+		$memberData = json_decode( $request->getContent(), true );
 		if ( ! $memberData ) {
 			throw new BadRequestException( 'Missing or invalid "member" field in request data.' );
 		}

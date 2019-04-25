@@ -32,9 +32,6 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->setStatusCode( 200 );
 		} );
 
-		/**
-		 * The request body must have the data on the 'member' key
-		 */
 		Route::put( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiMember();
 			$id = $controller->updateMember( $request, $id );
@@ -44,9 +41,6 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->setStatusCode( 201 );
 		} );
 
-		/**
-		 * The request body must have the data on the 'member' key
-		 */
 		Route::post( '', function ( Request $request ) {
 			$controller = new RestApiMember();
 			$id = $controller->upsertMember( $request );

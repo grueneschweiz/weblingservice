@@ -283,7 +283,7 @@ class RestApiMemberTest extends TestCase {
 		$this->assertEquals( $member->iban->getValue(), $m->iban );
 	}
 
-	public function testPutMember_replace_204() {
+	public function testPutMember_replace_201() {
 		$email = 'unittest_replace+' . str_random() . '@unittest.ut';
 
 		$member = $this->addMember();
@@ -298,7 +298,7 @@ class RestApiMemberTest extends TestCase {
 		$put = $this->json(
 			'PUT',
 			'/api/v1/member/' . $member->id,
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -332,7 +332,7 @@ class RestApiMemberTest extends TestCase {
 		$put = $this->json(
 			'PUT',
 			'/api/v1/member/' . $member->id,
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -363,7 +363,7 @@ class RestApiMemberTest extends TestCase {
 		$put = $this->json(
 			'PUT',
 			'/api/v1/member/' . $member->id,
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -387,7 +387,7 @@ class RestApiMemberTest extends TestCase {
 		$put = $this->json(
 			'PUT',
 			'/api/v1/member/' . $member->id,
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -416,7 +416,7 @@ class RestApiMemberTest extends TestCase {
 		$put = $this->json(
 			'PUT',
 			'/api/v1/member/' . $member->id,
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -445,7 +445,7 @@ class RestApiMemberTest extends TestCase {
 		$put = $this->json(
 			'PUT',
 			'/api/v1/member/' . $member->id,
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -484,7 +484,7 @@ class RestApiMemberTest extends TestCase {
 		$post = $this->json(
 			'POST',
 			'/api/v1/member',
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -520,7 +520,7 @@ class RestApiMemberTest extends TestCase {
 		$post = $this->json(
 			'POST',
 			'/api/v1/member',
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -557,7 +557,7 @@ class RestApiMemberTest extends TestCase {
 		$post = $this->json(
 			'POST',
 			'/api/v1/member',
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
@@ -601,7 +601,7 @@ class RestApiMemberTest extends TestCase {
 		$post = $this->json(
 			'POST',
 			'/api/v1/member',
-			[ 'member' => $m ],
+			$m,
 			$this->auth->getAuthHeader()
 		);
 
