@@ -41,6 +41,7 @@ class ApiHelper
     }
 
     $data['id'] = $member->id;
+    $data['groups'] = $member->getGroupIds();
 
     return $data;
   }
@@ -75,7 +76,7 @@ class ApiHelper
 	 * Creates a GroupRepository to deal with Group entities.
 	 *
 	 * @param string [optional] the db key (as of 24.11.2018 the webling api key) for the repo
-	 * @return MemberRepository
+	 * @return GroupRepository
 	 */
 	public static function createGroupRepo(String $api_key = null) {
 		if (!$api_key) {
