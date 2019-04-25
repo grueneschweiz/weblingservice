@@ -27,19 +27,49 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 		Route::get( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiMember();
 
-			return $controller->getMember( $request, $id, $is_admin = false );
+			return response( $controller->getMember( $request, $id, $is_admin = false ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
+		} );
+
+		/**
+		 * The request body must have the data on the 'member' key
+		 */
+		Route::put( '{id}', function ( Request $request, $id ) {
+			$controller = new RestApiMember();
+			$id = $controller->updateMember( $request, $id );
+
+			return response( $id )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 201 );
+		} );
+
+		/**
+		 * The request body must have the data on the 'member' key
+		 */
+		Route::post( '', function ( Request $request ) {
+			$controller = new RestApiMember();
+			$id = $controller->upsertMember( $request );
+
+			return response( $id )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 201 );
 		} );
 
 		Route::get( '{id}/main/{groups}', function ( Request $request, $memberId, $groupIds ) {
 			$controller = new RestApiMember();
 
-			return $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = false );
+			return response( $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = false ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
 			$controller = new RestApiMember();
 
-			return $controller->getChanged( $request, $revisionId );
+			return response( $controller->getChanged( $request, $revisionId ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 	} );
@@ -54,19 +84,25 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 		Route::get( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiMember();
 
-			return $controller->getMember( $request, $id, $is_admin = true );
+			return response( $controller->getMember( $request, $id, $is_admin = true ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 		Route::get( '{id}/main/{groups}', function ( Request $request, $memberId, $groupIds ) {
 			$controller = new RestApiMember();
 
-			return $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = true );
+			return response( $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = true ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
 			$controller = new RestApiMember();
 
-			return $controller->getChanged( $request, $revisionId, $is_admin = true );
+			return response( $controller->getChanged( $request, $revisionId, $is_admin = true ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 	} );
 
@@ -80,7 +116,9 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 		Route::get( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiGroup();
 
-			return $controller->getGroup( $request, $id );
+			return response( $controller->getGroup( $request, $id ) )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 	} );
@@ -92,10 +130,12 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 	*/
 	Route::group( [ 'prefix' => 'revision' ], function () {
 
-		Route::get( '', function ( Request $request ) {
+		Route::get( '', function () {
 			$controller = new RestApiRevision();
 
-			return $controller->getRevision();
+			return response( $controller->getRevision() )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 	} );
@@ -109,7 +149,9 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 
 		Route::get( '', function () {
 			// if we can reach this point, we do have a valid access token
-			return '';
+			return response( '' )
+				->header( 'Content-Type', 'application/json' )
+				->setStatusCode( 200 );
 		} );
 
 	} );
