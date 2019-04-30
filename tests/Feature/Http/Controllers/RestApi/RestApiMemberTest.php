@@ -237,6 +237,20 @@ class RestApiMemberTest extends TestCase {
 		$this->assertTrue( property_exists( reset( $members ), self::EMAIL_FIELD ) );
 	}
 
+	public function testGetChanged_all_limited() {
+		$response = $this->json( 'GET', '/api/v1/member/changed/-1/2/0', [], $this->auth->getAuthHeader() );
+
+		$response->assertStatus( 200 );
+		$members = json_decode( $response->getContent(), true );
+
+		$this->assertEquals( 2, count( $members ) );
+
+		$response = $this->json( 'GET', '/api/v1/member/changed/-1/2/2', [], $this->auth->getAuthHeader() );
+		$members2 = json_decode( $response->getContent(), true );
+
+		$this->assertNotEquals( $members, $members2 );
+	}
+
 	public function testGetChanged_changed() {
 		$response = $this->json( 'GET', '/api/v1/revision', [], $this->auth->getAuthHeader() );
 		$response->assertStatus( 200 );
@@ -592,7 +606,7 @@ class RestApiMemberTest extends TestCase {
 				'value' => $member1->email1->getValue(),
 				'mode'  => 'replace'
 			],
-			'groups'    => [
+			'groups' => [
 				'value' => [ 100 ],
 				'mode'  => 'append',
 			]

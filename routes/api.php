@@ -58,10 +58,10 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->setStatusCode( 200 );
 		} );
 
-		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
+		Route::get( 'changed/{revisionId}/{limit?}/{offset?}', function ( Request $request, $revisionId, $limit = 0, $offset = 0 ) {
 			$controller = new RestApiMember();
 
-			return response( $controller->getChanged( $request, $revisionId ) )
+			return response( $controller->getChanged( $request, $revisionId, (int) $limit, (int) $offset ) )
 				->header( 'Content-Type', 'application/json' )
 				->setStatusCode( 200 );
 		} );
@@ -91,10 +91,10 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->setStatusCode( 200 );
 		} );
 
-		Route::get( 'changed/{revisionId}', function ( Request $request, $revisionId ) {
+		Route::get( 'changed/{revisionId}/{limit?}/{offset?}', function ( Request $request, $revisionId, $limit = 0, $offset = 0 ) {
 			$controller = new RestApiMember();
 
-			return response( $controller->getChanged( $request, $revisionId, $is_admin = true ) )
+			return response( $controller->getChanged( $request, $revisionId, $limit, $offset, $is_admin = true ) )
 				->header( 'Content-Type', 'application/json' )
 				->setStatusCode( 200 );
 		} );

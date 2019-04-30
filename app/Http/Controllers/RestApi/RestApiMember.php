@@ -109,6 +109,8 @@ class RestApiMember {
 	 *
 	 * @param $request - the http Request
 	 * @param $revisionId - the id of the revision we want to get changes since
+	 * @param $limit - how many records should be retrieved at most
+	 * @param $offset - how many records should be skipped
 	 * @param bool $is_admin - is the call by an admin resource (i.e. should we return
 	 *                     all information about the member)
 	 *
@@ -127,11 +129,16 @@ class RestApiMember {
 	 * @throws \App\Exceptions\WeblingFieldMappingConfigException
 	 * @throws \Webling\API\ClientException
 	 */
-	public function getChanged( Request $request, $revisionId, $is_admin = false ) {
+	public function getChanged( Request $request, $revisionId, $limit, $offset, $is_admin = false ) {
 		$allowedGroups = ApiHelper::getAllowedGroups( $request );
 
 		ApiHelper::checkIntegerInput( $revisionId );
+		ApiHelper::checkIntegerInput( $limit );
+		ApiHelper::checkIntegerInput( $offset );
+
 		$memberRepo = ApiHelper::createMemberRepo( $request->header( $key = 'db_key' ) );
+		$memberRepo->setLimit( (int) $limit );
+		$memberRepo->setOffset( (int) $offset );
 
 		if ( - 1 === (int) $revisionId ) {
 			$members = $memberRepo->getAll( $allowedGroups );
