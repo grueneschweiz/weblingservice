@@ -174,6 +174,31 @@ class MemberRepositoryTest extends TestCase {
 		$this->removeMember();
 	}
 
+	public function testGetAll_limited() {
+		$this->addMember();
+
+		$this->repository->setLimit( 1 );
+		$offset = 0;
+
+		$found = [];
+		while ( true ) {
+			$this->repository->setOffset( $offset );
+			$tmp = $this->repository->getAll();
+
+			if ( empty( $tmp ) ) {
+				break;
+			}
+
+			$found = array_merge( $found, $tmp );
+
+			$offset ++;
+		}
+
+		$this->assertTrue( in_array( $this->member, $found ) );
+
+		$this->removeMember();
+	}
+
 	public function testFindWithRootGroups() {
 		$this->addMember();
 

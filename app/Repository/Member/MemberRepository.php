@@ -37,9 +37,43 @@ class MemberRepository extends Repository {
 	const QUERY_MEMBER_MAX = 100;
 
 	/**
-	 * Find the master record of a given member (or member id) in Webling somewhere below the given root group.
+	 * The maximum members that should be processed at any get request
 	 *
-	 * @see MasterDetector for detailed description.
+	 * 0 for no limit
+	 *
+	 * @var int
+	 */
+	private $limit = 0;
+
+	/**
+	 * The number of members that should be skipped (used in conjunction with limit)
+	 *
+	 * @var int
+	 */
+	private $offset = 0;
+
+	/**
+	 * Set the maximum of members that should be process at any get request
+	 *
+	 * Set to 0 for no limit
+	 *
+	 * @param int $limit
+	 */
+	public function setLimit( int $limit ): void {
+		$this->limit = $limit;
+	}
+
+	/**
+	 * Set the number of records that should be skipped (use in conjunction with self::setLimit())
+	 *
+	 * @param int $offset
+	 */
+	public function setOffset( int $offset ): void {
+		$this->offset = $offset;
+	}
+
+	/**
+	 * Find the master record of a given member (or member id) in Webling somewhere below the given root group.
 	 *
 	 * @param int|Member $input id or member instance
 	 * @param Group[] $rootGroups
@@ -55,6 +89,8 @@ class MemberRepository extends Repository {
 	 * @throws ValueTypeException
 	 * @throws WeblingAPIException
 	 * @throws WeblingFieldMappingConfigException
+	 *
+	 * @see MasterDetector for detailed description.
 	 */
 	public function getMaster( $input, array $rootGroups ): Member {
 		if ( $input instanceof Member ) {
@@ -95,8 +131,6 @@ class MemberRepository extends Repository {
 		$repository = new RevisionRepository( $this->api_key, $this->api_url );
 		$revision   = $repository->get( $revisionId );
 
-		// todo: timeout handling
-
 		$members = $this->getMultiple( $revision->getMemberIds() );
 
 		if ( empty( $rootGroups ) ) {
@@ -127,7 +161,7 @@ class MemberRepository extends Repository {
 	/**
 	 * Get multiple members by id.
 	 *
-	 * If more than $membersPerRequest ids are queried, Webling ist queried
+	 * If more than $membersPerRequest ids are queried, Webling is queried
 	 * multiple times with at most members $membersPerRequest per request.
 	 *
 	 * @param array $memberIds the member ids to fetch
@@ -148,6 +182,12 @@ class MemberRepository extends Repository {
 	 * @throws GroupNotFoundException
 	 */
 	private function getMultiple( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
+		if ( $this->limit > 0 && count( $memberIds ) > $this->limit ) {
+			sort( $memberIds, SORT_NUMERIC );
+
+			$memberIds = array_slice( $memberIds, $this->offset, $this->limit );
+		}
+
 		$blocks = array_chunk( $memberIds, $membersPerRequest );
 
 		$members = [];
