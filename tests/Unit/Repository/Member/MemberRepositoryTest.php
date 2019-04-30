@@ -134,6 +134,16 @@ class MemberRepositoryTest extends TestCase {
 		}
 	}
 
+	public function testGetUpdated_ofSubgroup() {
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		$group           = $groupRepository->get( 1081 );
+
+		$updated = $this->repository->getUpdated( self::REVISION_ID, [ $group ] );
+		foreach ( $updated as $member ) {
+			$this->assertTrue( $member instanceof Member || null === $member );
+		}
+	}
+
 	public function testFind() {
 		$this->addMember();
 

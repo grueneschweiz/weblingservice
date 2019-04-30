@@ -465,6 +465,8 @@ class MemberRepository extends Repository {
 	/**
 	 * Filter the given members so only members below the given root groups are returned.
 	 *
+	 * Note: Member ids of deleted members will always stay in the array.
+	 *
 	 * @param Member[] $unfilteredMembers
 	 * @param Group[] $rootGroups
 	 *
@@ -477,6 +479,11 @@ class MemberRepository extends Repository {
 	private function filterByRootGroups( array $unfilteredMembers, array $rootGroups ): array {
 		$filtered = [];
 		foreach ( $unfilteredMembers as $key => &$member ) {
+			if ( null === $member ) {
+				$filtered[ $key ] = null;
+				continue;
+			}
+
 			foreach ( $rootGroups as &$rootGroup ) {
 				if ( $member->isDescendantOf( $rootGroup ) ) {
 					$filtered[ $key ] = &$member;
