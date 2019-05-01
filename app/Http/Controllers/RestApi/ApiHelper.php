@@ -76,13 +76,15 @@ class ApiHelper
 	 * Creates a GroupRepository to deal with Group entities.
 	 *
 	 * @param string [optional] the db key (as of 24.11.2018 the webling api key) for the repo
+	 *
 	 * @return GroupRepository
 	 */
-	public static function createGroupRepo(String $api_key = null) {
-		if (!$api_key) {
-			$api_key = config('app.webling_api_key'); // default on server
+	public static function createGroupRepo( String $api_key = null ) {
+		if ( ! $api_key ) {
+			$api_key = config( 'app.webling_api_key' ); // default on server
 		}
-		return new GroupRepository($api_key);
+
+		return new GroupRepository( $api_key );
 	}
 
 	/**
@@ -119,7 +121,7 @@ class ApiHelper
 
 		$groups = [];
 		foreach ( $allowedGroups as $groupId ) {
-			$groups[] = $groupRepository->get( $groupId );
+			$groups[ $groupId ] = $groupRepository->get( $groupId );
 		}
 
 		return $groups;

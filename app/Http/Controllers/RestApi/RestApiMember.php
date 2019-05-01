@@ -76,22 +76,26 @@ class RestApiMember {
 	 * @throws \App\Exceptions\WeblingFieldMappingConfigException
 	 * @throws \Webling\API\ClientException
 	 */
-	public function getMainMember( Request $request, $member_id, $group_ids, $is_admin = false ) {
+	public function getMainMember( Request $request, $member_id, $group_ids = null, $is_admin = false ) {
 		$allowedGroups = ApiHelper::getAllowedGroups( $request );
 
-		$group_ids       = explode( ',', $group_ids );
-		$requestedGroups = [];
+		if ( $group_ids ) {
+			$group_ids = explode( ',', $group_ids );
+			$requestedGroups = [];
 
-		/** @var GroupRepository $groupRepository */
-		$groupRepository = ApiHelper::createGroupRepo( $request->header( $key = 'db_key' ) );
+			/** @var GroupRepository $groupRepository */
+			$groupRepository = ApiHelper::createGroupRepo( $request->header( $key = 'db_key' ) );
 
-		foreach ( $group_ids as $groupId ) {
-			ApiHelper::checkIntegerInput( $groupId );
+			foreach ( $group_ids as $groupId ) {
+				ApiHelper::checkIntegerInput( $groupId );
 
-			$group                             = $groupRepository->get( (int) $groupId );
-			$requestedGroups[ (int) $groupId ] = $group;
+				$group                             = $groupRepository->get( (int) $groupId );
+				$requestedGroups[ (int) $groupId ] = $group;
 
-			ApiHelper::assertAllowedGroup( $allowedGroups, $group );
+				ApiHelper::assertAllowedGroup( $allowedGroups, $group );
+			}
+		} else {
+			$requestedGroups = ApiHelper::getAllowedGroups( $request );
 		}
 
 		ApiHelper::checkIntegerInput( $member_id );

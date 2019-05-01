@@ -50,7 +50,7 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->setStatusCode( 201 );
 		} );
 
-		Route::get( '{id}/main/{groups}', function ( Request $request, $memberId, $groupIds ) {
+		Route::get( '{id}/main/{groups?}', function ( Request $request, $memberId, $groupIds = null ) {
 			$controller = new RestApiMember();
 
 			return response( $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = false ) )
@@ -83,7 +83,7 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->setStatusCode( 200 );
 		} );
 
-		Route::get( '{id}/main/{groups}', function ( Request $request, $memberId, $groupIds ) {
+		Route::get( '{id}/main/{groups?}', function ( Request $request, $memberId, $groupIds = null ) {
 			$controller = new RestApiMember();
 
 			return response( $controller->getMainMember( $request, $memberId, $groupIds, $is_admin = true ) )
