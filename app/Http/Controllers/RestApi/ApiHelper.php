@@ -18,12 +18,17 @@ use Symfony\Component\Yaml\Yaml;
 class ApiHelper {
 	/**
 	 *
-	 * @param Member the member object
-	 * @param boolean [optional] is the array for an admin or not?
+	 * @param Member $member the member object
+	 * @param Group[] $allowedGroups the groups this user has access to
+	 * @param boolean $is_admin is the array for an admin or not?
 	 *
-	 * @return the MemberRepository
+	 * @return array
+	 *
+	 * @throws \App\Exceptions\GroupNotFoundException
+	 * @throws \App\Exceptions\WeblingAPIException
+	 * @throws \Webling\API\ClientException
 	 */
-	public static function getMemberAsArray( Member $member, $is_admin = false ): array {
+	public static function getMemberAsArray( Member $member, array $allowedGroups, $is_admin = false ): array {
 
 		if ( $is_admin ) {
 			//for admin return all fields
@@ -40,8 +45,19 @@ class ApiHelper {
 			}
 		}
 
-		$data['id']     = $member->id;
-		$data['groups'] = $member->getGroupIds();
+		// add first level group names
+		$rootGroups = [];
+		$groupRepo  = self::createGroupRepo();
+		foreach ( $allowedGroups as $group ) {
+			$rootGroupIds = $member->getFirstLevelGroupIds( $group->getId() );
+			foreach ( $rootGroupIds as $id ) {
+				$rootGroups = $groupRepo->get( $id )->getName();
+			}
+		}
+
+		$data['id']                   = $member->id;
+		$data['groups']               = $member->getGroupIds();
+		$data['firstLevelGroupNames'] = $rootGroups;
 
 		return $data;
 	}

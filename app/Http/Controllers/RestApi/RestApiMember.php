@@ -43,10 +43,12 @@ class RestApiMember {
 		ApiHelper::checkIntegerInput( $member_id );
 		$memberRepo = ApiHelper::createMemberRepo( $request->header( $key = 'db_key' ) );
 
-		$member = $memberRepo->get( $member_id );
-		ApiHelper::assertAllowedMember( ApiHelper::getAllowedGroups( $request ), $member );
+		$allowedGroups = ApiHelper::getAllowedGroups( $request );
 
-		$data = ApiHelper::getMemberAsArray( $member, $is_admin );
+		$member = $memberRepo->get( $member_id );
+		ApiHelper::assertAllowedMember( $allowedGroups, $member );
+
+		$data = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin );
 
 		return json_encode( $data );
 	}
@@ -80,7 +82,7 @@ class RestApiMember {
 		$allowedGroups = ApiHelper::getAllowedGroups( $request );
 
 		if ( $group_ids ) {
-			$group_ids = explode( ',', $group_ids );
+			$group_ids       = explode( ',', $group_ids );
 			$requestedGroups = [];
 
 			/** @var GroupRepository $groupRepository */
@@ -95,7 +97,7 @@ class RestApiMember {
 				ApiHelper::assertAllowedGroup( $allowedGroups, $group );
 			}
 		} else {
-			$requestedGroups = ApiHelper::getAllowedGroups( $request );
+			$requestedGroups = $allowedGroups;
 		}
 
 		ApiHelper::checkIntegerInput( $member_id );
@@ -103,7 +105,7 @@ class RestApiMember {
 
 		$member = $memberRepo->getMaster( $member_id, $requestedGroups );
 
-		$data = ApiHelper::getMemberAsArray( $member, $is_admin );
+		$data = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin  );
 
 		return json_encode( $data );
 	}
@@ -152,7 +154,7 @@ class RestApiMember {
 
 		$data = [];
 		foreach ( $members as $member ) {
-			$data[ $member->id ] = ApiHelper::getMemberAsArray( $member, $is_admin );
+			$data[ $member->id ] = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin );
 		}
 
 		return json_encode( $data );

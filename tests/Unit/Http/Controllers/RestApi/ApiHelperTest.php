@@ -1,9 +1,10 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
 
 namespace App\Http\Controllers\RestApi\RestApiMember;
 
 use App\Exceptions\IllegalArgumentException;
 use App\Http\Controllers\RestApi\ApiHelper;
+use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use Tests\TestCase;
 
@@ -16,6 +17,7 @@ class ApiHelperTest extends TestCase {
 	private $someAdminValue = 'president';
 	private $groups;
 	private $data;
+	private $rootGroup;
 
 
 	private function getMember() {
@@ -29,6 +31,11 @@ class ApiHelperTest extends TestCase {
 			$this->someKey      => $this->someValue,
 			$this->someAdminKey => $this->someAdminValue,
 		];
+
+		$groupRepo = new GroupRepository( config( 'app.webling_api_key' ) );
+
+		$this->rootGroup = $groupRepo->get( 100 );
+		$this->groups    = [ $groupRepo->get( 1081 ) ];
 	}
 
 	/**
@@ -45,15 +52,17 @@ class ApiHelperTest extends TestCase {
 	}
 
 	public function testGetMemberAsArray_nonAdmin() {
-		$memberArray = ApiHelper::getMemberAsArray( $this->getMember() );
+		$memberArray = ApiHelper::getMemberAsArray( $this->getMember(), [ $this->rootGroup ] );
 
 		$this->assertTrue( is_array( $memberArray ) );
 		$this->assertArrayHasKey( $this->someKey, $memberArray );
 		$this->assertArrayNotHasKey( $this->someAdminKey, $memberArray );
+		$this->assertEquals( $this->id, $memberArray['id'] );
+		$this->assertEquals( 'Unit Group 1', $memberArray['firstLevelGroupNames'] );
 	}
 
 	public function testGetMemberAsArray_admin() {
-		$memberArray = ApiHelper::getMemberAsArray( $this->getMember(), true );
+		$memberArray = ApiHelper::getMemberAsArray( $this->getMember(), [ $this->rootGroup ], true );
 
 		$this->assertTrue( is_array( $memberArray ) );
 		$this->assertArrayHasKey( $this->someKey, $memberArray );
