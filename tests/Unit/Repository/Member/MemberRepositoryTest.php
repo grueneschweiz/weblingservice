@@ -199,6 +199,12 @@ class MemberRepositoryTest extends TestCase {
 		$this->removeMember();
 	}
 
+	public function testGetAll_limited_offset() {
+		$this->repository->setLimit( 1 );
+		$this->repository->setOffset( PHP_INT_MAX );
+		$this->assertEmpty($this->repository->getAll());
+	}
+
 	public function testFindWithRootGroups() {
 		$this->addMember();
 

@@ -131,7 +131,7 @@ class MemberRepository extends Repository {
 		$repository = new RevisionRepository( $this->api_key, $this->api_url );
 		$revision   = $repository->get( $revisionId );
 
-		$members = $this->getMultiple( $revision->getMemberIds() );
+		$members = $this->getMultiplePaged( $revision->getMemberIds() );
 
 		if ( empty( $rootGroups ) ) {
 			return $members;
@@ -159,6 +159,41 @@ class MemberRepository extends Repository {
 	}
 
 	/**
+	 * Get multiple members by id, paged by $this->limit and $this->offset
+	 *
+	 * @param array $memberIds the member ids to fetch
+	 * @param int $membersPerRequest the maximum number of members to get per
+	 * request.
+	 *
+	 * @return Member[] Array with the member ids as keys and the members as
+	 * values. If the member was not found, the value is NULL.
+	 *
+	 * @throws ClientException
+	 * @throws InvalidFixedValueException
+	 * @throws MemberNotFoundException
+	 * @throws MemberUnknownFieldException
+	 * @throws MultiSelectOverwriteException
+	 * @throws ValueTypeException
+	 * @throws WeblingAPIException
+	 * @throws WeblingFieldMappingConfigException
+	 * @throws GroupNotFoundException
+	 */
+	private function getMultiplePaged( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
+		$count = count( $memberIds );
+		sort( $memberIds, SORT_NUMERIC );
+
+		if ( $this->limit > 0 && $count > $this->limit ) {
+			$memberIds = array_slice( $memberIds, $this->offset, $this->limit );
+		}
+
+		if ( $count < $this->offset ) {
+			return [];
+		}
+
+		return $this->getMultiple( $memberIds, $membersPerRequest );
+	}
+
+	/**
 	 * Get multiple members by id.
 	 *
 	 * If more than $membersPerRequest ids are queried, Webling is queried
@@ -181,13 +216,7 @@ class MemberRepository extends Repository {
 	 * @throws WeblingFieldMappingConfigException
 	 * @throws GroupNotFoundException
 	 */
-	private function getMultiple( array $memberIds, int $membersPerRequest = self::QUERY_MEMBER_MAX ): array {
-		if ( $this->limit > 0 && count( $memberIds ) > $this->limit ) {
-			sort( $memberIds, SORT_NUMERIC );
-
-			$memberIds = array_slice( $memberIds, $this->offset, $this->limit );
-		}
-
+	private function getMultiple( array $memberIds, int $membersPerRequest ): array {
 		$blocks = array_chunk( $memberIds, $membersPerRequest );
 
 		$members = [];
@@ -394,7 +423,7 @@ class MemberRepository extends Repository {
 	 * @see https://gruenesandbox.webling.ch/api#header-error-status-codes
 	 */
 	public function get( int $id ): Member {
-		$result = $this->getMultiple( [ $id ] );
+		$result = $this->getMultiple( [ $id ], 1 );
 		if ( null === $result[ $id ] ) {
 			throw new MemberNotFoundException( "Member with id '$id' not found in Webling." );
 		}
@@ -461,7 +490,7 @@ class MemberRepository extends Repository {
 			return [];
 		}
 
-		$members = $this->getMultiple( $ids );
+		$members = $this->getMultiplePaged( $ids );
 
 		if ( empty( $rootGroups ) ) {
 			return $members;
