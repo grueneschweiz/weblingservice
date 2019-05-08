@@ -105,7 +105,7 @@ class RestApiMember {
 
 		$member = $memberRepo->getMaster( $member_id, $requestedGroups );
 
-		$data = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin  );
+		$data = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin );
 
 		return json_encode( $data );
 	}
@@ -153,8 +153,12 @@ class RestApiMember {
 		}
 
 		$data = [];
-		foreach ( $members as $member ) {
-			$data[ $member->id ] = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin );
+		foreach ( $members as $id => $member ) {
+			if ( empty( $member ) ) {
+				$data[ $id ] = null;
+			} else {
+				$data[ $id ] = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin );
+			}
 		}
 
 		return json_encode( $data );
