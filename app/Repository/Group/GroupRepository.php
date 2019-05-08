@@ -33,6 +33,10 @@ class GroupRepository extends Repository {
         parent::__construct($api_key, $api_url);
 
         $this->cacheDirectory = rtrim(config('app.cache_directory'), '/');
+        if (0 !== strpos($this->cacheDirectory,'/')) {
+        	$this->cacheDirectory = base_path($this->cacheDirectory);
+        }
+
         if(file_exists($this->cacheDirectory)) {
             if(!file_exists($this->cacheDirectory . '/group')) {
                 if (!mkdir($concurrentDirectory = $this->cacheDirectory . '/group') && !is_dir($concurrentDirectory)) {
