@@ -462,7 +462,7 @@ mappings:
   - legislativePast: Legislative ehemals / législatif passé
   - judikativeActive: Judikative aktiv / judiciaire actuel
   - judikativePast: Judikative ehemals / judiciaire passé
-  - commissionActive: Kommission aktiv / commission actuel§
+  - commissionActive: Kommission aktiv / commission actuel
   - commissionPast: Kommission ehemals / commission passé
   weblingKey: Mandate National / mandats nationaux
 - key: mandateCountryDetail
