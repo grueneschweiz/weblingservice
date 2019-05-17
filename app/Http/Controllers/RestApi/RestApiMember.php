@@ -256,7 +256,7 @@ class RestApiMember {
 				return $memberRepo->save( $patched )->id;
 
 			default:
-				return - 1;
+				throw new IllegalFieldUpdateMode( $match->getStatus() . ' is not defined' );
 		}
 	}
 
