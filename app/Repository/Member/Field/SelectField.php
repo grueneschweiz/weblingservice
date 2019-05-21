@@ -36,7 +36,7 @@ class SelectField extends FixedField {
 	 */
 	public function setValue( $value, bool $dirty = true ) {
 		$this->assertOptionalStringType( $value );
-		$value = $this->clean( $value );
+		$value = self::clean( $value );
 		
 		if ( null !== $value ) {
 			$value = $this->makeInternalValue( $value );

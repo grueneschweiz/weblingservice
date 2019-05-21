@@ -29,7 +29,7 @@ abstract class FreeField extends Field {
 	 */
 	public function setValue( $value, bool $dirty = true ) {
 		$this->assertOptionalStringType( $value );
-		$value = $this->clean( $value );
+		$value = self::clean( $value );
 		
 		if ( $value !== $this->getValue() ) {
 			$this->value = $value;
