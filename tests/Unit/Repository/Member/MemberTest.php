@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUnhandledExceptionInspection */
+
 /**
  * Created by PhpStorm.
  * User: cyrillbolliger
@@ -218,5 +219,37 @@ class MemberTest extends TestCase {
 
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$this->assertFalse( $member->isDescendantOf( $groupRepository->get( 203 ) ) );
+	}
+
+	public function test__getGroupIds() {
+		$member = $this->getMember();
+		$this->assertEquals( array_keys( $this->groups ), $member->getGroupIds() );
+	}
+
+	public function test__getGroupIds_noPreset() {
+		$member = new Member( $this->data, $this->id, null, true );
+		$this->assertEmpty( $member->groups );
+
+		$this->assertEquals( [], $member->getGroupIds() );
+	}
+
+	public function test__setGroups() {
+		$member = $this->getMember();
+		$this->assertGreaterThan( 1, count( $member->groups ) );
+
+		$group = reset( $this->groups );
+		$member->setGroups( $group );
+
+		$this->assertEquals( [ $group ], array_values( $member->groups ) );
+	}
+
+	public function test__setGroups_noPreset() {
+		$member = new Member( $this->data, $this->id, null, true );
+		$this->assertEmpty( $member->groups );
+
+		$group = reset( $this->groups );
+		$member->setGroups( $group );
+
+		$this->assertEquals( [ $group ], array_values( $member->groups ) );
 	}
 }

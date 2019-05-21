@@ -129,6 +129,9 @@ use App\Repository\Member\Field\TextField;
  * @package App\Repository\Member
  */
 class Member {
+	public const KEY_ID = 'id';
+	public const KEY_GROUPS = 'groups';
+
 	/**
 	 * The fields with the member data
 	 *
@@ -243,7 +246,7 @@ class Member {
 			} else if ( is_array( $fieldValue ) ) {
 				foreach ( $fieldValue as $arrayFieldKey => $arrayFieldValue ) {
 					if ( is_object( $arrayFieldValue ) ) {
-						unset($this->$fieldKey[ $arrayFieldKey ]); // yes, this line is necessary!
+						unset( $this->$fieldKey[ $arrayFieldKey ] ); // yes, this line is necessary!
 						$this->$fieldKey[ $arrayFieldKey ] = clone $arrayFieldValue;
 					}
 					// implement support for multidimensional arrays here, if needed.
@@ -288,11 +291,11 @@ class Member {
 	 * @throws MemberUnknownFieldException
 	 */
 	public function __get( $name ) {
-		if ( 'id' === $name ) {
+		if ( self::KEY_ID === $name ) {
 			return $this->id;
 		}
 
-		if ( 'groups' === $name ) {
+		if ( self::KEY_GROUPS === $name ) {
 			return $this->groups;
 		}
 
@@ -448,5 +451,24 @@ class Member {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Return the ids of this member's groups
+	 *
+	 * @return int[]
+	 */
+	public function getGroupIds(): array {
+		return array_keys( (array) $this->groups );
+	}
+
+	/**
+	 * Make sure the member only in the given groups
+	 *
+	 * @param Group|Group[] $groups
+	 */
+	public function setGroups( $groups ) {
+		$this->removeGroups( (array) $this->groups );
+		$this->addGroups( $groups );
 	}
 }

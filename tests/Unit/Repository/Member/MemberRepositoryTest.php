@@ -134,6 +134,16 @@ class MemberRepositoryTest extends TestCase {
 		}
 	}
 
+	public function testGetUpdated_ofSubgroup() {
+		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
+		$group           = $groupRepository->get( 1081 );
+
+		$updated = $this->repository->getUpdated( self::REVISION_ID, [ $group ] );
+		foreach ( $updated as $member ) {
+			$this->assertTrue( $member instanceof Member || null === $member );
+		}
+	}
+
 	public function testFind() {
 		$this->addMember();
 
@@ -162,6 +172,37 @@ class MemberRepositoryTest extends TestCase {
 		$this->assertTrue( in_array( $this->member, $found ) );
 
 		$this->removeMember();
+	}
+
+	public function testGetAll_limited() {
+		$this->addMember();
+
+		$this->repository->setLimit( 1 );
+		$offset = 0;
+
+		$found = [];
+		while ( true ) {
+			$this->repository->setOffset( $offset );
+			$tmp = $this->repository->getAll();
+
+			if ( empty( $tmp ) ) {
+				break;
+			}
+
+			$found = array_merge( $found, $tmp );
+
+			$offset ++;
+		}
+
+		$this->assertTrue( in_array( $this->member, $found ) );
+
+		$this->removeMember();
+	}
+
+	public function testGetAll_limited_offset() {
+		$this->repository->setLimit( 1 );
+		$this->repository->setOffset( PHP_INT_MAX );
+		$this->assertEmpty($this->repository->getAll());
 	}
 
 	public function testFindWithRootGroups() {
