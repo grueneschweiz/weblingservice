@@ -12,12 +12,13 @@ namespace App\Repository\Member;
 
 use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\NoGroupException;
+use App\Exceptions\RevisionNotFoundException;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Revision\RevisionRepository;
 use Tests\TestCase;
 
 class MemberRepositoryTest extends TestCase {
-	const REVISION_ID = 2000;
+	const REVISION_LAG = 500;
 	const MEMBER_STATUS = 'member';
 
 	/**
@@ -30,6 +31,10 @@ class MemberRepositoryTest extends TestCase {
 	 */
 	private $member;
 
+	/**
+	 * @var int
+	 */
+	private $oldRevisionId;
 
 	public function setUp() {
 		parent::setUp();
@@ -122,13 +127,13 @@ class MemberRepositoryTest extends TestCase {
 	}
 
 	public function testGetUpdated() {
-		$updated = $this->repository->getUpdated( self::REVISION_ID );
+		$updated = $this->repository->getUpdated( $this->getOldRevisionId() );
 		foreach ( $updated as $member ) {
 			$this->assertTrue( $member instanceof Member || null === $member );
 		}
 
 		$rervisionRepository = new RevisionRepository( config( 'app.webling_api_key' ) );
-		$revision            = $rervisionRepository->get( self::REVISION_ID );
+		$revision            = $rervisionRepository->get( $this->getOldRevisionId() );
 		foreach ( $revision->getMemberIds() as $id ) {
 			$this->assertTrue( array_key_exists( $id, $updated ) );
 		}
@@ -138,7 +143,7 @@ class MemberRepositoryTest extends TestCase {
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
 		$group           = $groupRepository->get( 1081 );
 
-		$updated = $this->repository->getUpdated( self::REVISION_ID, [ $group ] );
+		$updated = $this->repository->getUpdated( $this->getOldRevisionId(), [ $group ] );
 		foreach ( $updated as $member ) {
 			$this->assertTrue( $member instanceof Member || null === $member );
 		}
@@ -202,7 +207,7 @@ class MemberRepositoryTest extends TestCase {
 	public function testGetAll_limited_offset() {
 		$this->repository->setLimit( 1 );
 		$this->repository->setOffset( PHP_INT_MAX );
-		$this->assertEmpty($this->repository->getAll());
+		$this->assertEmpty( $this->repository->getAll() );
 	}
 
 	public function testFindWithRootGroups() {
@@ -228,5 +233,33 @@ class MemberRepositoryTest extends TestCase {
 
 		$this->expectException( MemberNotFoundException::class );
 		$this->repository->get( $this->member->id );
+	}
+
+	private function getOldRevisionId() {
+		if ( $this->oldRevisionId ) {
+			return $this->oldRevisionId;
+		}
+
+		// get revision id
+		$rervisionRepository = new RevisionRepository( config( 'app.webling_api_key' ) );
+		$current             = $rervisionRepository->getCurrentRevisionId();
+		$oldRevisionId       = $current - self::REVISION_LAG;
+
+		// test if it is valid
+		// search until one valid found
+		for ( $i = 1; $i < 50; $i ++ ) {
+			try {
+				$rervisionRepository->get( $oldRevisionId );
+				$this->oldRevisionId = $oldRevisionId;
+				break;
+			} catch (RevisionNotFoundException $e) {
+				$oldRevisionId += $i * 10;
+			}
+		}
+
+		// this line asserts we get an exception if the search was not successful
+		$rervisionRepository->get($oldRevisionId);
+
+		return $this->oldRevisionId;
 	}
 }
