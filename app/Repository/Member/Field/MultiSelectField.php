@@ -84,7 +84,7 @@ class MultiSelectField extends FixedField {
 		$values = (array) $values;
 		
 		foreach ( $values as &$value ) {
-			$value = $this->clean( $value );
+			$value = self::clean( $value );
 			$value = $this->makeInternalValue( $value );
 			
 			if ( ! $this->hasValue( $value ) && null !== $value ) {
