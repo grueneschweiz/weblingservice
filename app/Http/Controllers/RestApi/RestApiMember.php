@@ -319,11 +319,11 @@ class RestApiMember {
 	private function extractMemberData( Request &$request ): array {
 		$memberData = json_decode( $request->getContent(), true );
 		if ( ! $memberData ) {
-			throw new BadRequestException( 'Missing or invalid "member" field in request data.' );
+			throw new BadRequestException( 'Missing request content data.' );
 		}
 
 		if ( ! is_array( $memberData ) ) {
-			throw new BadRequestException( 'Malformed "member" data.' );
+			throw new BadRequestException( 'Malformed member data.' );
 		}
 
 		return $memberData;
