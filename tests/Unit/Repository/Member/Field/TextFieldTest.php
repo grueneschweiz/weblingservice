@@ -49,4 +49,11 @@ class TextFieldTest extends TestCase {
 		$this->assertEquals( $this->value, $field->getValue() );
 	}
 
+	public function testAppend__emptyString() {
+		$field = $this->getField();
+		$field->setValue(null);
+
+		$field->append( $this->secondValue );
+		$this->assertEquals( $this->secondValue, $field->getValue() );
+	}
 }

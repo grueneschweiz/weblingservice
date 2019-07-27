@@ -23,7 +23,12 @@ class LongTextField extends FreeField {
 			return;
 		}
 
-		$v = $this->getValue() . $separator . $value;
+		if ( empty( $this->getValue() ) ) {
+			$v = $value;
+		} else {
+			$v = $this->getValue() . $separator . $value;
+		}
+
 		$this->setValue( $v, $dirty );
 	}
 }
