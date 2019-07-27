@@ -421,17 +421,17 @@ class RestApiMemberTest extends TestCase {
 
 	public function testPutMember_addIfNew_new_201() {
 		$m = [
-			'email1' => [
-				'value' => 'unittest_'.str_random().'@mail.com',
-				'mode' => 'replace',
+			'email1'       => [
+				'value' => 'unittest_' . str_random() . '@mail.com',
+				'mode'  => 'replace',
 			],
 			'entryChannel' => [
 				'value' => 'I am new here',
 				'mode'  => 'addIfNew'
 			],
-			'groups' => [
+			'groups'       => [
 				'value' => 100,
-				'mode' => 'append',
+				'mode'  => 'append',
 			]
 		];
 
@@ -457,7 +457,7 @@ class RestApiMemberTest extends TestCase {
 
 	public function testPutMember_replaceEmpty_notEmpty_201() {
 		$initial = 'already in the database';
-		$replace     = 'this should not be replaced';
+		$replace = 'this should not be replaced';
 
 		$member = $this->getMember();
 		$member->entryChannel->setValue( $initial );
@@ -492,7 +492,7 @@ class RestApiMemberTest extends TestCase {
 
 	public function testPutMember_replaceEmpty_empty_201() {
 		$initial = '';
-		$replace     = 'this should not be replaced';
+		$replace = 'this should not be replaced';
 
 		$member = $this->getMember();
 		$member->entryChannel->setValue( $initial );
@@ -525,13 +525,12 @@ class RestApiMemberTest extends TestCase {
 
 
 	public function testPutMember_append_500() {
-		$email = 'unittest_replace+' . str_random() . '@unittest.ut';
-
+		$date   = '2019-07-27';
 		$member = $this->addMember();
 
 		$m = [
-			'email1' => [
-				'value' => $email,
+			'birthday' => [
+				'value' => $date,
 				'mode'  => 'append'
 			]
 		];
@@ -817,6 +816,7 @@ class RestApiMemberTest extends TestCase {
 		$member->lastName->setValue( 'Test' );
 		$member->email1->setValue( 'unittest+' . str_random() . '@unittest.ut' );
 		$member->iban->setValue( '12345678' );
+		$member->birthday->setValue( '2000-01-01' );
 
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
 		$rootGroup       = $groupRepository->get( 100 );
