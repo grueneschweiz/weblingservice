@@ -20,7 +20,7 @@ abstract class FreeField extends Field {
 		$this->weblingKey = $weblingKey;
 		$this->setValue( $value, false );
 	}
-	
+
 	/**
 	 * @param string|null $value
 	 * @param boolean $dirty
@@ -30,17 +30,30 @@ abstract class FreeField extends Field {
 	public function setValue( $value, bool $dirty = true ) {
 		$this->assertOptionalStringType( $value );
 		$value = self::clean( $value );
-		
+
 		if ( $value !== $this->getValue() ) {
 			$this->value = $value;
 			$this->setDirty( $dirty );
 		}
 	}
-	
+
 	/**
 	 * @return string|array
 	 */
 	public function getWeblingValue() {
 		return $this->getValue();
+	}
+
+	/**
+	 * Check if the given needle is contained in the value.
+	 *
+	 * Returns only true, if the match is bounded, not if it is in the middle of a word.
+	 *
+	 * @param string $needle
+	 *
+	 * @return bool
+	 */
+	protected function inValue( string $needle ) {
+		return 1 === preg_match( "/\b$needle\b/", $this->getValue() );
 	}
 }
