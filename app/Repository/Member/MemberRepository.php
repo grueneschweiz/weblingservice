@@ -249,7 +249,7 @@ class MemberRepository extends Repository {
 				$newMembers                 = $this->getMultiple( $block, $recursiveMembersPerRequest );
 				$members                    += $newMembers;
 			} else {
-				throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
+				throw new WeblingAPIException( "Get request to Webling failed: {$resp->getRawData()}", $resp->getStatusCode() );
 			}
 		}
 
@@ -370,7 +370,7 @@ class MemberRepository extends Repository {
 			if ( $data ) { // only send request, if data has changed
 				$resp = $this->apiPut( "member/$id", $data );
 				if ( $resp->getStatusCode() !== 204 ) {
-					throw new WeblingAPIException( "Put request to Webling failed with status code {$resp->getStatusCode()}" );
+					throw new WeblingAPIException( "Put request to Webling failed: {$resp->getRawData()}", $resp->getStatusCode() );
 				}
 			}
 
@@ -378,7 +378,7 @@ class MemberRepository extends Repository {
 			// create
 			$resp = $this->apiPost( 'member', $data );
 			if ( $resp->getStatusCode() !== 201 ) {
-				throw new WeblingAPIException( "Post request to Webling failed with status code {$resp->getStatusCode()}" );
+				throw new WeblingAPIException( "Post request to Webling failed: {$resp->getRawData()}", $resp->getStatusCode() );
 			}
 			$id = $resp->getData();
 		}
@@ -482,7 +482,7 @@ class MemberRepository extends Repository {
 		}
 
 		if ( $resp->getStatusCode() !== 200 ) {
-			throw new WeblingAPIException( "Get request to Webling failed with status code {$resp->getStatusCode()}" );
+			throw new WeblingAPIException( "Get request to Webling failed: {$resp->getRawData()}", $resp->getStatusCode() );
 		}
 
 		$ids = $resp->getData()['objects'];
@@ -527,7 +527,7 @@ class MemberRepository extends Repository {
 		$data = $this->apiDelete( "member/$id" );
 
 		if ( $data->getStatusCode() !== 204 ) {
-			throw new WeblingAPIException( "Delete request to Webling failed with status code {$data->getStatusCode()}" );
+			throw new WeblingAPIException( "Delete request to Webling failed {$data->getRawData()}", $data->getStatusCode() );
 		}
 	}
 

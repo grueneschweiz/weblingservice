@@ -43,7 +43,7 @@ class RestApiMemberTest extends TestCase {
 
 		$response = $this->json( 'GET', '/api/v1/member/1', [], $headers );
 
-		$response->assertStatus( 500 );
+		$response->assertStatus( 401 );
 		$this->assertRegExp( '/Get request to Webling failed with status code 401/', $response->getContent() );
 	}
 
