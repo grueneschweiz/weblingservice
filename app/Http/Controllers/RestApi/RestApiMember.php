@@ -294,8 +294,8 @@ class RestApiMember {
 				$field['mode'] = self::MODE_REPLACE;
 			}
 
-			if ( ! is_array( $field ) || ! isset( $field['mode'] ) || ! isset( $field['value'] ) ) {
-				throw new BadRequestException( 'Malformed "member" data.' );
+			if ( ! is_array( $field ) || ! array_key_exists( 'mode', $field ) || ! array_key_exists( 'value', $field ) ) {
+				throw new BadRequestException( 'Malformed data in field: ' . $fieldKey );
 			}
 
 			if ( Member::KEY_GROUPS === $fieldKey ) {
