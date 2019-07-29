@@ -105,6 +105,18 @@ class MultiSelectFieldTest extends TestCase {
 		/** @noinspection PhpUnhandledExceptionInspection */
 		$field->append( $this->possibleValues['no'] );
 		$this->assertEquals( array_keys( $this->possibleValues ), $field->getValue() );
+
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field->append( null );
+		$this->assertEquals( array_keys( $this->possibleValues ), $field->getValue() );
+
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field->append( array() );
+		$this->assertEquals( array_keys( $this->possibleValues ), $field->getValue() );
+
+		/** @noinspection PhpUnhandledExceptionInspection */
+		$field->append( '' );
+		$this->assertEquals( array_keys( $this->possibleValues ), $field->getValue() );
 	}
 	
 	public function testRemove() {
