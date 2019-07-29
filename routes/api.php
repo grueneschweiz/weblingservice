@@ -34,7 +34,7 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 
 		Route::put( '{id}', function ( Request $request, $id ) {
 			$controller = new RestApiMember();
-			$id = $controller->updateMember( $request, $id );
+			$id         = $controller->updateMember( $request, $id );
 
 			return response( $id )
 				->header( 'Content-Type', 'application/json' )
@@ -43,7 +43,7 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 
 		Route::post( '', function ( Request $request ) {
 			$controller = new RestApiMember();
-			$id = $controller->upsertMember( $request );
+			$id         = $controller->upsertMember( $request );
 
 			return response( $id )
 				->header( 'Content-Type', 'application/json' )
