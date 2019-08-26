@@ -9,5 +9,26 @@
 namespace App\Repository\Member\Field;
 
 class LongTextField extends FreeField {
+	/**
+	 * Append value, if it's not already in the the field.
+	 *
+	 * @param $value
+	 * @param bool $dirty
+	 * @param string $separator
+	 *
+	 * @throws \App\Exceptions\ValueTypeException
+	 */
+	public function append( $value, bool $dirty = true, string $separator = "\n" ) {
+		if ( ! $value || $this->inValue( $value ) ) {
+			return;
+		}
 
+		if ( empty( $this->getValue() ) ) {
+			$v = $value;
+		} else {
+			$v = $this->getValue() . $separator . $value;
+		}
+
+		$this->setValue( $v, $dirty );
+	}
 }

@@ -43,8 +43,8 @@ class RestApiMemberTest extends TestCase {
 
 		$response = $this->json( 'GET', '/api/v1/member/1', [], $headers );
 
-		$response->assertStatus( 500 );
-		$this->assertRegExp( '/Get request to Webling failed with status code 401/', $response->getContent() );
+		$response->assertStatus( 401 );
+		$this->assertRegExp( '/Get request to Webling failed:.*Not authenticated/', $response->getContent() );
 	}
 
 	public function testGetMember_401() {
@@ -385,14 +385,152 @@ class RestApiMemberTest extends TestCase {
 		$this->assertTrue( in_array( $appended, $m2->interests ) );
 	}
 
-	public function testPutMember_append_500() {
-		$email = 'unittest_replace+' . str_random() . '@unittest.ut';
+	public function testPutMember_addIfNew_notNew_201() {
+		$initial = 'already in the database';
+		$add     = 'this should not be appended';
 
+		$member = $this->getMember();
+		$member->entryChannel->setValue( $initial );
+		$member = $this->saveMember( $member );
+
+		$m = [
+			'entryChannel' => [
+				'value' => $add,
+				'mode'  => 'addIfNew'
+			]
+		];
+
+		$put = $this->json(
+			'PUT',
+			'/api/v1/member/' . $member->id,
+			$m,
+			$this->auth->getAuthHeader()
+		);
+
+		$getUpdated = $this->json( 'GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader() );
+		$m2         = json_decode( $getUpdated->getContent() );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$this->assertEquals( 201, $put->getStatusCode() );
+		$this->assertTrue( 0 === strpos( $initial, $m2->entryChannel ) );
+		$this->assertTrue( false === strpos( $add, $m2->entryChannel ) );
+	}
+
+	public function testPutMember_addIfNew_new_201() {
+		$m = [
+			'email1'       => [
+				'value' => 'unittest_' . str_random() . '@mail.com',
+				'mode'  => 'replace',
+			],
+			'entryChannel' => [
+				'value' => 'I am new here',
+				'mode'  => 'addIfNew'
+			],
+			'groups'       => [
+				'value' => 100,
+				'mode'  => 'append',
+			]
+		];
+
+		$put = $this->json(
+			'POST',
+			'/api/v1/member',
+			$m,
+			$this->auth->getAuthHeader()
+		);
+
+		$this->assertEquals( 201, $put->getStatusCode() );
+		$id = $put->getContent();
+
+		$getNew = $this->json( 'GET', '/api/v1/admin/member/' . $id, [], $this->auth->getAuthHeader() );
+		$m2     = json_decode( $getNew->getContent() );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $id );
+
+		$this->assertTrue( 0 === strpos( $m['entryChannel']['value'], $m2->entryChannel ) );
+	}
+
+	public function testPutMember_replaceEmpty_notEmpty_201() {
+		$initial = 'already in the database';
+		$replace = 'this should not be replaced';
+
+		$member = $this->getMember();
+		$member->entryChannel->setValue( $initial );
+		$member = $this->saveMember( $member );
+
+		$m = [
+			'entryChannel' => [
+				'value' => $replace,
+				'mode'  => 'replaceEmpty'
+			]
+		];
+
+		$put = $this->json(
+			'PUT',
+			'/api/v1/member/' . $member->id,
+			$m,
+			$this->auth->getAuthHeader()
+		);
+
+		$getUpdated = $this->json( 'GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader() );
+		$m2         = json_decode( $getUpdated->getContent() );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$this->assertEquals( 201, $put->getStatusCode() );
+		$this->assertTrue( 0 === strpos( $initial, $m2->entryChannel ) );
+		$this->assertTrue( false === strpos( $replace, $m2->entryChannel ) );
+	}
+
+
+	public function testPutMember_replaceEmpty_empty_201() {
+		$initial = '';
+		$replace = 'this should not be replaced';
+
+		$member = $this->getMember();
+		$member->entryChannel->setValue( $initial );
+		$member = $this->saveMember( $member );
+
+		$m = [
+			'entryChannel' => [
+				'value' => $replace,
+				'mode'  => 'replaceEmpty'
+			]
+		];
+
+		$put = $this->json(
+			'PUT',
+			'/api/v1/member/' . $member->id,
+			$m,
+			$this->auth->getAuthHeader()
+		);
+
+		$getUpdated = $this->json( 'GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader() );
+		$m2         = json_decode( $getUpdated->getContent() );
+
+		// call this before asserting anything so it gets also
+		// deleted if assertions fail.
+		$this->deleteMember( $member );
+
+		$this->assertEquals( 201, $put->getStatusCode() );
+		$this->assertEquals( $replace, $m2->entryChannel );
+	}
+
+
+	public function testPutMember_append_500() {
+		$date   = '2019-07-27';
 		$member = $this->addMember();
 
 		$m = [
-			'email1' => [
-				'value' => $email,
+			'birthday' => [
+				'value' => $date,
 				'mode'  => 'append'
 			]
 		];
@@ -678,6 +816,7 @@ class RestApiMemberTest extends TestCase {
 		$member->lastName->setValue( 'Test' );
 		$member->email1->setValue( 'unittest+' . str_random() . '@unittest.ut' );
 		$member->iban->setValue( '12345678' );
+		$member->birthday->setValue( '2000-01-01' );
 
 		$groupRepository = new GroupRepository( config( 'app.webling_api_key' ) );
 		$rootGroup       = $groupRepository->get( 100 );

@@ -20,7 +20,7 @@ class MultiSelectField extends FixedField {
 		$this->possibleValues = $possibleValues;
 		$this->value          = array();
 	}
-	
+
 	/**
 	 * Remove the given element(s)
 	 *
@@ -31,11 +31,11 @@ class MultiSelectField extends FixedField {
 	 */
 	public function remove( $values, bool $dirty = true ) {
 		$new = (array) $values;
-		
+
 		foreach ( $new as &$value ) {
 			$value = $this->clean( $value );
 			$value = $this->makeInternalValue( $value );
-			
+
 			if ( $this->hasValue( $value ) && null !== $value ) {
 				$key = array_search( $value, $this->value );
 				unset( $this->value[ $key ] );
@@ -43,7 +43,7 @@ class MultiSelectField extends FixedField {
 			}
 		}
 	}
-	
+
 	/**
 	 * Check if value is set
 	 *
@@ -53,7 +53,7 @@ class MultiSelectField extends FixedField {
 	 */
 	public function hasValue( string $value ): bool {
 		$value = $this->clean( $value );
-		
+
 		if ( null !== $value ) {
 			try {
 				$value = $this->makeInternalValue( $value );
@@ -61,10 +61,10 @@ class MultiSelectField extends FixedField {
 				return false;
 			}
 		}
-		
+
 		return in_array( $value, $this->getValue() );
 	}
-	
+
 	/**
 	 * Set the given values
 	 *
@@ -77,16 +77,16 @@ class MultiSelectField extends FixedField {
 		if ( empty( $values ) && ! empty( $this->value ) ) {
 			$this->value = array();
 			$this->setDirty( $dirty );
-			
+
 			return;
 		}
-		
+
 		$values = (array) $values;
-		
+
 		foreach ( $values as &$value ) {
 			$value = self::clean( $value );
 			$value = $this->makeInternalValue( $value );
-			
+
 			if ( ! $this->hasValue( $value ) && null !== $value ) {
 				$this->value = array();
 				$this->append( $values, $dirty );
@@ -94,7 +94,7 @@ class MultiSelectField extends FixedField {
 			}
 		}
 	}
-	
+
 	/**
 	 * Append an array of values or a single value given as string
 	 *
@@ -104,19 +104,23 @@ class MultiSelectField extends FixedField {
 	 * @throws InvalidFixedValueException
 	 */
 	public function append( $values, bool $dirty = true ) {
+		if ( null === $values || [] === $values || '' === $values || false === $values ) {
+			return;
+		}
+
 		$new = (array) $values;
-		
+
 		foreach ( $new as &$value ) {
 			$value = $this->clean( $value );
 			$value = $this->makeInternalValue( $value );
-			
+
 			if ( ! $this->hasValue( $value ) && null !== $value ) {
 				array_push( $this->value, $value );
 				$this->setDirty( $dirty );
 			}
 		}
 	}
-	
+
 	/**
 	 * Return the webling values
 	 *
@@ -127,7 +131,7 @@ class MultiSelectField extends FixedField {
 		foreach ( $this->getValue() as $value ) {
 			$array[] = $this->possibleValues[ $value ];
 		}
-		
+
 		return $array;
 	}
 }

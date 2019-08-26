@@ -16,7 +16,9 @@ use Illuminate\Http\Request;
  */
 class RestApiMember {
 	private const MODE_REPLACE = 'replace';
+	private const MODE_REPLACE_EMPTY = 'replaceEmpty';
 	private const MODE_APPEND = 'append';
+	private const MODE_ADD_IF_NEW = 'addIfNew';
 
 	/**
 	 * Return a json with the member fields
@@ -292,8 +294,8 @@ class RestApiMember {
 				$field['mode'] = self::MODE_REPLACE;
 			}
 
-			if ( ! is_array( $field ) || ! isset( $field['mode'] ) || ! isset( $field['value'] ) ) {
-				throw new BadRequestException( 'Malformed "member" data.' );
+			if ( ! is_array( $field ) || ! array_key_exists( 'mode', $field ) || ! array_key_exists( 'value', $field ) ) {
+				throw new BadRequestException( 'Malformed data in field: ' . $fieldKey );
 			}
 
 			if ( Member::KEY_GROUPS === $fieldKey ) {
@@ -317,11 +319,11 @@ class RestApiMember {
 	private function extractMemberData( Request &$request ): array {
 		$memberData = json_decode( $request->getContent(), true );
 		if ( ! $memberData ) {
-			throw new BadRequestException( 'Missing or invalid "member" field in request data.' );
+			throw new BadRequestException( 'Missing request content data.' );
 		}
 
 		if ( ! is_array( $memberData ) ) {
-			throw new BadRequestException( 'Malformed "member" data.' );
+			throw new BadRequestException( 'Malformed member data.' );
 		}
 
 		return $memberData;
@@ -356,12 +358,29 @@ class RestApiMember {
 			$groups[] = $g;
 		}
 
-		if ( self::MODE_APPEND === $data['mode'] ) {
-			$member->addGroups( $groups );
-		} else if ( self::MODE_REPLACE === $data['mode'] ) {
-			$member->setGroups( $groups );
-		} else {
-			throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '" . Member::KEY_GROUPS . "' is not supported." );
+		switch ( $data['mode'] ) {
+			case self::MODE_APPEND:
+				$member->addGroups( $groups );
+				break;
+
+			case self::MODE_REPLACE:
+				$member->setGroups( $groups );
+				break;
+
+			case self::MODE_REPLACE_EMPTY:
+				if ( empty( $member->getGroupIds() ) ) {
+					$member->setGroups( $groups );
+				}
+				break;
+
+			case self::MODE_ADD_IF_NEW:
+				if ( null === $member->id ) {
+					$member->setGroups( $groups );
+				}
+				break;
+
+			default:
+				throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '" . Member::KEY_GROUPS . "' is not supported." );
 		}
 	}
 
@@ -375,12 +394,34 @@ class RestApiMember {
 	 * @throws IllegalFieldUpdateMode
 	 */
 	private function patchField( Member &$member, array $data, string $key ) {
-		if ( self::MODE_APPEND === $data['mode'] && method_exists( $member->$key, 'append' ) ) {
-			$member->$key->append( $data['value'] );
-		} else if ( self::MODE_REPLACE === $data['mode'] ) {
-			$member->$key->setValue( $data['value'] );
-		} else {
-			throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '$key' is not supported." );
+		$mode = $data['mode'];
+
+		switch ( $mode ) {
+			case self::MODE_APPEND:
+				if ( ! method_exists( $member->$key, 'append' ) ) {
+					throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '$key' is not supported." );
+				}
+				$member->$key->append( $data['value'] );
+				break;
+
+			case self::MODE_REPLACE:
+				$member->$key->setValue( $data['value'] );
+				break;
+
+			case self::MODE_REPLACE_EMPTY:
+				if ( empty( $member->$key->getValue() ) ) {
+					$member->$key->setValue( $data['value'] );
+				}
+				break;
+
+			case self::MODE_ADD_IF_NEW:
+				if ( null === $member->id ) {
+					$member->$key->setValue( $data['value'] );
+				}
+				break;
+
+			default:
+				throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '$key' is not supported." );
 		}
 	}
 }
