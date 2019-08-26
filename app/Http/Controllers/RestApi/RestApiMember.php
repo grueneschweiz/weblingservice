@@ -396,12 +396,11 @@ class RestApiMember {
 	private function patchField( Member &$member, array $data, string $key ) {
 		$mode = $data['mode'];
 
-		if ( self::MODE_APPEND === $mode && ! method_exists( $member->$key, 'append' ) ) {
-			throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '$key' is not supported." );
-		}
-
 		switch ( $mode ) {
 			case self::MODE_APPEND:
+				if ( ! method_exists( $member->$key, 'append' ) ) {
+					throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '$key' is not supported." );
+				}
 				$member->$key->append( $data['value'] );
 				break;
 
