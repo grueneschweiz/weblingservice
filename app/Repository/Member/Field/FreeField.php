@@ -54,6 +54,7 @@ abstract class FreeField extends Field {
 	 * @return bool
 	 */
 	protected function inValue( string $needle ) {
+	    $needle = preg_quote( $needle, '/' );
 		return 1 === preg_match( "/\b$needle\b/", $this->getValue() );
 	}
 }
