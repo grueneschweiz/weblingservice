@@ -5,6 +5,7 @@ namespace App\Http\Controllers\RestApi\RestApiMember;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberRepository;
+use Illuminate\Support\Str;
 use Tests\Feature\Http\Controllers\RestApi\AuthHelper;
 use Tests\TestCase;
 
@@ -97,7 +98,7 @@ class RestApiMemberTest extends TestCase
         $member = new Member();
         $member->firstName->setValue('Unit');
         $member->lastName->setValue('Test');
-        $member->email1->setValue('unittest+' . str_random() . '@unittest.ut');
+        $member->email1->setValue('unittest+' . Str::random() . '@unittest.ut');
         $member->iban->setValue('12345678');
         $member->birthday->setValue('2000-01-01');
         
@@ -379,7 +380,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMember_replace_201()
     {
-        $email = 'unittest_replace+' . str_random() . '@unittest.ut';
+        $email = 'unittest_replace+' . Str::random() . '@unittest.ut';
         
         $member = $this->addMember();
         
@@ -483,7 +484,7 @@ class RestApiMemberTest extends TestCase
     {
         $m = [
             'email1' => [
-                'value' => 'unittest_' . str_random() . '@mail.com',
+                'value' => 'unittest_' . Str::random() . '@mail.com',
                 'mode' => 'replace',
             ],
             'entryChannel' => [
@@ -713,7 +714,7 @@ class RestApiMemberTest extends TestCase
                 'mode' => 'append'
             ],
             'email1' => [
-                'value' => 'unittest+' . str_random() . '@unittest.ut',
+                'value' => 'unittest+' . Str::random() . '@unittest.ut',
                 'mode' => 'replace'
             ],
             'groups' => [

@@ -135,18 +135,19 @@ return [
     |
     */
     'webling_field_mappings_config_path' => env('WEBLING_FIELD_MAPPINGS_CONFIG_PATH'),
+    
     /*
-      |--------------------------------------------------------------------------
-      | Member Json Fields
-      |--------------------------------------------------------------------------
-      |
-      | Path to the YAML file that holds the internal field names that we want
-      | to expose in the Rest API answers for regular callers.
-      | Make sure the path is relative to the project root (where the .env file is).
-      | Note that it should be set in the local .env file (see also .env.example file)
-      | See also 'webling_field_mappings_config_path'
-      |
-      */
+    |--------------------------------------------------------------------------
+    | Member Json Fields
+    |--------------------------------------------------------------------------
+    |
+    | Path to the YAML file that holds the internal field names that we want
+    | to expose in the Rest API answers for regular callers.
+    | Make sure the path is relative to the project root (where the .env file is).
+    | Note that it should be set in the local .env file (see also .env.example file)
+    | See also 'webling_field_mappings_config_path'
+    |
+    */
     'member_json_fields_config_path' => env('MEMBER_JSON_FIELDS_CONFIG_PATH'),
     
     /*
@@ -190,20 +191,6 @@ return [
      | all its descending groups are loaded from webling and stored in the cache
      */
     'cache_root_group_id' => env('CACHE_ROOT_GROUP_ID'),
-    
-    /*
-      |--------------------------------------------------------------------------
-      | Member Json Fields
-      |--------------------------------------------------------------------------
-      |
-      | Path to the YAML file that holds the internal field names that we want
-      | to expose in the Rest API answers for regular callers.
-      | Make sure the path is relative to the project root (where the .env file is).
-      | Note that it should be set in the local .env file (see also .env.example file)
-      | See also 'webling_field_mappings_config_path'
-      |
-      */
-    'member_json_fields_config_path' => env('MEMBER_JSON_FIELDS_CONFIG_PATH'),
     
     /*
     |--------------------------------------------------------------------------

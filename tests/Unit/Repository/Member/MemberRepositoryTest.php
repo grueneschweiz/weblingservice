@@ -15,6 +15,7 @@ use App\Exceptions\NoGroupException;
 use App\Exceptions\RevisionNotFoundException;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Revision\RevisionRepository;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class MemberRepositoryTest extends TestCase
@@ -64,7 +65,7 @@ class MemberRepositoryTest extends TestCase
         $member = new Member();
         $member->firstName->setValue('Unit');
         $member->lastName->setValue('Test');
-        $member->email1->setValue('unittest+' . str_random() . '@unittest.ut');
+        $member->email1->setValue('unittest+' . Str::random() . '@unittest.ut');
         
         $groupRepository = new GroupRepository(config('app.webling_api_key'));
         $rootGroup = $groupRepository->get(100);
