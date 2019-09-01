@@ -9,15 +9,17 @@
 namespace App\Exceptions;
 
 
-class MemberSaveException extends \Exception {
-
-  /**
-   * Render the exception into an HTTP response.
-   *
-   * @param  \Illuminate\Http\Request
-   * @return \Illuminate\Http\Response
-   */
-  public function render($request) {
-      abort(500, "Could not save Member.");
-  }
+class MemberSaveException extends \Exception
+{
+    
+    /**
+     * Render the exception into an HTTP response.
+     *
+     * @param \Illuminate\Http\Request
+     * @return \Illuminate\Http\Response
+     */
+    public function render($request)
+    {
+        abort(500, "Could not save Member.");
+    }
 }

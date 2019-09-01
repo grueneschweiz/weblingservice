@@ -9,14 +9,16 @@
 namespace App\Exceptions;
 
 
-class RevisionNotFoundException extends \Exception {
-	
-	/**
-	 * Render the exception into an HTTP response.
-	 *
-	 * @param  \Illuminate\Http\Request
-	 */
-	public function render( $request ) {
-		abort( 404, "Revision does not exist." );
-	}
+class RevisionNotFoundException extends \Exception
+{
+    
+    /**
+     * Render the exception into an HTTP response.
+     *
+     * @param \Illuminate\Http\Request
+     */
+    public function render($request)
+    {
+        abort(404, "Revision does not exist.");
+    }
 }
