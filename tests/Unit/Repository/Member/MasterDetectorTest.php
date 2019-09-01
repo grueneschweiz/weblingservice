@@ -29,8 +29,9 @@ class MasterDetectorTest extends TestCase {
 	 * @var MasterDetector
 	 */
 	private $masterDetector;
-
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 
 		$this->memberRepo     = new MemberRepository( config( 'app.webling_api_key' ) );
@@ -38,8 +39,9 @@ class MasterDetectorTest extends TestCase {
 		$this->group          = $groupRepo->get( 100 );
 		$this->masterDetector = new MasterDetector( $this->memberRepo, $this->group );
 	}
-
-	public function tearDown() {
+    
+    public function tearDown(): void
+    {
 		parent::tearDown();
 
 		foreach ( $this->members as $member ) {

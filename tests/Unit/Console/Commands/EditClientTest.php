@@ -14,8 +14,9 @@ use Tests\TestCase;
 
 class EditClientTest extends TestCase {
 	private $clientId;
-
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 
 		Artisan::call( 'client:add', [
@@ -28,8 +29,9 @@ class EditClientTest extends TestCase {
 
 		$this->clientId = (int) $clientId[1];
 	}
-
-	public function tearDown() {
+    
+    public function tearDown(): void
+    {
 		Artisan::call( 'client:delete', [
 			'id' => [ $this->clientId ]
 		] );

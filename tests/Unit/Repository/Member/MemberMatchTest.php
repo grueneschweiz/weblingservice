@@ -30,8 +30,9 @@ class MemberMatchTest extends TestCase {
 	 * @var Member[]
 	 */
 	private $members = [];
-	
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 		
 		$this->memberRepo = new MemberRepository( config( 'app.webling_api_key' ) );
@@ -39,8 +40,9 @@ class MemberMatchTest extends TestCase {
 		$groupRepo   = new GroupRepository( config( 'app.webling_api_key' ) );
 		$this->group = $groupRepo->get( 100 );
 	}
-	
-	public function tearDown() {
+    
+    public function tearDown(): void
+    {
 		parent::tearDown();
 		
 		foreach ( $this->members as $member ) {

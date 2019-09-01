@@ -6,15 +6,16 @@
  * Time: 20:04
  */
 
-use \Tests\TestCase;
+use Tests\TestCase;
 
 class GroupIteratorTest extends TestCase {
     /**
      * @var \App\Repository\Group\GroupRepository
      */
     private $repository;
-
-    public function setUp() {
+    
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->repository = new \App\Repository\Group\GroupRepository(config('app.webling_api_key'));
