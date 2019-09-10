@@ -1,7 +1,7 @@
 <?php
 
 return [
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -12,9 +12,9 @@ return [
     | any other location as required by the application or its packages.
     |
     */
-
+    
     'name' => env('APP_NAME', "Webling Service"),
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application Environment
@@ -25,9 +25,9 @@ return [
     | services your application utilizes. Set this in your ".env" file.
     |
     */
-
+    
     'env' => env('APP_ENV', 'production'),
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
@@ -38,9 +38,9 @@ return [
     | application. If disabled, a simple generic error page is shown.
     |
     */
-
+    
     'debug' => env('APP_DEBUG', false),
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application URL
@@ -51,9 +51,9 @@ return [
     | your application so that it is used when running Artisan tasks.
     |
     */
-
+    
     'url' => env('APP_URL', 'http://localhost'),
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
@@ -64,9 +64,9 @@ return [
     | ahead and set this to a sensible default for you out of the box.
     |
     */
-
+    
     'timezone' => 'UTC',
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
@@ -77,9 +77,9 @@ return [
     | to any of the locales which will be supported by the application.
     |
     */
-
+    
     'locale' => 'en',
-
+    
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
@@ -90,9 +90,9 @@ return [
     | the language folders that are provided through your application.
     |
     */
-
+    
     'fallback_locale' => 'en',
-
+    
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
@@ -103,11 +103,11 @@ return [
     | will not be safe. Please do this before deploying an application!
     |
     */
-
+    
     'key' => env('APP_KEY'),
-
+    
     'cipher' => 'AES-256-CBC',
-
+    
     /*
     |--------------------------------------------------------------------------
     | Webling Api Key and base URL
@@ -121,10 +121,10 @@ return [
     |
     */
     'webling_base_url' => env('WEBLING_BASE_URL'),
-
+    
     'webling_api_key' => env('WEBLING_API_KEY'),
-
-	/*
+    
+    /*
     |--------------------------------------------------------------------------
     | Webling Field Mappings Config File
     |--------------------------------------------------------------------------
@@ -135,7 +135,8 @@ return [
     |
     */
     'webling_field_mappings_config_path' => env('WEBLING_FIELD_MAPPINGS_CONFIG_PATH'),
-  /*
+    
+    /*
     |--------------------------------------------------------------------------
     | Member Json Fields
     |--------------------------------------------------------------------------
@@ -148,7 +149,7 @@ return [
     |
     */
     'member_json_fields_config_path' => env('MEMBER_JSON_FIELDS_CONFIG_PATH'),
-
+    
     /*
      |--------------------------------------------------------------------------
      | Cache directory
@@ -157,7 +158,7 @@ return [
      |
      */
     'cache_directory' => env('CACHE_DIRECTORY'),
-
+    
     /*
      |--------------------------------------------------------------------------
      | Cache max age
@@ -169,7 +170,7 @@ return [
      |
      */
     'cache_max_age' => env('CACHE_MAX_AGE'),
-
+    
     /*
      |--------------------------------------------------------------------------
      | Cache delete after
@@ -181,7 +182,7 @@ return [
      |
      */
     'cache_delete_after' => env('CACHE_DELETE_AFTER'),
-
+    
     /*
      |--------------------------------------------------------------------------
      | Cache root group id
@@ -190,21 +191,7 @@ return [
      | all its descending groups are loaded from webling and stored in the cache
      */
     'cache_root_group_id' => env('CACHE_ROOT_GROUP_ID'),
-
-    /*
-      |--------------------------------------------------------------------------
-      | Member Json Fields
-      |--------------------------------------------------------------------------
-      |
-      | Path to the YAML file that holds the internal field names that we want
-      | to expose in the Rest API answers for regular callers.
-      | Make sure the path is relative to the project root (where the .env file is).
-      | Note that it should be set in the local .env file (see also .env.example file)
-      | See also 'webling_field_mappings_config_path'
-      |
-      */
-    'member_json_fields_config_path' => env('MEMBER_JSON_FIELDS_CONFIG_PATH'),
-
+    
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
@@ -215,9 +202,9 @@ return [
     | this array to grant expanded functionality to your applications.
     |
     */
-
+    
     'providers' => [
-
+        
         /*
          * Laravel Framework Service Providers...
          */
@@ -243,11 +230,11 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-
+        
         /*
          * Package Service Providers...
          */
-
+        
         /*
          * Application Service Providers...
          */
@@ -256,9 +243,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
+    
     ],
-
+    
     /*
     |--------------------------------------------------------------------------
     | Class Aliases
@@ -269,9 +256,9 @@ return [
     | the aliases are "lazy" loaded so they don't hinder performance.
     |
     */
-
+    
     'aliases' => [
-
+        
         'App' => Illuminate\Support\Facades\App::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,
         'Auth' => Illuminate\Support\Facades\Auth::class,
@@ -305,7 +292,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+    
     ],
 
 ];
