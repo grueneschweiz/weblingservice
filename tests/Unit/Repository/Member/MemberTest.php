@@ -29,8 +29,9 @@ class MemberTest extends TestCase {
 	private $groups = [];
 	private $firstLevelRootGroups = [];
 	private $rootGroup = 100;
-
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 
 		$this->data = [

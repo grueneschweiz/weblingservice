@@ -23,8 +23,9 @@ class ApiHelperTest extends TestCase {
 	private function getMember() {
 		return new Member( $this->data, $this->id, $this->groups, true );
 	}
-
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 
 		$this->data = [

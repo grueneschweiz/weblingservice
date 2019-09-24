@@ -19,8 +19,9 @@ class GroupRepositoryTest extends TestCase
      * @var GroupRepository
      */
     private $groupRepository;
-
-    public function setUp() {
+    
+    public function setUp(): void
+    {
         parent::setUp();
 
         $this->groupRepository = new GroupRepository(config( 'app.webling_api_key' ));

@@ -35,8 +35,9 @@ class MemberRepositoryTest extends TestCase {
 	 * @var int
 	 */
 	private $oldRevisionId;
-
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 
 		$this->repository = new MemberRepository( config( 'app.webling_api_key' ) );

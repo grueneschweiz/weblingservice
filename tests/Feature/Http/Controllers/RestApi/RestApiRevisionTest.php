@@ -11,14 +11,16 @@ class RestApiRevisionTest extends TestCase {
 	 * @var AuthHelper
 	 */
 	private $auth;
-
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 
 		$this->auth = new AuthHelper($this);
 	}
-
-	public function tearDown() {
+    
+    public function tearDown(): void
+    {
 		$this->auth->deleteToken();
 
 		parent::tearDown();

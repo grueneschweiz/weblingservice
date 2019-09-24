@@ -64,7 +64,8 @@ class RepositoryTest extends TestCase {
 	/**
 	 * this runs before the tests
 	 */
-	protected function setUp() {
+    protected function setUp(): void
+    {
 		parent::setUp();
 		
 		$this->repository = $this->getMockBuilder( Repository::class )

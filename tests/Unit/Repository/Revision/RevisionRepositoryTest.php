@@ -26,8 +26,9 @@ class RevisionRepositoryTest extends TestCase {
 	 * @var RevisionRepository
 	 */
 	private $repository;
-	
-	public function setUp() {
+    
+    public function setUp(): void
+    {
 		parent::setUp();
 		
 		$this->repository = new RevisionRepository( config( 'app.webling_api_key' ) );
