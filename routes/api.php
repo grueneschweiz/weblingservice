@@ -57,22 +57,23 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api']], function () {
                 ->header('Content-Type', 'application/json')
                 ->setStatusCode(200);
         });
-        
-        Route::get('changed/{revisionId}/{limit?}/{offset?}', function (Request $request, $revisionId, $limit = 0, $offset = 0) {
-            $controller = new RestApiMember();
+    
+        Route::get('changed/{revisionId}/{limit?}/{offset?}',
+            function (Request $request, $revisionId, $limit = 0, $offset = 0) {
+                $controller = new RestApiMember();
             
-            return response($controller->getChanged($request, $revisionId, (int)$limit, (int)$offset))
+                return response($controller->getChanged($request, $revisionId, (int) $limit, (int) $offset))
+                    ->header('Content-Type', 'application/json')
+                    ->setStatusCode(200);
+            });
+    
+        Route::post('match/{groups?}', function (Request $request, $groupIds = null) {
+            $controller = new RestApiMember();
+        
+            return response($controller->matchMember($request, $groupIds))
                 ->header('Content-Type', 'application/json')
                 ->setStatusCode(200);
         });
-    
-        Route::post( 'match/{groups?}', function ( Request $request, $groupIds = null ) {
-            $controller = new RestApiMember();
-        
-            return response( $controller->matchMember($request, $groupIds) )
-                ->header( 'Content-Type', 'application/json' )
-                ->setStatusCode( 200 );
-        } );
         
     });
     
@@ -98,14 +99,15 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api']], function () {
                 ->header('Content-Type', 'application/json')
                 ->setStatusCode(200);
         });
-        
-        Route::get('changed/{revisionId}/{limit?}/{offset?}', function (Request $request, $revisionId, $limit = 0, $offset = 0) {
-            $controller = new RestApiMember();
+    
+        Route::get('changed/{revisionId}/{limit?}/{offset?}',
+            function (Request $request, $revisionId, $limit = 0, $offset = 0) {
+                $controller = new RestApiMember();
             
-            return response($controller->getChanged($request, $revisionId, $limit, $offset, $is_admin = true))
-                ->header('Content-Type', 'application/json')
-                ->setStatusCode(200);
-        });
+                return response($controller->getChanged($request, $revisionId, $limit, $offset, $is_admin = true))
+                    ->header('Content-Type', 'application/json')
+                    ->setStatusCode(200);
+            });
     });
     
     /*
