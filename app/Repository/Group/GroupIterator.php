@@ -15,18 +15,18 @@ use RecursiveIteratorIterator;
 
 class GroupIterator extends \RecursiveArrayIterator
 {
-
+    
     private $repository;
     private $useCache;
-
+    
     public function __construct(array $groups, GroupRepository $groupRepository, bool $useCache = true)
     {
         parent::__construct($groups);
-
+        
         $this->repository = $groupRepository;
         $this->useCache = $useCache;
     }
-
+    
     /**
      * Creates a new GroupIterator wrapped by a RecursiveIteratorIterator so it can directly be used
      * @param $rootGroup
@@ -39,8 +39,8 @@ class GroupIterator extends \RecursiveArrayIterator
         $iterator = new GroupIterator(array($rootGroup), $repository, $useCache);
         return new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST);
     }
-
-
+    
+    
     /**
      * Return the key of the current element
      * @link https://php.net/manual/en/iterator.key.php
@@ -51,9 +51,8 @@ class GroupIterator extends \RecursiveArrayIterator
     {
         return $this->current()->getId();
     }
-
-
-
+    
+    
     /**
      * Returns if an iterator can be created for the current entry.
      * @link https://php.net/manual/en/recursiveiterator.haschildren.php
@@ -64,7 +63,7 @@ class GroupIterator extends \RecursiveArrayIterator
     {
         return !empty($this->current()->getChildren());
     }
-
+    
     /**
      * Returns an iterator for the current entry.
      * @link https://php.net/manual/en/recursiveiterator.getchildren.php
@@ -80,7 +79,7 @@ class GroupIterator extends \RecursiveArrayIterator
             $group = $this->repository->get($childId, $this->useCache);
             $childGroups[] = $group;
         }
-
+        
         return new GroupIterator($childGroups, $this->repository, $this->useCache);
     }
 }
