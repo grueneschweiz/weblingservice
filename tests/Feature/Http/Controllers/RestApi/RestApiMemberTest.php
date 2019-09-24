@@ -840,7 +840,7 @@ class RestApiMemberTest extends TestCase {
     
     public function testPostMatch_200_ambiguous()
     {
-        $member = $this->addMember();
+        $member = $this->getMember();
         
         $m = [
             'firstName' => [
@@ -850,7 +850,16 @@ class RestApiMemberTest extends TestCase {
                 'value' => $member->lastName->getValue(),
             ],
         ];
+    
+        // precondition: assert we dont have any records with the same name
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
         
+        foreach($response->json('matches') as $match) {
+            $this->deleteMember($match['id']);
+        }
+        
+        // the actual test
+        $member = $this->addMember();
         $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
         
         $this->deleteMember($member);
