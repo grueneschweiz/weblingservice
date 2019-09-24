@@ -15,11 +15,11 @@ class RepositoryTest extends TestCase {
 	
 	public function testGet() {
 		$test = $this->apiGet( 'member/210' );
-		$this->assertAttributeEquals( 200, 'code', $test );
+		$this->assertEquals(200, self::getPrivateProperty($test, 'code'));
 		
 		$query = 'member?filter= (`Name / nom` = "Der Testmann" OR `Name / nom` = "Nèrvén") AND `Vorname / prénom` = "Ümläüts" AND `Datensatzkategorie / type d’entrée` = "Privatperson / particulier"';
 		$test  = $this->apiGet( $query );
-		$this->assertAttributeEquals( 200, 'code', $test );
+        $this->assertEquals(200, self::getPrivateProperty($test, 'code'));
 		
 		$data = $test->getData();
 		$this->assertArrayHasKey( 'objects', $data );
@@ -43,19 +43,22 @@ class RepositoryTest extends TestCase {
 		];
 		
 		$post = $this->apiPost( 'member', $data );
-		$this->assertAttributeEquals( 201, 'code', $post );
-		
-		$data   = [
+        $this->assertEquals(201, self::getPrivateProperty($post, 'code'));
+        
+        
+        $data   = [
 			'properties' => [
 				'Strasse / rue' => 'Deadend 99',
 			]
 		];
 		$update = $this->apiPut( "member/{$post->getData()}", $data );
-		$this->assertAttributeEquals( 204, 'code', $update );
-		
-		$delete = $this->apiDelete( "member/{$post->getData()}" );
-		$this->assertAttributeEquals( 204, 'code', $delete );
-	}
+        $this->assertEquals(204, self::getPrivateProperty($update, 'code'));
+        
+        
+        $delete = $this->apiDelete( "member/{$post->getData()}" );
+        $this->assertEquals(204, self::getPrivateProperty($delete, 'code'));
+        
+    }
 	
 	public function testDelete() {
 		$this->testPost();
@@ -64,8 +67,7 @@ class RepositoryTest extends TestCase {
 	/**
 	 * this runs before the tests
 	 */
-    protected function setUp(): void
-    {
+	protected function setUp(): void {
 		parent::setUp();
 		
 		$this->repository = $this->getMockBuilder( Repository::class )
@@ -108,4 +110,24 @@ class RepositoryTest extends TestCase {
 		$method->setAccessible(true);
 		return $method->invokeArgs($object, $args);
 	}
+    
+    /**
+     * Get private property
+     *
+     * @param $object
+     * @param $property
+     * @param array $args
+     *
+     * @return mixed
+     * @throws \ReflectionException
+     *
+     * @see https://stackoverflow.com/a/5013441
+     */
+    public static function getPrivateProperty($object, $property, array $args=array()) {
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $class  = new \ReflectionClass(get_class($object));
+        $property = $class->getProperty($property);
+        $property->setAccessible(true);
+        return $property->getValue($object);
+    }
 }
