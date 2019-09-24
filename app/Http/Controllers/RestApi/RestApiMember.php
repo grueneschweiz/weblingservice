@@ -81,32 +81,14 @@ class RestApiMember {
 	 * @throws \Webling\API\ClientException
 	 */
 	public function getMainMember( Request $request, $member_id, $group_ids = null, $is_admin = false ) {
-		$allowedGroups = ApiHelper::getAllowedGroups( $request );
-
-		if ( $group_ids ) {
-			$group_ids       = explode( ',', $group_ids );
-			$requestedGroups = [];
-
-			/** @var GroupRepository $groupRepository */
-			$groupRepository = ApiHelper::createGroupRepo( $request->header( $key = 'db_key' ) );
-
-			foreach ( $group_ids as $groupId ) {
-				ApiHelper::checkIntegerInput( $groupId );
-
-				$group                             = $groupRepository->get( (int) $groupId );
-				$requestedGroups[ (int) $groupId ] = $group;
-
-				ApiHelper::assertAllowedGroup( $allowedGroups, $group );
-			}
-		} else {
-			$requestedGroups = $allowedGroups;
-		}
+        $requestedGroups = $this->getAllowedRequestedGroups($request, $group_ids);
 
 		ApiHelper::checkIntegerInput( $member_id );
 		$memberRepo = ApiHelper::createMemberRepo( $request->header( $key = 'db_key' ) );
 
 		$member = $memberRepo->getMaster( $member_id, $requestedGroups );
-
+        
+        $allowedGroups = ApiHelper::getAllowedGroups( $request );
 		$data = ApiHelper::getMemberAsArray( $member, $allowedGroups, $is_admin );
 
 		return json_encode( $data );
@@ -424,4 +406,133 @@ class RestApiMember {
 				throw new IllegalFieldUpdateMode( "The update mode '{$data['mode']}' for the field '$key' is not supported." );
 		}
 	}
+    
+    /**
+     * Search, if the given member is already in the database.
+     *
+     * See chapter 6.3 of the documentation for a detailed flow chart.
+     *
+     * The response contains a json containing:
+     * {
+     *   'status': 'match'|'no_match'|'ambiguous'|'multiple'|'error',
+     *   'matches': [ members ]
+     * }
+     *
+     * Note: The given member must at least have an email address or
+     * first and last name.
+     *
+     * @param  Request $request
+     * @param  null|array $group_ids the groups to look in
+     * @return false|string JSON
+     * @throws BadRequestException
+     * @throws IllegalFieldUpdateMode
+     * @throws \App\Exceptions\GroupNotFoundException
+     * @throws \App\Exceptions\IllegalArgumentException
+     * @throws \App\Exceptions\InvalidFixedValueException
+     * @throws \App\Exceptions\MemberNotFoundException
+     * @throws \App\Exceptions\MemberUnknownFieldException
+     * @throws \App\Exceptions\MultiSelectOverwriteException
+     * @throws \App\Exceptions\ValueTypeException
+     * @throws \App\Exceptions\WeblingAPIException
+     * @throws \App\Exceptions\WeblingFieldMappingConfigException
+     * @throws \Webling\API\ClientException
+     */
+    public function matchMember( Request $request, $group_ids = null ) {
+        $memberData = $this->extractMemberData( $request );
+        $requestedGroups = $this->getAllowedRequestedGroups($request, $group_ids);
+        $allowedGroups = ApiHelper::getAllowedGroups( $request );
+        
+        $memberRepo = ApiHelper::createMemberRepo( $request->header( $key = 'db_key' ) );
+        
+        // return the corresponding member, if it contains an id
+        if ( ! empty( $memberData[ Member::KEY_ID ] ) ) {
+            $member = $memberRepo->get($memberData[ Member::KEY_ID ]);
+            $data = ApiHelper::getMemberAsArray( $member, $allowedGroups );
+    
+            return json_encode( [
+                'status' => 'match',
+                'matches' => $data,
+            ] );
+        }
+        
+        $member = new Member();
+        $this->patchMember($request, $member, $memberData, true);
+        $match = $memberRepo->findExisting($member, $requestedGroups);
+        
+        $data = [];
+        foreach($match->getMatches() as $member) {
+            $data[] = ApiHelper::getMemberAsArray( $member, $allowedGroups );
+        }
+        
+        switch ($match->getStatus()){
+            case MemberMatch::NO_MATCH:
+                $status = 'no_match';
+                break;
+                
+            case MemberMatch::MATCH:
+                $status = 'match';
+                break;
+                
+            case MemberMatch::AMBIGUOUS_MATCH:
+                $status = 'ambiguous';
+                break;
+                
+            case MemberMatch::MULTIPLE_MATCHES:
+                $status = 'multiple';
+                break;
+                
+            default:
+                $status = 'error';
+        }
+        
+        return json_encode([
+            'status' => $status,
+            'matches' => $data,
+        ]);
+	}
+    
+    /**
+     * Return the group objects of the requested groups or all allowed if none given.
+     *
+     * Abort with 403 if any are not allowed.
+     *
+     * @param  Request  $request
+     * @param int[]|null $group_ids
+     * @return \App\Repository\Group\Group[]
+     *
+     * @throws \App\Exceptions\GroupNotFoundException
+     * @throws \App\Exceptions\IllegalArgumentException
+     * @throws \App\Exceptions\InvalidFixedValueException
+     * @throws \App\Exceptions\MemberNotFoundException
+     * @throws \App\Exceptions\MemberUnknownFieldException
+     * @throws \App\Exceptions\MultiSelectOverwriteException
+     * @throws \App\Exceptions\ValueTypeException
+     * @throws \App\Exceptions\WeblingAPIException
+     * @throws \App\Exceptions\WeblingFieldMappingConfigException
+     * @throws \Webling\API\ClientException
+     */
+    private function getAllowedRequestedGroups(Request $request, $group_ids) {
+        $allowedGroups = ApiHelper::getAllowedGroups( $request );
+    
+        if ( $group_ids ) {
+            $group_ids       = explode( ',', $group_ids );
+            $requestedGroups = [];
+    
+            /** @var GroupRepository $groupRepository */
+            $groupRepository = ApiHelper::createGroupRepo( $request->header( $key = 'db_key' ) );
+    
+            foreach ( $group_ids as $groupId ) {
+                ApiHelper::checkIntegerInput( $groupId );
+        
+                $group                             = $groupRepository->get( (int) $groupId );
+                $requestedGroups[ (int) $groupId ] = $group;
+        
+                ApiHelper::assertAllowedGroup( $allowedGroups, $group );
+            }
+        } else {
+            $requestedGroups = $allowedGroups;
+        }
+	    
+	    return $requestedGroups;
+    }
 }

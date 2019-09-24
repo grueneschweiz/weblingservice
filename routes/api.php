@@ -65,6 +65,14 @@ Route::group( [ 'prefix' => 'v1', 'middleware' => [ 'api' ] ], function () {
 				->header( 'Content-Type', 'application/json' )
 				->setStatusCode( 200 );
 		} );
+        
+        Route::post( 'match/{groups?}', function ( Request $request, $groupIds = null ) {
+            $controller = new RestApiMember();
+            
+            return response( $controller->matchMember($request, $groupIds) )
+                ->header( 'Content-Type', 'application/json' )
+                ->setStatusCode( 200 );
+        } );
 
 	} );
 
