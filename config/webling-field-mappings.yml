@@ -532,7 +532,7 @@ mappings:
   - sponsor: Gönnerin / sponsor
   - majorDonor: Grossspenderin / mécène
   weblingKey: Spendenstatus Bezirk / statut de donatrice du district
-- key: donorCommune
+- key: donorMunicipality
   type: SelectField
   values:
   - donor: Spenderin / donatrice
