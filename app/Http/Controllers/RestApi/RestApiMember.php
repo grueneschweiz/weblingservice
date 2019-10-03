@@ -238,21 +238,16 @@ class RestApiMember
         $match = $memberRepo->findExisting($member, ApiHelper::getAllowedGroups($request));
         
         switch ($match->getStatus()) {
-            case MemberMatch::NO_MATCH:
-                return $memberRepo->save($patched)->id;
-            
             case MemberMatch::MATCH:
                 $matches = $match->getMatches();
                 $matchedMember = reset($matches);
                 $patched = $this->patchMember($request, $matchedMember, $memberData);
                 
                 return $memberRepo->save($patched)->id;
-            
+    
+            case MemberMatch::NO_MATCH:
             case MemberMatch::MULTIPLE_MATCHES:
             case MemberMatch::AMBIGUOUS_MATCH:
-                // todo: notify the responsible person
-                //       (use the api client to get the email to notify.
-                //       the client doesn't yet have an email field.)
                 return $memberRepo->save($patched)->id;
             
             default:
