@@ -342,11 +342,15 @@ class MemberMatch
     /**
      * Escape single quotes
      *
-     * @param string $string
-     * @return string
+     * @param string|null $string
+     * @return string|null
      */
-    private static function escape(string $string): string
+    private static function escape(?string $string): ?string
     {
+        if (null === $string) {
+            return null;
+        }
+        
         return str_replace("'", "\'", $string);
     }
     
