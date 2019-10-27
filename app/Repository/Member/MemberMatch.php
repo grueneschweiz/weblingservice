@@ -141,13 +141,16 @@ class MemberMatch
      */
     private static function buildEmailQuery(Member $member): string
     {
+        $email1 = self::escape($member->email1->getWeblingValue());
+        $email2 = self::escape($member->email2->getWeblingValue());
+        
         $query = [];
         if ($member->email1->getWeblingValue()) {
-            $query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '{$member->email1->getWeblingValue()}'";
+            $query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '$email1'";
         }
         
         if ($member->email2->getWeblingValue()) {
-            $query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '{$member->email2->getWeblingValue()}'";
+            $query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '$email2'";
         }
         
         return implode(' OR ', $query);
@@ -276,13 +279,16 @@ class MemberMatch
      */
     private static function buildNameQuery(Member $member): string
     {
+        $firstName = self::escape($member->firstName->getWeblingValue());
+        $lastName = self::escape($member->lastName->getWeblingValue());
+        
         $query = [];
         if ($member->firstName->getWeblingValue()) {
-            $query[] = "`{$member->firstName->getWeblingKey()}` FILTER '{$member->firstName->getWeblingValue()}'";
+            $query[] = "`{$member->firstName->getWeblingKey()}` FILTER '$firstName'";
         }
         
         if ($member->lastName->getWeblingValue()) {
-            $query[] = "`{$member->lastName->getWeblingKey()}` FILTER '{$member->lastName->getWeblingValue()}'";
+            $query[] = "`{$member->lastName->getWeblingKey()}` FILTER '$lastName'";
         }
         
         return implode(' AND ', $query);
@@ -331,6 +337,21 @@ class MemberMatch
                 }
             }
         }
+    }
+    
+    /**
+     * Escape single quotes
+     *
+     * @param string|null $string
+     * @return string|null
+     */
+    private static function escape(?string $string): ?string
+    {
+        if (null === $string) {
+            return null;
+        }
+        
+        return str_replace("'", "\'", $string);
     }
     
     /**

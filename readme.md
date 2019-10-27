@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.com/grueneschweiz/weblingservice.svg?branch=master)](https://travis-ci.com/grueneschweiz/weblingservice)
 [![Coverage Status](https://coveralls.io/repos/github/grueneschweiz/weblingservice/badge.svg)](https://coveralls.io/github/grueneschweiz/weblingservice)
 
+> Read the [API documentation](docs/API.md)
+
 **UNDER DEVELOPEMENT**
 
 This project aims to add some crucial but missing functionality to Webling,
@@ -57,26 +59,6 @@ Works out of the box ☺️
 
 #### NPM
 Access the watching container using `docker exec -it wsnode bash`
-
-## Consuming the API
-### Authentication
-The API is secured with OAuth2. Use the client credentials flow to authenticate yourself.
-To do so send a `POST` request to the `/oauth/token` endpoint containing the following
-data (replace the `%values%` with your credentials).
-```JSON
-{
-  "grant_type"    : "client_credentials",
-  "client_id"     : "%client-id%",
-  "client_secret" : "%client-secret%",
-  "scope"         : ""
-}
-```
-The Webling Service will respond with the access token. You may now access the
-protected api endpoints adding the token to your request header. The header field
-must satisfy the following form.
-```
-Authorization: Bearer %token%
-```
 
 ## Manage Client Credentials Grant Tokens
 The CLI is your interface.

@@ -868,4 +868,120 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals($m['email2']['value'], $m2->email2);
     }
     
+    public function testPostMatch_200_no_match()
+    {
+        $member = $this->getMember();
+        
+        $m = [
+            'email1' => [
+                'value' => $member->email1->getValue(),
+            ]
+        ];
+        
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'matches']);
+        $response->assertJsonCount(0, 'matches');
+        $response->assertJsonFragment(['status' => 'no_match']);
+    }
+    
+    public function testPostMatch_200_match()
+    {
+        $member = $this->addMember();
+        
+        $m = [
+            'email1' => [
+                'value' => $member->email1->getValue(),
+            ]
+        ];
+        
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $this->deleteMember($member);
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'matches']);
+        $response->assertJsonCount(1, 'matches');
+        $response->assertJsonFragment(['status' => 'match']);
+    }
+    
+    public function testPostMatch_200_match_apostrophe()
+    {
+        $member = $this->getMember();
+        $member->firstName->setValue("d'apostrophique");
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'firstName' => [
+                'value' => $member->firstName->getValue(),
+            ],
+            'lastName' => [
+                'value' => $member->lastName->getValue(),
+            ]
+        ];
+        
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $this->deleteMember($member);
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'matches']);
+        $response->assertJsonCount(1, 'matches');
+    }
+    
+    public function testPostMatch_200_ambiguous()
+    {
+        $member = $this->getMember();
+        
+        $m = [
+            'firstName' => [
+                'value' => $member->firstName->getValue(),
+            ],
+            'lastName' => [
+                'value' => $member->lastName->getValue(),
+            ],
+        ];
+        
+        // precondition: assert we dont have any records with the same name
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        foreach($response->json('matches') as $match) {
+            $this->deleteMember($match['id']);
+        }
+        
+        // the actual test
+        $member = $this->addMember();
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $this->deleteMember($member);
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'matches']);
+        $response->assertJsonCount(1, 'matches');
+        $response->assertJsonFragment(['status' => 'ambiguous']);
+    }
+    
+    public function testPostMatch_200_multiple()
+    {
+        $member = $this->getMember();
+        $member1 = $this->saveMember($member);
+        $member2 = $this->saveMember($member);
+        
+        $m = [
+            'email1' => [
+                'value' => $member->email1->getValue(),
+            ]
+        ];
+        
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $this->deleteMember($member1);
+        $this->deleteMember($member2);
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'matches']);
+        $response->assertJsonCount(2, 'matches');
+        $response->assertJsonFragment(['status' => 'multiple']);
+    }
 }

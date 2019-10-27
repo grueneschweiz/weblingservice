@@ -17,7 +17,7 @@ class RepositoryTest extends TestCase
     public function testGet()
     {
         /** @var \Webling\API\IResponse|\Webling\API\Response $test */
-        $test = $this->apiGet('member/210');
+        $test = $this->apiGet('member/5471');
         $this->assertEquals(200, $test->getStatusCode());
         
         $query = 'member?filter= (`Name / nom` = "Der Testmann" OR `Name / nom` = "Nèrvén") AND `Vorname / prénom` = "Ümläüts" AND `Datensatzkategorie / type d’entrée` = "Privatperson / particulier"';

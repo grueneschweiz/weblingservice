@@ -430,7 +430,7 @@ class MemberRepository extends Repository
             throw new WeblingAPIException("Get request to Webling failed: {$resp->getRawData()}", $resp->getStatusCode());
         }
     
-        if (!array_key_exists('objects', $resp->getData())) {
+        if (!is_array($resp->getData()) || !array_key_exists('objects', $resp->getData())) {
             throw new WeblingAPIException("Malformed answer from Webling. Array key 'objects' not present. Raw response: {$resp->getRawData()}", 502);
         }
         
