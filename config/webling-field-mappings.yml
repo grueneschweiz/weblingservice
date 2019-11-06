@@ -133,6 +133,9 @@ mappings:
 - key: twitter
   type: TextField
   weblingKey: Twittername (inkl @) / nom Twitter (@ compris)
+- key: instagram
+  type: TextField
+  weblingKey: Instagramname (inkl @) / nom Instagram (@ compris)
 - key: iban
   type: TextField
   weblingKey: IBAN
