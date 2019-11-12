@@ -14,6 +14,11 @@ use Webling\API\Client;
 abstract class Repository
 {
     /**
+     * Timout for requests to webling. Yes, it must be super high, webling is sometimes super slow!
+     */
+    private const TIMEOUT = 60;
+    
+    /**
      * The api key
      *
      * Exposed to child classes, so they can instantiate further repositories.
@@ -56,8 +61,8 @@ abstract class Repository
         
         $this->api_key = $api_key;
         $this->api_url = $api_url;
-        
-        $this->webling_client = new Client($api_url, $api_key);
+    
+        $this->webling_client = new Client($api_url, $api_key, ['timeout' => self::TIMEOUT]);
     }
     
     /**
