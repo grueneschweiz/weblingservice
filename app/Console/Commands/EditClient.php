@@ -15,7 +15,7 @@ class EditClient extends ClientCommand
     protected $signature = 'client:edit 
                             {id : Client ID}
                             {--name= : Client name (human readable identifier)}
-                            {--webling-key : Webling API key}
+                            {--webling-key= : Webling API key}
                             {--g|root-group=* : The root group (id) the client should have access to. Repeat the option for multiple groups.}';
     
     /**
