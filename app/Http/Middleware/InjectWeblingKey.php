@@ -28,8 +28,8 @@ class InjectWeblingKey
         
         $keyModel = WeblingKey::where('client_id', $clientId)->first();
         $key = Crypt::decryptString($keyModel->api_key);
-        
-        $request->merge(['db_key' => $key]);
+    
+        $request->headers->set('db_key', $key, false);
         
         return $next($request);
     }
