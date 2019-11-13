@@ -54,6 +54,7 @@ class AuthHelper
     {
         Artisan::call('client:add', [
             'name' => 'Unit Test',
+            'webling-key' => config('app.webling_api_key'),
             '--root-group' => $rootGroups
         ]);
         
