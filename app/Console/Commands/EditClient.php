@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\WeblingKey;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
@@ -61,6 +62,12 @@ class EditClient extends ClientCommand
         
         if (!empty($key)) {
             $keyModel = \App\WeblingKey::where('client_id', $id)->first();
+            
+            if (!$keyModel) {
+                $keyModel = new WeblingKey();
+                $keyModel->client_id = $id;
+            }
+            
             $keyModel->api_key = Crypt::encryptString($key);
             $keyModel->save();
             
