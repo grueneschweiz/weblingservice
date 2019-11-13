@@ -14,9 +14,10 @@ use Webling\API\Client;
 abstract class Repository
 {
     /**
-     * Timout for requests to webling. Yes, it must be super high, webling is sometimes super slow!
+     * Timout for requests to webling. Yes, it must be super high, we had issues with lower limits.
      */
     private const TIMEOUT = 60;
+    private const CONNECTTIMEOUT = 30;
     
     /**
      * The api key
@@ -62,7 +63,12 @@ abstract class Repository
         $this->api_key = $api_key;
         $this->api_url = $api_url;
     
-        $this->webling_client = new Client($api_url, $api_key, ['timeout' => self::TIMEOUT]);
+        $curlOptions = [
+            'timeout' => self::TIMEOUT,
+            'connecttimeout' => self::CONNECTTIMEOUT
+        ];
+    
+        $this->webling_client = new Client($api_url, $api_key, $curlOptions);
     }
     
     /**
