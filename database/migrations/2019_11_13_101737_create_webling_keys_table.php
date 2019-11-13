@@ -30,6 +30,6 @@ class CreateWeblingKeysTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('WeblingKeys');
+        Schema::dropIfExists('webling_keys');
     }
 }
