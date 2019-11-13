@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class EditClient extends ClientCommand
@@ -14,6 +15,7 @@ class EditClient extends ClientCommand
     protected $signature = 'client:edit 
                             {id : Client ID}
                             {--name= : Client name (human readable identifier)}
+                            {--webling-key : Webling API key}
                             {--g|root-group=* : The root group (id) the client should have access to. Repeat the option for multiple groups.}';
     
     /**
@@ -42,6 +44,7 @@ class EditClient extends ClientCommand
     {
         $id = (int)$this->argument('id');
         $name = $this->option('name');
+        $key = $this->option('webling-key');
         $groups = $this->option('root-group');
         
         $client = $this->getClientById($id);
@@ -54,6 +57,14 @@ class EditClient extends ClientCommand
             DB::table('oauth_clients')->where('id', $id)->update(['name' => $name]);
             
             $this->info('Successfully changed name.');
+        }
+        
+        if (!empty($key)) {
+            $keyModel = \App\WeblingKey::where('client_id', $id)->first();
+            $keyModel->api_key = Crypt::encryptString($key);
+            $keyModel->save();
+            
+            $this->info('Successfully changed Webling API key.');
         }
         
         if (!empty($groups)) {

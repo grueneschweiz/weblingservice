@@ -50,6 +50,7 @@ class DeleteClient extends ClientCommand
             }
             
             \App\ClientGroup::where('client_id', $id)->delete();
+            \App\WeblingKey::where('client_id', $id)->delete();
             DB::table('oauth_access_tokens')->where('client_id', '=', $id)->delete();
             DB::table('oauth_clients')->where('id', '=', $id)->delete();
             

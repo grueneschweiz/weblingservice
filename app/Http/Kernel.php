@@ -42,6 +42,7 @@ class Kernel extends HttpKernel
             'bindings',
             'client',
             \App\Http\Middleware\AddAllowedRootGroups::class,
+            \App\Http\Middleware\InjectWeblingKey::class,
         ],
     ];
     
