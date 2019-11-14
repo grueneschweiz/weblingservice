@@ -141,8 +141,8 @@ class ApiHelper
         if (empty($allowedGroups)) {
             abort(403, 'Not authorized.');
         }
-        
-        $groupRepository = self::createGroupRepo($request->header($key = 'db_key'));
+    
+        $groupRepository = self::createGroupRepo();
         
         $groups = [];
         foreach ($allowedGroups as $groupId) {
