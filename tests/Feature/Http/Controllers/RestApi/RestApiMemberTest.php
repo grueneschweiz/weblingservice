@@ -930,6 +930,30 @@ class RestApiMemberTest extends TestCase
         $response->assertJsonCount(1, 'matches');
     }
     
+    public function testPostMatch_200_match_ampersand()
+    {
+        $member = $this->getMember();
+        $member->firstName->setValue("P. & M.");
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'firstName' => [
+                'value' => $member->firstName->getValue(),
+            ],
+            'lastName' => [
+                'value' => $member->lastName->getValue(),
+            ]
+        ];
+        
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $this->deleteMember($member);
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'matches']);
+        $response->assertJsonCount(1, 'matches');
+    }
+    
     public function testPostMatch_200_ambiguous()
     {
         $member = $this->getMember();
