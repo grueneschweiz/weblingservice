@@ -10,6 +10,7 @@ namespace App\Repository;
 
 
 use Webling\API\Client;
+use Webling\API\ClientException;
 
 abstract class Repository
 {
@@ -17,7 +18,7 @@ abstract class Repository
      * Timout for requests to webling. Yes, it must be super high, we had issues with lower limits.
      */
     private const TIMEOUT = 60;
-    private const CONNECTTIMEOUT = 30;
+    private const CONNECTTIMEOUT = 4;
     
     /**
      * The api key
@@ -83,7 +84,36 @@ abstract class Repository
      */
     protected function apiGet(string $endpoint)
     {
-        return $this->webling_client->get($this->prepareEndpoint($endpoint));
+        return $this->apiSendWithRetry('get', $this->prepareEndpoint($endpoint));
+    }
+    
+    /**
+     * Wrapper that automatically retries if request fails.
+     *
+     * Do only use it on idempotent API methods.
+     *
+     * @param string $method
+     * @param string $url
+     * @param $payload
+     * @param int $tries
+     * @param int $attempt
+     *
+     * @return \Webling\API\IResponse|\Webling\API\Response
+     * @throws ClientException
+     */
+    private function apiSendWithRetry(string $method, string $url, $payload = null, int $tries = 3, int $attempt = 1)
+    {
+        try {
+            return $this->webling_client->$method($url, $payload);
+        } catch (ClientException $exception) {
+            if ($attempt < $tries) {
+                $attempt++;
+                sleep(1); // don't retry immediately (rate limits)
+                return $this->apiSendWithRetry($method, $url, $payload, $tries, $attempt);
+            } else {
+                throw $exception;
+            }
+        }
     }
     
     /**
@@ -213,7 +243,7 @@ abstract class Repository
     protected function apiPut(string $endpoint, array $data)
     {
         // todo: implement history
-        return $this->webling_client->put($this->prepareEndpoint($endpoint), $data);
+        return $this->apiSendWithRetry('put', $this->prepareEndpoint($endpoint), $data);
     }
     
     /**
