@@ -15,7 +15,9 @@ use Webling\API\ClientException;
 abstract class Repository
 {
     /**
-     * Timout for requests to webling. Yes, it must be super high, we had issues with lower limits.
+     * Timeout for requests to webling in seconds.
+     *
+     * Yes, it must be super high, we had issues with lower limits.
      */
     private const TIMEOUT = 60;
     private const CONNECTTIMEOUT = 4;
