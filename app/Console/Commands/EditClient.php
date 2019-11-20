@@ -70,8 +70,8 @@ class EditClient extends ClientCommand
             
             $keyModel->api_key = Crypt::encryptString($key);
             $keyModel->save();
-            
-            $this->info('Successfully changed Webling API key.');
+    
+            $this->info('<comment>Changed Webling key to:</comment> ' . $key . ' (stored encrypted)');
         }
         
         if (!empty($groups)) {
