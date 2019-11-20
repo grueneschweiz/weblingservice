@@ -77,7 +77,7 @@ class EditClientTest extends TestCase
         $this->artisan('client:edit', [
             'id' => $this->clientId,
             '--webling-key' => $key
-        ])->expectsOutput('Successfully changed Webling API key.')
+        ])->expectsOutput('Changed Webling key to: ' . $key)
             ->assertExitCode(0);
         
         $keyModel = \App\WeblingKey::where('client_id', $this->clientId)->first();
