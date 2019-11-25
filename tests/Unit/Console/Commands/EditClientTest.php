@@ -10,6 +10,7 @@ namespace App\Console\Commands;
 
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
 
 class EditClientTest extends TestCase
@@ -22,6 +23,7 @@ class EditClientTest extends TestCase
         
         Artisan::call('client:add', [
             'name' => 'Unit Test',
+            'webling-key' => 'secret',
             '--root-group' => [10]
         ]);
         
@@ -66,5 +68,20 @@ class EditClientTest extends TestCase
         ])->expectsOutput('Deleted groups: 10')
             ->expectsOutput('Added groups: 20')
             ->assertExitCode(0);
+    }
+    
+    public function testHandle_successfulWeblingKey()
+    {
+        $key = 'new-secret';
+        
+        $this->artisan('client:edit', [
+            'id' => $this->clientId,
+            '--webling-key' => $key
+        ])->expectsOutput("Changed Webling key to: $key (stored encrypted)")
+            ->assertExitCode(0);
+        
+        $keyModel = \App\WeblingKey::where('client_id', $this->clientId)->first();
+        
+        $this->assertEquals($key, Crypt::decryptString($keyModel->api_key));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Facades\Crypt;
 use Laravel\Passport\ClientRepository;
 
 class AddClient extends ClientCommand
@@ -13,6 +14,7 @@ class AddClient extends ClientCommand
      */
     protected $signature = 'client:add
                             {name : Client name (human readable identifier)}
+                            {webling-key : Webling API key}
                             {--g|root-group=* : The root group (id) the client should have access to. Repeat the option for multiple groups.}';
     
     /**
@@ -49,6 +51,7 @@ class AddClient extends ClientCommand
         
         $clientId = $this->addClient($clientRepository, $this->argument('name'));
         $this->addRootGroups($clientId, $groups);
+        $this->addWeblingKey($clientId, $this->argument('webling-key'));
         
         return 0;
     }
@@ -70,6 +73,25 @@ class AddClient extends ClientCommand
         $this->line('<comment>Client secret:</comment> ' . $client->secret);
         
         return $client->id;
+    }
+    
+    /**
+     * Encrypt and store the webling api key in the WeblingKey table
+     *
+     * @param int $clientId
+     * @param string $key
+     */
+    private function addWeblingKey(int $clientId, string $key)
+    {
+        $keyModel = new \App\WeblingKey();
+        $keyModel->api_key = Crypt::encryptString($key);
+        $keyModel->client_id = $clientId;
+        
+        if ($keyModel->save()) {
+            $this->info('<comment>Webling Key:</comment> ' . $key . ' (stored encrypted)');
+        } else {
+            $this->info('<comment>Error:</comment> could not save WeblingKey');
+        }
     }
     
     /**

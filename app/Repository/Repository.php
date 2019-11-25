@@ -10,9 +10,18 @@ namespace App\Repository;
 
 
 use Webling\API\Client;
+use Webling\API\ClientException;
 
 abstract class Repository
 {
+    /**
+     * Timeout for requests to webling in seconds.
+     *
+     * Yes, it must be super high, we had issues with lower limits.
+     */
+    private const TIMEOUT = 60;
+    private const CONNECTTIMEOUT = 4;
+    
     /**
      * The api key
      *
@@ -57,7 +66,12 @@ abstract class Repository
         $this->api_key = $api_key;
         $this->api_url = $api_url;
         
-        $this->webling_client = new Client($api_url, $api_key);
+        $curlOptions = [
+            'timeout' => self::TIMEOUT,
+            'connecttimeout' => self::CONNECTTIMEOUT
+        ];
+        
+        $this->webling_client = new Client($api_url, $api_key, $curlOptions);
     }
     
     /**
@@ -72,7 +86,36 @@ abstract class Repository
      */
     protected function apiGet(string $endpoint)
     {
-        return $this->webling_client->get($this->prepareEndpoint($endpoint));
+        return $this->apiSendWithRetry('get', $this->prepareEndpoint($endpoint));
+    }
+    
+    /**
+     * Wrapper that automatically retries if request fails.
+     *
+     * Do only use it on idempotent API methods.
+     *
+     * @param string $method
+     * @param string $url
+     * @param $payload
+     * @param int $tries
+     * @param int $attempt
+     *
+     * @return \Webling\API\IResponse|\Webling\API\Response
+     * @throws ClientException
+     */
+    private function apiSendWithRetry(string $method, string $url, $payload = null, int $tries = 3, int $attempt = 1)
+    {
+        try {
+            return $this->webling_client->$method($url, $payload);
+        } catch (ClientException $exception) {
+            if ($attempt < $tries) {
+                $attempt++;
+                sleep(1); // don't retry immediately (rate limits)
+                return $this->apiSendWithRetry($method, $url, $payload, $tries, $attempt);
+            } else {
+                throw $exception;
+            }
+        }
     }
     
     /**
@@ -104,7 +147,7 @@ abstract class Repository
     }
     
     /**
-     * Encode the url to avoid special chars, don't encode '&' and '='
+     * Encode the url to avoid special chars
      *
      * @param string $endpoint
      *
@@ -120,12 +163,72 @@ abstract class Repository
         $query = substr($endpoint, $query_start + 1);
         $base = substr($endpoint, 0, $query_start);
         
-        $encoded = urlencode($query);
-        
-        // re-decode all ampersands and equal signs to keep the webling api happy
-        $webling_ready = str_replace(['%26', '%3D'], ['&', '='], $encoded);
+        $webling_ready = $this->encodeQueryString($query);
         
         return "$base?$webling_ready";
+    }
+    
+    /**
+     * Encode the quoted parts of the query string as well as the whitespaces.
+     *
+     * This method seems odd, but since the query syntax of webling may contain
+     * reserved characters in query arguments, we have to encode this step by
+     * step.
+     *
+     * @param string $query
+     * @return string
+     */
+    private function encodeQueryString($query)
+    {
+        // query arguments may contain ampersands in the quoted parts,
+        // so encode them first
+        $quotes = ["'", '"', '`'];
+        foreach ($quotes as $char) {
+            $query = $this->encodeQuoted($query, $char);
+        }
+        
+        // then, we can split up the query
+        $arguments = explode('&', $query);
+        
+        // and encode the query argument values
+        foreach ($arguments as $index => $argument) {
+            $separator = strpos($argument, '=');
+            $key = substr($argument, 0, $separator);
+            $value = substr($argument, $separator + 1);
+            $encoded = urlencode(urldecode($value));
+            $arguments[$index] = "$key=$encoded";
+        }
+        
+        return implode('&', $arguments);
+    }
+    
+    /**
+     * Url-encode the parts that are in between the $quoteChars
+     *
+     * @param string $string
+     * @param string $quoteChar
+     * @return string
+     */
+    private function encodeQuoted($string, $quoteChar)
+    {
+        $firstQuote = strpos($string, $quoteChar);
+        
+        if (!$firstQuote) {
+            return $string;
+        }
+        
+        $tokens = explode($quoteChar, $string);
+        $quoteEvens = $firstQuote === 0;
+        
+        foreach ($tokens as $index => $token) {
+            $even = 0 === $index % 2;
+            if (($quoteEvens && $even)
+                || (!$quoteEvens && !$even)) {
+                $tokens[$index] = urlencode($token);
+            }
+        }
+        
+        return implode($quoteChar, $tokens);
     }
     
     /**
@@ -142,7 +245,7 @@ abstract class Repository
     protected function apiPut(string $endpoint, array $data)
     {
         // todo: implement history
-        return $this->webling_client->put($this->prepareEndpoint($endpoint), $data);
+        return $this->apiSendWithRetry('put', $this->prepareEndpoint($endpoint), $data);
     }
     
     /**

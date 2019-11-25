@@ -14,7 +14,6 @@ use Lcobucci\JWT\Parser;
 class AddAllowedRootGroups
 {
     protected $clientRepository = null;
-    protected $tokenRepository = null;
     
     public function __construct(ClientRepository $clientRepository)
     {

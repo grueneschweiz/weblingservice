@@ -126,7 +126,7 @@ class RestApiMember
             $requestedGroups = [];
             
             /** @var GroupRepository $groupRepository */
-            $groupRepository = ApiHelper::createGroupRepo($request->header($key = 'db_key'));
+            $groupRepository = ApiHelper::createGroupRepo();
             
             foreach ($group_ids as $groupId) {
                 ApiHelper::checkIntegerInput($groupId);
@@ -381,7 +381,7 @@ class RestApiMember
     private function patchGroups(Request &$request, Member &$member, array $data)
     {
         $groups = [];
-        $groupRepo = ApiHelper::createGroupRepo($request->header($key = 'db_key'));
+        $groupRepo = ApiHelper::createGroupRepo();
         $allowedGroups = ApiHelper::getAllowedGroups($request);
     
         foreach ((array) $data['value'] as $group) {

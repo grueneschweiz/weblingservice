@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class ListClient extends Command
@@ -43,16 +44,19 @@ class ListClient extends Command
         $data = [];
         foreach ($clients as $client) {
             $groups = \App\ClientGroup::where('client_id', $client->id)->pluck('root_group')->toArray();
+            $keyModel = \App\WeblingKey::where('client_id', $client->id)->first();
             
             $data[] = [
                 $client->id,
                 $client->name,
                 implode(' ', $groups),
-                $client->created_at
+                $keyModel ? Crypt::decryptString($keyModel->api_key) : '',
+                $client->updated_at,
+                $client->created_at,
             ];
         }
-        
-        $headers = ['ID', 'Name', 'Root Groups', 'Created'];
+    
+        $headers = ['ID', 'Name', 'Root Groups', 'Webling Key', 'Updated', 'Created'];
         
         $this->table($headers, $data);
         

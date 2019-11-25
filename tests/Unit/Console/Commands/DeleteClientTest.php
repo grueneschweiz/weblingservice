@@ -31,6 +31,7 @@ class DeleteClientTest extends TestCase
     {
         Artisan::call('client:add', [
             'name' => 'Unit Test',
+            'webling-key' => 'secret',
             '--root-group' => [10]
         ]);
         

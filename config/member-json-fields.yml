@@ -8,13 +8,22 @@ mappings:
   - language
   - newsletterCountryD
   - newsletterCountryF
+  - newsletterCantonD
+  - newsletterCantonF
   - newsletterMunicipality
   - newsletterOther
   - pressReleaseCountryD
   - pressReleaseCountryF
+  - pressReleaseCantonD
+  - pressReleaseCantonF
   - memberStatusCountry
+  - memberStatusCanton
+  - memberStatusMunicipality
+  - membershipStart
   - interests
   - donorCountry
+  - donorCanton
+  - donorMunicipality
   - notesCountry
   - recordCategory
   - recordStatus

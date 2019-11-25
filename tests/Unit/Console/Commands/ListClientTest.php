@@ -15,6 +15,7 @@ use Tests\TestCase;
 class ListClientTest extends TestCase
 {
     private $clientId;
+    private $key = 'super_secret';
     
     public function setUp(): void
     {
@@ -22,6 +23,7 @@ class ListClientTest extends TestCase
         
         Artisan::call('client:add', [
             'name' => 'Unit Test',
+            'webling-key' => $this->key,
             '--root-group' => [10]
         ]);
         
@@ -46,7 +48,7 @@ class ListClientTest extends TestCase
         $output = Artisan::output();
         
         $this->assertEquals(0, $exitCode);
-        $this->assertRegExp('/^| ID\s+| Name\s+| Root Groups\s+| Created\s+|/', $output);
-        $this->assertRegExp('/| ' . $this->clientId . '\s+| Unit Test\s+| 10\s+ | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} |/', $output);
+        $this->assertRegExp('/^| ID\s+| Name\s+| Root Groups\s+| Webling Key\s+| Updated\s+| Created\s+|/', $output);
+        $this->assertRegExp('/| ' . $this->clientId . '\s+| Unit Test\s+| 10\s+| ' . $this->key . '\s+ | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} |/', $output);
     }
 }
