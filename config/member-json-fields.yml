@@ -16,15 +16,19 @@ mappings:
   - pressReleaseCountryF
   - pressReleaseCantonD
   - pressReleaseCantonF
+  - pressReleaseMunicipality
   - memberStatusCountry
   - memberStatusCanton
+  - memberStatusRegion
   - memberStatusMunicipality
   - membershipStart
   - interests
   - donorCountry
   - donorCanton
+  - donorRegion
   - donorMunicipality
   - notesCountry
   - notesCanton
+  - notesMunicipality
   - recordCategory
   - recordStatus
