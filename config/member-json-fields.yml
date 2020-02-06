@@ -6,6 +6,7 @@ mappings:
   - recordCategory
   - emailStatus
   - language
+  - city
   - newsletterCountryD
   - newsletterCountryF
   - newsletterCantonD
