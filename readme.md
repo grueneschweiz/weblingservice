@@ -42,9 +42,6 @@ from above.
 run composer composer require DEPENDENCY` (yes, `composer composer` is correct,
 the first one defines the container to start the second one is the command to
 execute)
-- Add dependency from npm: `docker-compose -f docker-compose.install.yml 
-run node npm --install DEPENDENCY` (You may want to use --save or --save-dev as
-well. Check out the [Docs](https://docs.npmjs.com/cli/install).)
 
 ### Tooling
 #### Mailhog
@@ -52,13 +49,7 @@ All mail you send out of the application will be caught by [Mailhog](http://loca
 
 #### MySQL
 Use the handy [phpMyAdmin](http://localhost:8010) or access the mysql CLI using
-`docker exec -it wsmysql mysql --user=laravel --password=laravel laravel` 
-
-#### Laravel mix
-Works out of the box ☺️
-
-#### NPM
-Access the watching container using `docker exec -it wsnode bash`
+`docker exec -it wsmysql mysql --user=laravel --password=laravel laravel`
 
 ## Manage Client Credentials Grant Tokens
 The CLI is your interface.
