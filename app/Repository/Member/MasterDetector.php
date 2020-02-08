@@ -117,15 +117,15 @@ class MasterDetector
             switch ($value) {
                 case self::MEMBER_STATUS:
                     $rating += 11;
-                    continue;
+                    break;
                 case self::UNCONFIRMED_STATUS:
                     $rating += 6;
-                    continue;
+                    break;
                 case self::SYMPATHISER_STATUS:
                     $rating += 1;
-                    continue;
+                    break;
                 default:
-                    continue;
+                    break;
             }
         }
         
