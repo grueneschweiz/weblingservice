@@ -141,16 +141,18 @@ class MemberMatch
      */
     private static function buildEmailQuery(Member $member): string
     {
-        $email1 = self::escape($member->email1->getWeblingValue());
-        $email2 = self::escape($member->email2->getWeblingValue());
+        // as webling compares casesensitive, transform everything to lower case.
+        
+        $email1 = mb_strtolower(self::escape($member->email1->getWeblingValue()));
+        $email2 = mb_strtolower(self::escape($member->email2->getWeblingValue()));
         
         $query = [];
         if ($member->email1->getWeblingValue()) {
-            $query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '$email1'";
+            $query[] = "(LOWER(`{$member->email1->getWeblingKey()}`) = '$email1' OR LOWER(`{$member->email2->getWeblingKey()}`) = '$email1')";
         }
         
         if ($member->email2->getWeblingValue()) {
-            $query[] = "`{$member->email1->getWeblingKey()}`,`{$member->email2->getWeblingKey()}` = '$email2'";
+            $query[] = "(LOWER(`{$member->email1->getWeblingKey()}`) = '$email2' OR LOWER(`{$member->email2->getWeblingKey()}`) = '$email2')";
         }
         
         return implode(' OR ', $query);
@@ -279,6 +281,8 @@ class MemberMatch
      */
     private static function buildNameQuery(Member $member): string
     {
+        // webling's FILTER seems to be caseINsensitive, so dont bother
+        
         $firstName = self::escape($member->firstName->getWeblingValue());
         $lastName = self::escape($member->lastName->getWeblingValue());
         
