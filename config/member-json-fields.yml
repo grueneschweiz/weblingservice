@@ -6,6 +6,8 @@ mappings:
   - recordCategory
   - emailStatus
   - language
+  - address1
+  - zip
   - city
   - newsletterCountryD
   - newsletterCountryF
