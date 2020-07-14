@@ -68,7 +68,7 @@ class LoaderTest extends TestCase
             $this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-parse-error.yml');
         
         $this->expectException(WeblingFieldMappingConfigException::class);
-        $this->expectExceptionMessageRegExp("/^YAML parse error:/");
+        $this->expectExceptionMessageMatches("/^YAML parse error:/");
         /** @noinspection PhpUnhandledExceptionInspection */
         Loader::getInstance();
     }
@@ -99,7 +99,7 @@ class LoaderTest extends TestCase
             $this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-invalid-config.yml');
         
         $this->expectException(WeblingFieldMappingConfigException::class);
-        $this->expectExceptionMessageRegExp("/^Invalid Webling field mapping config:/");
+        $this->expectExceptionMessageMatches("/^Invalid Webling field mapping config:/");
         /** @noinspection PhpUnhandledExceptionInspection */
         Loader::getInstance();
     }
@@ -112,7 +112,7 @@ class LoaderTest extends TestCase
             $this->getFileRelPath() . DIRECTORY_SEPARATOR . 'webling-field-mappings-reserved-field-key.yml');
         
         $this->expectException(WeblingFieldMappingConfigException::class);
-        $this->expectExceptionMessageRegExp("/^Reserved field key:/");
+        $this->expectExceptionMessageMatches("/^Reserved field key:/");
         /** @noinspection PhpUnhandledExceptionInspection */
         Loader::getInstance();
     }
