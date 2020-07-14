@@ -47,11 +47,11 @@ class MemberTest extends TestCase
         $this->groups = [
             100 => $groupRepository->get(100),
             207 => $groupRepository->get(207),
-            201 => $groupRepository->get(201),
+            1081 => $groupRepository->get(1081),
         ];
         /** @noinspection PhpUnhandledExceptionInspection */
         $this->firstLevelRootGroups = [
-            201 => $groupRepository->get(201),
+            1081 => $groupRepository->get(1081),
             202 => $groupRepository->get(202),
         ];
     }
