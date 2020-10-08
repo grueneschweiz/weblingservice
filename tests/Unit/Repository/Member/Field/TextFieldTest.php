@@ -22,10 +22,10 @@ class TextFieldTest extends TestCase
     
     public function testSetValueInputLengthException()
     {
-        $twoHundredFiftySixChars = str_repeat('a', 256);
+        $longString = str_repeat('a', 1024);
         $this->expectException(InputLengthException::class);
         $field = $this->getField();
-        $field->setValue($twoHundredFiftySixChars);
+        $field->setValue($longString);
     }
     
     private function getField()

@@ -9,7 +9,7 @@ use App\Exceptions\ValueTypeException;
 
 class TextField extends FreeField
 {
-    const MAX_LEN = 255;
+    const MAX_LEN = 1023; // the limit of webling is unknown, but higher
     
     /**
      * Append value, if it's not already in the the field.
