@@ -410,6 +410,39 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals($member->id, $put->getContent());
     }
     
+    public function testPutMember_replaceMultiselect_201()
+    {
+        $member = $this->getMember();
+        $member->mandateCountry->setValue(['legislativeActive', 'legislativePast']);
+        
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'mandateCountry' => [
+                'value' => ['legislativePast'],
+                'mode' => 'replace'
+            ]
+        ];
+        
+        $put = $this->json(
+            'PUT',
+            '/api/v1/member/' . $member->id,
+            $m,
+            $this->auth->getAuthHeader()
+        );
+        
+        $getUpdated = $this->json('GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader());
+        $m2 = json_decode($getUpdated->getContent());
+        
+        // call this before asserting anything so it gets also
+        // deleted if assertions fail.
+        $this->deleteMember($member);
+        
+        $this->assertEquals(201, $put->getStatusCode());
+        $this->assertEquals(['legislativePast'], $m2->mandateCountry);
+        $this->assertEquals($member->id, $put->getContent());
+    }
+    
     public function testPutMember_append_201()
     {
         $initial = 'climate';

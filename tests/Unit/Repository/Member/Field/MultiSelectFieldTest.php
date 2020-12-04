@@ -74,6 +74,14 @@ class MultiSelectFieldTest extends TestCase
         /** @noinspection PhpUnhandledExceptionInspection */
         $field->setValue($this->possibleValues['yes']);
         $this->assertTrue(in_array('yes', $field->getValue()));
+        
+        // unset existing value
+        $field = $this->getField();
+        $field->setValue([$this->possibleValues['yes'], $this->possibleValues['no']], false);
+        $field->setValue([$this->possibleValues['yes']]);
+        $this->assertTrue($field->hasValue('yes'));
+        $this->assertFalse($field->hasValue('no'));
+        $this->assertTrue($field->isDirty());
     }
     
     public function testHasValue()

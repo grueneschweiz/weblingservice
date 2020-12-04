@@ -87,17 +87,16 @@ class MultiSelectField extends FixedField
         }
         
         $values = (array)$values;
-        
+    
         foreach ($values as &$value) {
             $value = self::clean($value);
             $value = $this->makeInternalValue($value);
-            
-            if (!$this->hasValue($value) && null !== $value) {
-                $this->value = array();
-                $this->append($values, $dirty);
-                break;
-            }
         }
+        
+        $this->append($values, $dirty);
+        
+        $remove = array_diff($this->getValue(), $values);
+        $this->remove($remove, $dirty);
     }
     
     /**
