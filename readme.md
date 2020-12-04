@@ -62,3 +62,13 @@ client_ids separated by a space to delete several clients at a time.
 - `php artisan client:edit <client-id> [--name=<new-name>] [--root-group=<id>]...`
 updates your client. If you provide any group ids, the client is linked to only
 the given groups. Earlier assignments that are not in the list, are removed.
+
+### Exchange Secret for Token
+```
+curl -X POST \
+	-F "grant_type=client_credentials" \
+	-F "client_id=%client_id%" \
+	-F "client_secret=%client_secret%" \
+	-F "scope=" \
+	https://%mydomain.tld%/oauth/token
+```
