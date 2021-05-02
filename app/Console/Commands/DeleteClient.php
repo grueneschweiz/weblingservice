@@ -33,9 +33,9 @@ class DeleteClient extends ClientCommand
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $ids = $this->argument('id');
         
