@@ -40,7 +40,7 @@ jobs:
       - name: install passport
         run: docker exec wsapp php artisan passport:install
 
-      - name: unit run tests
+      - name: run tests
         env:
           WEBLING_API_KEY: ${{ secrets.WEBLING_API_KEY }}
           WEBLING_BASE_URL: ${{ secrets.WEBLING_BASE_URL }}
