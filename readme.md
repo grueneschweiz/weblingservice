@@ -1,6 +1,6 @@
 # Webling Service
 
-[![Build Status](https://travis-ci.com/grueneschweiz/weblingservice.svg?branch=master)](https://travis-ci.com/grueneschweiz/weblingservice)
+[![Tests](https://github.com/grueneschweiz/weblingservice/actions/workflows/tests.yml/badge.svg)](https://github.com/grueneschweiz/weblingservice/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/grueneschweiz/weblingservice/badge.svg)](https://coveralls.io/github/grueneschweiz/weblingservice)
 
 > Read the [API documentation](docs/API.md)
@@ -62,3 +62,13 @@ client_ids separated by a space to delete several clients at a time.
 - `php artisan client:edit <client-id> [--name=<new-name>] [--root-group=<id>]...`
 updates your client. If you provide any group ids, the client is linked to only
 the given groups. Earlier assignments that are not in the list, are removed.
+
+### Exchange Secret for Token
+```
+curl -X POST \
+	-F "grant_type=client_credentials" \
+	-F "client_id=%client_id%" \
+	-F "client_secret=%client_secret%" \
+	-F "scope=" \
+	https://%mydomain.tld%/oauth/token
+```

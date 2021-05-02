@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+
+      - name: PHP dependencies
+        run: docker-compose -f docker-compose.install.yml up
+
+      - name: env
+        run: docker-compose -f docker-compose.install.yml run composer cp .env.ci .env
+
+      - name: laravel key
+        run: docker-compose -f docker-compose.install.yml run composer php artisan key:generate
+
+      - name: require coveralls deps
+        run: |
+          docker-compose -f docker-compose.install.yml run composer composer require php-coveralls/php-coveralls
+          docker-compose stop
+
+      - name: start containers
+        run: docker-compose up -d app mysql
+
+      - name: wait for mysql
+        run: sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
+
+      - name: run migrations
+        run: docker exec wsapp php artisan migrate
+
+      - name: install passport
+        run: docker exec wsapp php artisan passport:install
+
+      - name: run tests
+        env:
+          WEBLING_API_KEY: ${{ secrets.WEBLING_API_KEY }}
+          WEBLING_BASE_URL: ${{ secrets.WEBLING_BASE_URL }}
+        run: docker-compose run -e WEBLING_API_KEY=${WEBLING_API_KEY} -e WEBLING_BASE_URL=${WEBLING_BASE_URL} app php -dxdebug.mode=coverage /var/www/html/vendor/phpunit/phpunit/phpunit --configuration /var/www/html/phpunit.xml --coverage-clover /var/www/html/build/logs/clover.xml
+
+      - name: publish coverage report
+        if: ${{ success() }}
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: docker-compose run -e GITHUB_REF=${GITHUB_REF} -e GITHUB_ACTIONS=${GITHUB_ACTIONS} -e GITHUB_RUN_ID=${GITHUB_RUN_ID} -e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} app php /var/www/html/vendor/bin/php-coveralls -v
+
+      - name: Show logs if tests failed
+        if: ${{ failure() }}
+        run: cat storage/logs/laravel-*.log

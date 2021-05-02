@@ -39,9 +39,9 @@ class EditClient extends ClientCommand
     /**
      * Change name and/or root groups according to the selected options.
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $id = (int)$this->argument('id');
         $name = $this->option('name');
