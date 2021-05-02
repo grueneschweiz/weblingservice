@@ -15,7 +15,7 @@ class CreateClientGroupsTable extends Migration
     {
         Schema::create('client_groups', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('client_id');
+            $table->unsignedBigInteger('client_id');
             $table->unsignedInteger('root_group');
             $table->timestamps();
             
