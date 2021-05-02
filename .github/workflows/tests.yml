@@ -29,7 +29,7 @@ jobs:
           docker-compose stop
 
       - name: start containers
-        run: docker-compose up -d
+        run: docker-compose up -d app mysql
 
       - name: wait for mysql
         run: sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
