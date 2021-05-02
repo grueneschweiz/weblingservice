@@ -1,6 +1,6 @@
 # Webling Service
 
-[![Build Status](https://travis-ci.com/grueneschweiz/weblingservice.svg?branch=master)](https://travis-ci.com/grueneschweiz/weblingservice)
+[![Tests](https://github.com/grueneschweiz/weblingservice/actions/workflows/tests.yml/badge.svg)](https://github.com/grueneschweiz/weblingservice/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/github/grueneschweiz/weblingservice/badge.svg)](https://coveralls.io/github/grueneschweiz/weblingservice)
 
 > Read the [API documentation](docs/API.md)
