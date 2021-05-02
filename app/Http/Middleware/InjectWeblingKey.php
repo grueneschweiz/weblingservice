@@ -5,7 +5,8 @@ namespace App\Http\Middleware;
 use App\WeblingKey;
 use Closure;
 use Illuminate\Support\Facades\Crypt;
-use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Parser;
 
 class InjectWeblingKey
 {
@@ -23,8 +24,8 @@ class InjectWeblingKey
          *
          * @see https://github.com/laravel/passport/issues/143
          */
-        $jwt = (new Parser())->parse($request->bearerToken());
-        $clientId = $jwt->getClaim('aud');
+        $jwt = (new Parser(new JoseEncoder()))->parse($request->bearerToken());
+        $clientId = $jwt->claims()->get('aud')[0];
         
         $keyModel = WeblingKey::where('client_id', $clientId)->first();
         $key = Crypt::decryptString($keyModel->api_key);

@@ -111,6 +111,6 @@ class AddClient extends ClientCommand
             $g->save();
         }
         
-        $this->info('<comment>Root groups:</comment> ' . implode($rootGroups, ', '));
+        $this->info('<comment>Root groups:</comment> ' . implode(', ', $rootGroups));
     }
 }
