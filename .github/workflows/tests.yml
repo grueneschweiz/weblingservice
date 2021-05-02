@@ -28,13 +28,23 @@ jobs:
           docker-compose -f docker-compose.install.yml run composer composer require php-coveralls/php-coveralls
           docker-compose stop
 
-      - name: unit tests and coverage report
+      - name: start containers
+        run: docker-compose up -d
+
+      - name: wait for mysql
+        run: sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
+
+      - name: unit run tests
         env:
           WEBLING_API_KEY: ${{ secrets.WEBLING_API_KEY }}
           WEBLING_BASE_URL: ${{ secrets.WEBLING_BASE_URL }}
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker-compose up -d
-          sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
-          docker-compose run -e WEBLING_API_KEY=${WEBLING_API_KEY} -e WEBLING_BASE_URL=${WEBLING_BASE_URL} app php -dxdebug.mode=coverage /var/www/html/vendor/phpunit/phpunit/phpunit --configuration /var/www/html/phpunit.xml --coverage-clover /var/www/html/build/logs/clover.xml
-          docker-compose run -e GITHUB_REF=${GITHUB_REF} -e GITHUB_ACTIONS=${GITHUB_ACTIONS} -e GITHUB_RUN_ID=${GITHUB_RUN_ID} -e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} app php /var/www/html/vendor/bin/php-coveralls -v
+        run: docker-compose run -e WEBLING_API_KEY=${WEBLING_API_KEY} -e WEBLING_BASE_URL=${WEBLING_BASE_URL} app php -dxdebug.mode=coverage /var/www/html/vendor/phpunit/phpunit/phpunit --configuration /var/www/html/phpunit.xml --coverage-clover /var/www/html/build/logs/clover.xml
+
+      - name: publish coverage report
+        if: ${{ success() }}
+        run: docker-compose run -e GITHUB_REF=${GITHUB_REF} -e GITHUB_ACTIONS=${GITHUB_ACTIONS} -e GITHUB_RUN_ID=${GITHUB_RUN_ID} -e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} app php /var/www/html/vendor/bin/php-coveralls -v
+
+      - name: Show logs if tests failed
+        if: ${{ failure() }}
+        run: cat storage/logs/laravel-*.log
