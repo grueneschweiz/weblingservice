@@ -34,6 +34,11 @@ jobs:
       - name: wait for mysql
         run: sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
 
+      - name: run migrations
+        run: |
+          - docker exec wsapp php artisan migrate
+          - docker exec wsapp php artisan passport:install
+
       - name: unit run tests
         env:
           WEBLING_API_KEY: ${{ secrets.WEBLING_API_KEY }}
