@@ -48,7 +48,7 @@ class ListClientTest extends TestCase
         $output = Artisan::output();
         
         $this->assertEquals(0, $exitCode);
-        $this->assertRegExp('/^| ID\s+| Name\s+| Root Groups\s+| Webling Key\s+| Updated\s+| Created\s+|/', $output);
-        $this->assertRegExp('/| ' . $this->clientId . '\s+| Unit Test\s+| 10\s+| ' . $this->key . '\s+ | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} |/', $output);
+        self::assertMatchesRegularExpression('/^| ID\s+| Name\s+| Root Groups\s+| Webling Key\s+| Updated\s+| Created\s+|/', $output);
+        self::assertMatchesRegularExpression('/| ' . $this->clientId . '\s+| Unit Test\s+| 10\s+| ' . $this->key . '\s+ | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} | \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} |/', $output);
     }
 }
