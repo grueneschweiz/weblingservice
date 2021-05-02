@@ -12,9 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v2
-
 
       - name: PHP dependencies
         run: docker-compose -f docker-compose.install.yml up
@@ -25,7 +23,7 @@ jobs:
       - name: laravel key
         run: docker-compose -f docker-compose.install.yml run composer php artisan key:generate
 
-      - name: CI specific stuff
+      - name: require coveralls deps
         run: |
           docker-compose -f docker-compose.install.yml run composer composer require php-coveralls/php-coveralls
           docker-compose stop
