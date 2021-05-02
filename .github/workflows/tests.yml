@@ -35,9 +35,10 @@ jobs:
         run: sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
 
       - name: run migrations
-        run: |
-          docker exec wsapp php artisan passport:install
-          docker exec wsapp php artisan migrate
+        run: docker exec wsapp php artisan migrate
+
+      - name: install passport
+        run: docker exec wsapp php artisan passport:install
 
       - name: unit run tests
         env:
