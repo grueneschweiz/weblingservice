@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateWeblingKeysTable extends Migration
 {
@@ -15,7 +15,7 @@ class CreateWeblingKeysTable extends Migration
     {
         Schema::create('webling_keys', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('client_id');
+            $table->unsignedBigInteger('client_id');
             $table->string('api_key', 255);
             $table->timestamps();
             

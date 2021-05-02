@@ -39,9 +39,9 @@ class AddClient extends ClientCommand
      *
      * @param ClientRepository $clientRepository injected by laravel
      *
-     * @return mixed
+     * @return int
      */
-    public function handle(ClientRepository $clientRepository)
+    public function handle(ClientRepository $clientRepository): int
     {
         $groups = $this->option('root-group');
         
@@ -111,6 +111,6 @@ class AddClient extends ClientCommand
             $g->save();
         }
         
-        $this->info('<comment>Root groups:</comment> ' . implode($rootGroups, ', '));
+        $this->info('<comment>Root groups:</comment> ' . implode(', ', $rootGroups));
     }
 }

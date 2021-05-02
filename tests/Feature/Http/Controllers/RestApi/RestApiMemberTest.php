@@ -39,7 +39,7 @@ class RestApiMemberTest extends TestCase
         
         $response = $this->json('GET', '/api/v1/member/1', [], $headers);
         $response->assertStatus(400);
-        $this->assertRegExp('/the apikey must be 32 chars/', $response->getContent());
+        self::assertMatchesRegularExpression('/the apikey must be 32 chars/', $response->getContent());
     }
     
     public function testGetMember_InvalidApiKey()
@@ -50,7 +50,7 @@ class RestApiMemberTest extends TestCase
         $response = $this->json('GET', '/api/v1/member/1', [], $headers);
         
         $response->assertStatus(401);
-        $this->assertRegExp('/Get request to Webling failed:.*Not authenticated/', $response->getContent());
+        self::assertMatchesRegularExpression('/Get request to Webling failed:.*Not authenticated/', $response->getContent());
     }
     
     public function testGetMember_401()

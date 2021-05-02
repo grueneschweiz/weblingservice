@@ -35,9 +35,9 @@ class ListClient extends Command
     /**
      * Print a table with all clients and their root groups
      *
-     * @return mixed
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $clients = DB::table('oauth_clients')->get()->toArray();
         
