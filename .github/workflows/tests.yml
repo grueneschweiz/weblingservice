@@ -36,8 +36,8 @@ jobs:
 
       - name: run migrations
         run: |
-          - docker exec wsapp php artisan migrate
-          - docker exec wsapp php artisan passport:install
+          docker exec wsapp php artisan migrate
+          docker exec wsapp php artisan passport:install
 
       - name: unit run tests
         env:
