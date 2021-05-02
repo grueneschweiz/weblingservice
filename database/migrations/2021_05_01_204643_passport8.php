@@ -13,12 +13,15 @@ class Passport8 extends Migration
      */
     public function up()
     {
-        Schema::table('oauth_clients', function (Blueprint $table) {
-            $table->string('secret', 100)->nullable()->change();
-            $table->string('provider')->after('secret')->nullable();
-        });
+        if (Schema::hasTable('oauth_clients')
+            && !Schema::hasColumn('oauth_clients', 'provider')) {
+            Schema::table('oauth_clients', function (Blueprint $table) {
+                $table->string('secret', 100)->nullable()->change();
+                $table->string('provider')->after('secret')->nullable();
+            });
+        }
     }
-
+    
     /**
      * Reverse the migrations.
      *
