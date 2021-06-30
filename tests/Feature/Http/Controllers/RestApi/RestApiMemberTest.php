@@ -547,6 +547,48 @@ class RestApiMemberTest extends TestCase
         self::assertEquals($initial, $m2->notesCountry);
     }
     
+    public function testPutMember_removeAndAppendText_201(): void
+    {
+        $remove = 'tagtagtag';
+        $append = 'anewtag';
+        $initial = "this is a note\nanothertag\n$remove";
+        $final = "this is a note\nanothertag\n$append";
+        
+        $member = $this->getMember();
+        $member->notesCountry->append($initial);
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'notesCountry' => [
+                [
+                    'value' => $remove,
+                    'mode' => 'remove'
+                ],
+                [
+                    'value' => $append,
+                    'mode' => 'append'
+                ]
+            ]
+        ];
+        
+        $put = $this->json(
+            'PUT',
+            '/api/v1/member/' . $member->id,
+            $m,
+            $this->auth->getAuthHeader()
+        );
+        
+        $getUpdated = $this->json('GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader());
+        $m2 = json_decode($getUpdated->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        
+        // call this before asserting anything so it gets also
+        // deleted if assertions fail.
+        $this->deleteMember($member);
+        
+        self::assertEquals(201, $put->getStatusCode());
+        self::assertEquals($final, $m2->notesCountry);
+    }
+    
     public function testPutMember_addIfNew_notNew_201()
     {
         $initial = 'already in the database';

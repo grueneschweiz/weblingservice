@@ -317,10 +317,10 @@ class RestApiMember
     /**
      * Merge $data into $member
      *
-     * @param  Request  $request
-     * @param  Member  $member
-     * @param  array  $data
-     * @param  bool  $forceReplace  disrespect the field's mode and use replace mode if true
+     * @param Request $request
+     * @param Member $member
+     * @param array $data
+     * @param bool $forceReplace disrespect the field's mode and use replace mode if true
      *
      * @return Member
      *
@@ -336,29 +336,84 @@ class RestApiMember
      * @throws \Webling\API\ClientException
      * @throws IllegalFieldUpdateMode
      */
-    private function patchMember(Request &$request, Member &$member, array $data, $forceReplace = false): Member
+    private function patchMember(Request $request, Member $member, array $data, bool $forceReplace = false): Member
     {
         foreach ($data as $fieldKey => $field) {
             if (Member::KEY_ID === $fieldKey) {
                 continue;
             }
             
-            if ($forceReplace && is_array($field)) {
-                $field['mode'] = self::MODE_REPLACE;
+            $actions = $this->normalizeFieldData($field);
+            if ($forceReplace) {
+                $actions = $this->forceModeReplace($actions);
             }
-            
-            if (!is_array($field) || !array_key_exists('mode', $field) || !array_key_exists('value', $field)) {
-                throw new BadRequestException('Malformed data in field: '.$fieldKey);
-            }
+            $this->validateFieldActions($actions, $fieldKey);
             
             if (Member::KEY_GROUPS === $fieldKey) {
-                $this->patchGroups($request, $member, $field);
+                foreach ($actions as $action) {
+                    $this->patchGroups($request, $member, $action);
+                }
             } else {
-                $this->patchField($member, $field, $fieldKey);
+                foreach ($actions as $action) {
+                    $this->patchField($member, $action, $fieldKey);
+                }
             }
         }
         
         return $member;
+    }
+    
+    /**
+     * Wraps directly given single actions into an array so it can be treated
+     * like fields with multiple actions.
+     *
+     * Single action example: 'notesCountry' => ['value' => 'newTag', 'mode' => 'append']
+     * Multi action example: 'notesCountry' => [
+     *   ['value' => 'newTag', 'mode' => 'append'],
+     *   ['value' => 'oldTag', 'mode' => 'remove'],
+     * ]
+     *
+     * @param array $fieldData
+     * @return array|array[]
+     */
+    private function normalizeFieldData(array $fieldData)
+    {
+        if (array_key_exists('value', $fieldData)) {
+            return [$fieldData];
+        }
+        
+        return $fieldData;
+    }
+    
+    /**
+     * Sets the mode of every action to replace
+     *
+     * @param array $actions
+     * @return array
+     */
+    private function forceModeReplace(array $actions)
+    {
+        foreach ($actions as &$action) {
+            if (is_array($action)) {
+                $action['mode'] = self::MODE_REPLACE;
+            }
+        }
+        
+        return $actions;
+    }
+    
+    /**
+     * Checks if every action contains a 'mode' and a 'value'
+     *
+     * @throws BadRequestException
+     */
+    private function validateFieldActions(array $actions, string $fieldKey): void
+    {
+        foreach ($actions as $action) {
+            if (!is_array($action) || !array_key_exists('mode', $action) || !array_key_exists('value', $action)) {
+                throw new BadRequestException("Malformed data in field: $fieldKey");
+            }
+        }
     }
     
     /**
