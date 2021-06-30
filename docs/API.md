@@ -41,6 +41,7 @@ The `id` property is read only.
 Field update modes:
 * `replace` replaces the current value
 * `append` appends the given value to the current value. Doesn't work for fields of type `DateField` and `SelectField`
+* `remove` removes the given value from the current value. Doesn't work for fields of type `DateField` and `SelectField`
 * `replaceEmpty` adds the given value only if the field is empty
 * `addIfNew` adds the given value only if this is a new record
 
