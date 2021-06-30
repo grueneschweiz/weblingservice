@@ -478,6 +478,75 @@ class RestApiMemberTest extends TestCase
         $this->assertTrue(in_array($appended, $m2->interests));
     }
     
+    public function testPutMember_removeMultiSelect_201(): void
+    {
+        $remove = 'energy';
+        $initial = 'climate';
+        
+        $member = $this->getMember();
+        $member->interests->append([$initial, $remove]);
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'interests' => [
+                'value' => $remove,
+                'mode' => 'remove'
+            ]
+        ];
+        
+        $put = $this->json(
+            'PUT',
+            '/api/v1/member/' . $member->id,
+            $m,
+            $this->auth->getAuthHeader()
+        );
+        
+        $getUpdated = $this->json('GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader());
+        $m2 = json_decode($getUpdated->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        
+        // call this before asserting anything so it gets also
+        // deleted if assertions fail.
+        $this->deleteMember($member);
+        
+        self::assertEquals(201, $put->getStatusCode());
+        self::assertContains($initial, $m2->interests);
+        self::assertNotContains($remove, $m2->interests);
+    }
+    
+    public function testPutMember_removeText_201(): void
+    {
+        $remove = 'tagtagtag';
+        $initial = "this is a note\nanothertag";
+        
+        $member = $this->getMember();
+        $member->notesCountry->append("$initial\n$remove");
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'notesCountry' => [
+                'value' => $remove,
+                'mode' => 'remove'
+            ]
+        ];
+        
+        $put = $this->json(
+            'PUT',
+            '/api/v1/member/' . $member->id,
+            $m,
+            $this->auth->getAuthHeader()
+        );
+        
+        $getUpdated = $this->json('GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader());
+        $m2 = json_decode($getUpdated->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        
+        // call this before asserting anything so it gets also
+        // deleted if assertions fail.
+        $this->deleteMember($member);
+        
+        self::assertEquals(201, $put->getStatusCode());
+        self::assertEquals($initial, $m2->notesCountry);
+    }
+    
     public function testPutMember_addIfNew_notNew_201()
     {
         $initial = 'already in the database';
@@ -733,6 +802,43 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals(201, $put->getStatusCode());
         $this->assertTrue(in_array($group, $m2->groups));
         $this->assertTrue(in_array(100, $m2->groups));
+    }
+    
+    public function testPutMember_removeGroup_201(): void
+    {
+        $groupId = 1081;
+        $groupRepository = new GroupRepository(config('app.webling_api_key'));
+        $group = $groupRepository->get($groupId);
+        
+        $member = $this->getMember();
+        $member->addGroups($group);
+    
+        $member = $this->saveMember($member);
+        
+        $m = [
+            'groups' => [
+                'value' => $groupId,
+                'mode' => 'remove'
+            ]
+        ];
+        
+        $put = $this->json(
+            'PUT',
+            '/api/v1/member/' . $member->id,
+            $m,
+            $this->auth->getAuthHeader()
+        );
+        
+        $getUpdated = $this->json('GET', '/api/v1/member/' . $member->id, [], $this->auth->getAuthHeader());
+        $m2 = json_decode($getUpdated->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        
+        // call this before asserting anything so it gets also
+        // deleted if assertions fail.
+        $this->deleteMember($member);
+        
+        self::assertEquals(201, $put->getStatusCode());
+        self::assertNotContains($groupId, $m2->groups);
+        self::assertContains(100, $m2->groups);
     }
     
     public function testPostMember_insert_201()

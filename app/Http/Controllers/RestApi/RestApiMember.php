@@ -20,6 +20,7 @@ class RestApiMember
     private const MODE_REPLACE_EMPTY = 'replaceEmpty';
     private const MODE_APPEND = 'append';
     private const MODE_ADD_IF_NEW = 'addIfNew';
+    private const MODE_REMOVE = 'remove';
     
     /**
      * Return a json with the member fields
@@ -365,7 +366,7 @@ class RestApiMember
      *
      * @param  Request  $request
      * @param  Member  $member
-     * @param  array  $data  => [ value => [ group ids ], mode => replace/append ]
+     * @param  array  $data  => [ value => [ group ids ], mode => replace/append/remove ]
      *
      * @throws \App\Exceptions\GroupNotFoundException
      * @throws \App\Exceptions\InvalidFixedValueException
@@ -410,6 +411,10 @@ class RestApiMember
                     $member->setGroups($groups);
                 }
                 break;
+                
+            case self::MODE_REMOVE:
+                $member->removeGroups($groups);
+                break;
             
             default:
                 throw new IllegalFieldUpdateMode("The update mode '{$data['mode']}' for the field '".Member::KEY_GROUPS."' is not supported.");
@@ -451,6 +456,13 @@ class RestApiMember
                 if (null === $member->id) {
                     $member->$key->setValue($data['value']);
                 }
+                break;
+    
+            case self::MODE_REMOVE:
+                if (!method_exists($member->$key, 'remove')) {
+                    throw new IllegalFieldUpdateMode("The update mode '{$data['mode']}' for the field '$key' is not supported.");
+                }
+                $member->$key->remove($data['value']);
                 break;
             
             default:
