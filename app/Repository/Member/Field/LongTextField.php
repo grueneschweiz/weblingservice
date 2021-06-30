@@ -8,6 +8,9 @@
 
 namespace App\Repository\Member\Field;
 
+use App\Exceptions\InputLengthException;
+use App\Exceptions\ValueTypeException;
+
 class LongTextField extends FreeField
 {
     /**
@@ -30,6 +33,33 @@ class LongTextField extends FreeField
         } else {
             $v = $this->getValue() . $separator . $value;
         }
+        
+        $this->setValue($v, $dirty);
+    }
+    
+    /**
+     * Remove value, if it's in the the field.
+     *
+     * @param $value
+     * @param bool $dirty
+     * @param string $separator
+     *
+     * @throws InputLengthException
+     * @throws ValueTypeException
+     */
+    public function remove($value, bool $dirty = true, string $separator = "\n" )
+    {
+        if (empty($value)
+            || empty($this->getValue())
+            || !$this->inValue($value)) {
+            return;
+        }
+        
+        $needle = preg_quote($value, '/');
+        $v = preg_replace("/\b$needle\b/", '', $this->getValue());
+        
+        $preg_separator = preg_quote($separator, '/');
+        $v = preg_replace("/\s*$preg_separator+\s*/", $separator, $v);
         
         $this->setValue($v, $dirty);
     }
