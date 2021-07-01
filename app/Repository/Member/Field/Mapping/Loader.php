@@ -26,7 +26,8 @@ class Loader
     const RESERVED = [
         'groups',
         'id',
-        'firstLevelGroupNames'
+        'firstLevelGroupNames',
+        'value'
     ];
     
     /**
