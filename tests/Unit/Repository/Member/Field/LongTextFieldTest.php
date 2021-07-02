@@ -48,4 +48,68 @@ class LongTextFieldTest extends TestCase
         $field->append($this->secondValue);
         $this->assertEquals($this->secondValue, $field->getValue());
     }
+    
+    public function testRemove__notPresent()
+    {
+        $field = $this->getField();
+        $field->remove($this->secondValue, true, $this->separator);
+        self::assertEquals($this->value, $field->getValue());
+        self::assertFalse($field->isDirty());
+    }
+    
+    public function testRemove__present()
+    {
+        $field = $this->getField();
+        $field->remove($this->value);
+        self::assertEmpty($field->getValue());
+        self::assertTrue($field->isDirty());
+        
+    }
+    
+    public function testRemove__empty()
+    {
+        $field = $this->getField();
+        $field->setValue(null, false);
+        
+        $field->remove($this->value);
+        self::assertNull($field->getValue());
+        self::assertFalse($field->isDirty());
+    }
+    
+    public function testRemove__nothing()
+    {
+        $field = $this->getField();
+        
+        $field->remove('');
+        self::assertEquals($this->value, $field->getValue());
+        self::assertFalse($field->isDirty());
+    }
+    
+    public function testRemove__cut()
+    {
+        $field = $this->getField();
+        $field->setValue("some text\ntagtagtag \n tagtagtag asdf other");
+        $field->remove('tagtagtag');
+        self::assertEquals("some text\nasdf other", $field->getValue());
+        self::assertTrue($field->isDirty());
+        
+    }
+    
+    public function testRemove__noWordFractions1()
+    {
+        $field = $this->getField();
+        $field->setValue("some text\nKtagtagtag", false);
+        $field->remove('tagtagtag');
+        self::assertEquals("some text\nKtagtagtag", $field->getValue());
+        self::assertFalse($field->isDirty());
+    }
+    
+    public function testRemove__noWordFractions2()
+    {
+        $field = $this->getField();
+        $field->setValue("some text\ntagtagtagK", false);
+        $field->remove('tagtagtag');
+        self::assertEquals("some text\ntagtagtagK", $field->getValue());
+        self::assertFalse($field->isDirty());
+    }
 }

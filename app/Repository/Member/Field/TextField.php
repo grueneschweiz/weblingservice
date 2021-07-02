@@ -37,6 +37,33 @@ class TextField extends FreeField
     }
     
     /**
+     * Remove value, if it's in the the field.
+     *
+     * @param $value
+     * @param bool $dirty
+     * @param string $separator
+     *
+     * @throws InputLengthException
+     * @throws ValueTypeException
+     */
+    public function remove($value, bool $dirty = true, string $separator = ', ')
+    {
+        if (empty($value)
+            || empty($this->getValue())
+            || !$this->inValue($value)) {
+            return;
+        }
+        
+        $needle = preg_quote($value, '/');
+        $v = preg_replace("/\b$needle\b/", '', $this->getValue());
+    
+        $preg_separator = preg_quote(trim($separator), '/');
+        $v = preg_replace("/(\s*$preg_separator+\s*)+/", $separator, $v);
+        
+        $this->setValue($v, $dirty);
+    }
+    
+    /**
      * Make sure we don't exceed the length limit
      *
      * @param string|null $value

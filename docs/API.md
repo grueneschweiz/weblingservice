@@ -41,8 +41,43 @@ The `id` property is read only.
 Field update modes:
 * `replace` replaces the current value
 * `append` appends the given value to the current value. Doesn't work for fields of type `DateField` and `SelectField`
+* `remove` removes the given value from the current value. Doesn't work for fields of type `DateField` and `SelectField`
 * `replaceEmpty` adds the given value only if the field is empty
 * `addIfNew` adds the given value only if this is a new record
+
+On any field, a single action or multiple actions may be performed.
+* Single action example
+    ```json
+    {
+        "interests": 
+        {
+            "value": "energy", 
+            "mode": "append"
+        }
+    }
+    ```
+  This will add the `energy` interest flag without changing any other flags.
+
+  
+* Multi action example: 
+  ```json
+  {
+      "interests":
+      [
+          {
+              "value": "climate", 
+              "mode": "append"
+          },
+          {
+              "value": "agriculture", 
+              "mode": "remove"
+          }
+      ]
+  }
+  ``` 
+  This will add the `climate` interest flag and remove the `agriculture` flag
+  but wont affect any other flags. 
+
 
 ### Show single
 #### Regular request
@@ -221,10 +256,16 @@ Body:
         "mode": "addIfNew"
     },
     "notesCountry": 
-    {
-        "value": "SomeTag",
-        "mode": "append"
-    },
+    [
+        {
+          "value": "aNewTag", 
+          "mode": "append"
+        },
+        {
+          "value": "anOldTag", 
+          "mode": "remove"
+        }
+    ],
     "groups":
     {
         "value": [201, 202],
@@ -270,10 +311,16 @@ Body:
         "mode": "addIfNew"
     },
     "notesCountry": 
-    {
-        "value": "SomeTag",
-        "mode": "append"
-    },
+    [
+        {
+          "value": "aNewTag", 
+          "mode": "append"
+        },
+        {
+          "value": "anOldTag", 
+          "mode": "remove"
+        }
+    ],
     "groups":
     {
         "value": [201, 202],
