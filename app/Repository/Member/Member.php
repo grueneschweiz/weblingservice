@@ -159,6 +159,13 @@ class Member
     private $groups = null;
     
     /**
+     * The IDs of the debtors belonging to this member
+     *
+     * @var int[]
+     */
+    private $debtorIds = [];
+    
+    /**
      * The id of the member in webling
      *
      * @var int|null
@@ -179,6 +186,7 @@ class Member
      * @param int|null $id the id in webling
      * @param Group[] $groups
      * @param bool $allowSettingMultiSelectFields
+     * @param int[] $debtorIds
      *
      * @throws MultiSelectOverwriteException
      * @throws WeblingFieldMappingConfigException
@@ -190,10 +198,12 @@ class Member
         array $data = [],
         int $id = null,
         array $groups = null,
-        bool $allowSettingMultiSelectFields = null
+        bool $allowSettingMultiSelectFields = null,
+        array $debtorIds = []
     )
     {
         $this->id = $id;
+        $this->debtorIds = $debtorIds;
         
         if (is_array($groups)) {
             $this->addGroups($groups);
@@ -488,5 +498,13 @@ class Member
         foreach ($groups as $group) {
             unset($this->groups[$group->getId()]);
         }
+    }
+    
+    /**
+     * @return int[]
+     */
+    public function getDebtorIds(): array
+    {
+        return $this->debtorIds;
     }
 }

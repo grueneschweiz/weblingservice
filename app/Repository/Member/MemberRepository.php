@@ -236,8 +236,9 @@ class MemberRepository extends Repository
             $fieldData = $memberData['properties'];
             $groups = $this->getGroups($memberData['parents']);
             $id = $memberData['id'];
+            $debtorIds = $memberData['links']['debitor'] ?? [];
             
-            $members[$id] = new Member($fieldData, $id, $groups, true);
+            $members[$id] = new Member($fieldData, $id, $groups, true, $debtorIds);
         }
         
         return $members;

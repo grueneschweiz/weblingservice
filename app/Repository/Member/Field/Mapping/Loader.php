@@ -27,7 +27,8 @@ class Loader
         'groups',
         'id',
         'firstLevelGroupNames',
-        'value'
+        'value',
+        'debtorIds'
     ];
     
     /**
