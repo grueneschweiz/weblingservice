@@ -59,6 +59,7 @@ use App\Repository\Member\Field\TextField;
  * @property TextField $website
  * @property TextField $facebook
  * @property TextField $twitter
+ * @property TextField $instagram
  * @property TextField $iban
  * @property SelectField $coupleCategory
  * @property SelectField $partnerSalutationFormal
@@ -119,12 +120,15 @@ use App\Repository\Member\Field\TextField;
  * @property SelectField $donorCountry
  * @property SelectField $donorCanton
  * @property SelectField $donorRegion
- * @property SelectField $donorCommune
+ * @property SelectField $donorMunicipality
  * @property SelectField $donorYoung
  * @property LongTextField $notesCountry
  * @property LongTextField $notesCanton
  * @property LongTextField $notesMunicipality
+ * @property LongTextField $notesCantonYoung
+ * @property LongTextField $notesCountryYoung
  * @property LongTextField $legacy
+ * @property LongTextField $dontUse
  *
  * @package App\Repository\Member
  */
