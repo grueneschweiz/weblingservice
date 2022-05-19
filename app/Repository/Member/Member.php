@@ -140,7 +140,7 @@ class Member
     /**
      * The fields with the member data
      *
-     * @var array
+     * @var Field[]
      */
     private $fields = [];
     
@@ -411,7 +411,7 @@ class Member
     /**
      * Return all fields in an array.
      *
-     * @return array
+     * @return Field[]
      */
     public function getFields(): array
     {
