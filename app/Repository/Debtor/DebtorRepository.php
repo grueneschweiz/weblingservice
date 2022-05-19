@@ -12,6 +12,7 @@ namespace App\Repository\Debtor;
 use App\Exceptions\DebtorException;
 use App\Exceptions\WeblingAPIException;
 use App\Repository\Repository;
+use Webling\API\ClientException;
 
 class DebtorRepository extends Repository
 {
@@ -24,7 +25,7 @@ class DebtorRepository extends Repository
      *
      * @throws DebtorException
      * @throws WeblingAPIException
-     * @throws \Webling\API\ClientException
+     * @throws ClientException
      */
     public function get(int $debtorId): Debtor
     {
@@ -49,6 +50,16 @@ class DebtorRepository extends Repository
         );
     }
     
+    /**
+     * Update debtor in Webling
+     *
+     * @param Debtor $debtor
+     *
+     * @return void
+     *
+     * @throws WeblingAPIException
+     * @throws ClientException
+     */
     public function put(Debtor $debtor): void {
         $payload = [
             'links' => [
