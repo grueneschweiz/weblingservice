@@ -122,6 +122,20 @@ class EmailMergerTest extends TestCase
                 ['email1' => null, 'email2' => null, 'emailStatus' => 'unwanted'],
                 'active'
             ],
+    
+            'status_srcEmpty' => [
+                'emailStatus',
+                ['emailStatus' => 'active'],
+                ['emailStatus' => null],
+                'active'
+            ],
+    
+            'status_dstEmpty' => [
+                'emailStatus',
+                ['emailStatus' => null],
+                ['emailStatus' => 'active'],
+                'active'
+            ],
         ];
     }
     

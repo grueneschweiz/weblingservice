@@ -88,6 +88,10 @@ class EmailMerger extends FieldMerger
             $this->dstMember->emailStatus->setValue('unwanted');
         }
         
+        if (empty($this->dstMember->emailStatus->getValue())){
+            $this->dstMember->emailStatus->setValue($srcEmailStatus);
+        }
+        
         return true;
     }
 }
