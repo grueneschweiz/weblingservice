@@ -123,6 +123,7 @@ class MemberMergerTest extends TestCase
                     'zip' => '8888',
                     'city' => 'wald',
                     'email1' => 'new@mail.com',
+                    'coupleCategory' => 'partner2',
                     'memberStatusCountry' => 'resigned',
                     'mandateCountry' => ['legislativeActive'],
                 ]],
@@ -133,7 +134,8 @@ class MemberMergerTest extends TestCase
                     'address1',
                     'zip',
                     'city',
-                    'email1'
+                    'email1',
+                    'coupleCategory'
                 ],
             ],
         ];
@@ -177,7 +179,7 @@ class MemberMergerTest extends TestCase
             'networkNpo' => 'betterWorld',
             'interests' => ['energy', 'climate'],
             'request' => ['design'],
-            'coupleCategory' => 'partner1',
+            'coupleCategory' => 'single',
             'partnerSalutationFormal' => 'fD',
             'partnerSalutationInformal' => 'fD',
             'partnerFirstName' => 'Vroni',
@@ -269,6 +271,7 @@ class MemberMergerTest extends TestCase
                     'city' => 'Entenhausen',
                     'mobilePhone' => '0234567890',
                     'entryChannel' => 'dst entry',
+                    'coupleCategory' => null,
                     'interests' => ['traffic', 'digitisation', 'energy'],
                     'memberStatusCountry' => 'sympathiser',
                     'magazineCantonD' => null,
@@ -280,6 +283,7 @@ class MemberMergerTest extends TestCase
                     'city' => 'Entenhausen',
                     'mobilePhone' => '0234567890',
                     'entryChannel' => 'dst entry',
+                    'coupleCategory' => 'single',
                     'interests' => ['climate', 'traffic', 'digitisation', 'energy'],
                     'notesCountry' => "who lives long?\nlong lives the judge"
                 ]],
