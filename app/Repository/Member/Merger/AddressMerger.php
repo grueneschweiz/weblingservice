@@ -44,7 +44,7 @@ class AddressMerger extends FieldMerger
         
         // do nothing if dst === src
         if ($this->wholeAddressIsSimilar()
-            && $dstCountry->getValue() === $srcCountry->getValue()
+            && ($dstCountry->getValue() === $srcCountry->getValue() || empty($srcCountry->getValue()))
         ) {
             return true;
         }

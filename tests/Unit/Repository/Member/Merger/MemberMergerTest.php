@@ -284,6 +284,29 @@ class MemberMergerTest extends TestCase
                     'notesCountry' => "who lives long?\nlong lives the judge"
                 ]],
             ],
+            'memberData_similarWithEmptySrcCountry' => [
+                [[
+                    'address1' => "rue de l'annonciade 22",
+                    'address2' => "CP 123",
+                    'zip' => '1234',
+                    'city' => 'Entenhausen',
+                    'country' => 'ch'
+                ]],
+                [[
+                    'address1' => "22 rue de l'annonciade",
+                    'address2' => "case postale 123",
+                    'zip' => '1234',
+                    'city' => 'Entenhausen',
+                    'country' => null
+                ]],
+                [[
+                    'address1' => "rue de l'annonciade 22",
+                    'address2' => "CP 123",
+                    'zip' => '1234',
+                    'city' => 'Entenhausen',
+                    'country' => 'ch'
+                ]],
+            ],
         ];
     }
     
