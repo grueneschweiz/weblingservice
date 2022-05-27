@@ -1317,7 +1317,7 @@ class RestApiMemberTest extends TestCase
         $src = $this->saveMember($src);
      
         // link existing debtor to src member
-        $debtorRepository = new DebtorRepository(config('app.webling_api_key'));
+        $debtorRepository = new DebtorRepository(config('app.webling_finance_admin_api_key'));
         $debtor = $debtorRepository->get(self::MERGE_MEMBER_DEBTOR_ID);
         $debtor->setMemberId($src->id);
         $debtorRepository->put($debtor);

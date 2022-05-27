@@ -22,7 +22,7 @@ class DebtorRepositoryTest extends TestCase
     {
         parent::setUp();
         
-        $this->repository = new DebtorRepository(config('app.webling_api_key'));
+        $this->repository = new DebtorRepository(config('app.webling_finance_admin_api_key'));
     }
     
     public function testGet()
