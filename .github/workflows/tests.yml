@@ -73,7 +73,7 @@ jobs:
           sh
           -c
           'composer global require php-coveralls/php-coveralls 
-          && /tmp/vendor/bin/php-coveralls --coverage_clover=/var/www/html/build/logs/clover.xml -v' 
+          && /tmp/vendor/bin/php-coveralls --coverage_clover=/app/build/logs/clover.xml -v' 
 
       - name: Show logs if tests failed
         if: ${{ failure() }}
