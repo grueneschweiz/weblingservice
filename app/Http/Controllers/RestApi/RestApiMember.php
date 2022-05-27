@@ -609,4 +609,52 @@ class RestApiMember
             'matches' => $data,
         ]);
     }
+    
+    /**
+     * {@see MemberRepository::merge()} for documentation
+     *
+     * @param Request $request
+     * @param string|int|null $dstMemberId
+     * @param string|int|null $srcMemberId
+     *
+     * @return string
+     *
+     * @throws BadRequestException
+     * @throws MemberMergeException
+     * @throws \App\Exceptions\GroupNotFoundException
+     * @throws \App\Exceptions\InvalidFixedValueException
+     * @throws \App\Exceptions\MemberNotFoundException
+     * @throws \App\Exceptions\MemberUnknownFieldException
+     * @throws \App\Exceptions\MultiSelectOverwriteException
+     * @throws \App\Exceptions\NoGroupException
+     * @throws \App\Exceptions\ValueTypeException
+     * @throws \App\Exceptions\WeblingAPIException
+     * @throws \App\Exceptions\WeblingFieldMappingConfigException
+     * @throws \JsonException
+     * @throws \Webling\API\ClientException
+     */
+    public function mergeMember(Request $request, $dstMemberId, $srcMemberId): string
+    {
+        $srcMemberId = (int)$srcMemberId;
+        if (empty($srcMemberId)) {
+            throw new BadRequestException('Missing ID of source member.');
+        }
+        
+        $dstMemberId = (int)$dstMemberId;
+        if (empty($dstMemberId)) {
+            throw new BadRequestException('Missing ID of destination member.');
+        }
+        
+        $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
+        $allowedGroups = ApiHelper::getAllowedGroups($request);
+        
+        $merged = $memberRepo->merge($dstMemberId, $srcMemberId);
+        
+        return json_encode([
+            'success' => true,
+            'conflicts' => [],
+            'merged' => ApiHelper::getMemberAsArray($merged, $allowedGroups, true),
+            'message' => 'OK'
+        ], JSON_THROW_ON_ERROR);
+    }
 }

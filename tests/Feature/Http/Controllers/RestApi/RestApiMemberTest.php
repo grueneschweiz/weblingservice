@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\RestApi\RestApiMember;
 
+use App\Exceptions\MemberNotFoundException;
+use App\Repository\Debtor\DebtorRepository;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberRepository;
@@ -12,6 +14,7 @@ use Tests\TestCase;
 class RestApiMemberTest extends TestCase
 {
     const EMAIL_FIELD = 'email1';
+    const MERGE_MEMBER_DEBTOR_ID = 63376;
     
     /**
      * @var AuthHelper
@@ -854,7 +857,7 @@ class RestApiMemberTest extends TestCase
         
         $member = $this->getMember();
         $member->addGroups($group);
-    
+        
         $member = $this->saveMember($member);
         
         $m = [
@@ -1151,7 +1154,7 @@ class RestApiMemberTest extends TestCase
         // precondition: assert we dont have any records with the same name
         $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
         
-        foreach($response->json('matches') as $match) {
+        foreach ($response->json('matches') as $match) {
             $this->deleteMember($match['id']);
         }
         
@@ -1188,5 +1191,406 @@ class RestApiMemberTest extends TestCase
         $response->assertJsonStructure(['status', 'matches']);
         $response->assertJsonCount(2, 'matches');
         $response->assertJsonFragment(['status' => 'multiple']);
+    }
+    
+    public function testPutMerge_200_noconflicts()
+    {
+        $dst = $this->getMember();
+        $dst->gender->setValue('n');
+        $dst->salutationInformal->setValue('nD');
+        $dst->address1->setValue("Rue de l'Annonciade 22");
+        $dst->address2->setValue('CP 123');
+        $dst->zip->setValue('1234');
+        $dst->city->setValue('Entenhausen');
+        $dst->entryChannel->setValue('initial value');
+        $dst->interests->setValue(['finance', 'gender']);
+        $dst->request->setValue('music');
+        $dst->memberStatusMunicipality->setValue('sympathiser');
+        $dst->memberStatusRegion->setValue('member');
+        $dst->memberStatusCanton->setValue('unconfirmed');
+        $dst->roleMunicipality->setValue('trouble master');
+        $dst->mandateMunicipality->setValue('legislativePast');
+        $dst->mandateMunicipalityDetail->setValue('parli');
+        $dst = $this->saveMember($dst);
+        
+        $src = new Member();
+        $src->recordStatus->setValue('active');
+        $src->firstName->setValue(mb_strtoupper($dst->firstName->getValue()));
+        $src->lastName->setValue(mb_strtolower($dst->lastName->getValue()));
+        $src->recordCategory->setValue('private');
+        $src->language->setValue('d');
+        $src->gender->setValue('f');
+        $src->salutationFormal->setValue('fD');
+        $src->salutationInformal->setValue('fD');
+        $src->title->setValue('Dr.');
+        $src->company->setValue('Company');
+        $src->address1->setValue("22 rue de l'annonciade");
+        $src->address2->setValue('Case postale 123');
+        $src->zip->setValue('1234');
+        $src->city->setValue('entenhausen');
+        $src->country->setValue('ch');
+        $src->postStatus->setValue('active');
+        $src->email1->setValue(ucfirst($dst->email1->getValue()));
+        $src->email2->setValue('hugo@email.com');
+        $src->emailStatus->setValue('active');
+        $src->mobilePhone->setValue('123456');
+        $src->landlinePhone->setValue('789');
+        $src->workPhone->setValue('0800800800');
+        $src->phoneStatus->setValue('unwanted');
+        $src->entryChannel->setValue('must not be merged');
+        $src->birthday->setValue('');
+        $src->website->setValue('https://mysite.com');
+        $src->facebook->setValue('boomer');
+        $src->twitter->setValue('@nerd');
+        $src->instagram->setValue('@yay');
+        $src->iban->setValue('12345678');
+        $src->profession->setValue('activist');
+        $src->professionCategory->setValue('entrepreneurs');
+        $src->networkNpo->setValue('betterWorld');
+        $src->interests->setValue(['energy', 'climate']);
+        $src->request->setValue('design');
+        $src->coupleCategory->setValue('single');
+        $src->partnerSalutationFormal->setValue('fD');
+        $src->partnerSalutationInformal->setValue('fD');
+        $src->partnerFirstName->setValue('Vroni');
+        $src->partnerLastName->setValue('Maurer');
+        $src->memberStatusMunicipality->setValue('member');
+        $src->memberStatusRegion->setValue('member');
+        $src->memberStatusCanton->setValue('member');
+        $src->memberStatusCountry->setValue('member');
+        $src->memberStatusYoung->setValue('member');
+        $src->membershipStart->setValue('01.01.1970');
+        $src->membershipEnd->setValue('31.12.2034');
+        $src->responsibility->setValue('you');
+        $src->membershipFeeMunicipality->setValue('regular');
+        $src->membershipFeeRegion->setValue('reduced');
+        $src->membershipFeeCanton->setValue('couple');
+        $src->membershipFeeCountry->setValue('no');
+        $src->membershipFeeYoung->setValue('no');
+        $src->magazineMunicipality->setValue('yes');
+        $src->newsletterMunicipality->setValue('no');
+        $src->pressReleaseMunicipality->setValue('yes');
+        $src->roleMunicipality->setValue('problem solver');
+        $src->mandateMunicipality->setValue('legislativeActive');
+        $src->mandateMunicipalityDetail->setValue('parli');
+        $src->donorMunicipality->setValue('sponsor');
+        $src->notesMunicipality->setValue('note');
+        $src->roleRegion->setValue('asdf');
+        $src->mandateRegion->setValue('governorActive');
+        $src->mandateRegionDetail->setValue('mandateR');
+        $src->donorRegion->setValue('donor');
+        $src->magazineCantonD->setValue('yes');
+        $src->magazineCantonF->setValue('no');
+        $src->newsletterCantonD->setValue('yes');
+        $src->newsletterCantonF->setValue('no');
+        $src->pressReleaseCantonD->setValue('yes');
+        $src->pressReleaseCantonF->setValue('no');
+        $src->roleCanton->setValue('chef');
+        $src->mandateCanton->setValue('commissionActive');
+        $src->mandateCantonDetail->setValue('canton');
+        $src->donorCanton->setValue('majorDonor');
+        $src->notesCanton->setValue('my note');
+        $src->magazineCountryD->setValue('yes');
+        $src->magazineCountryF->setValue('no');
+        $src->newsletterCountryD->setValue('yes');
+        $src->newsletterCountryF->setValue('no');
+        $src->pressReleaseCountryD->setValue('yes');
+        $src->pressReleaseCountryF->setValue('no');
+        $src->roleCountry->setValue('backer');
+        $src->roleInternational->setValue('butcher');
+        $src->mandateCountry->setValue('judikativeActive');
+        $src->mandateCountryDetail->setValue('the judge');
+        $src->donorCountry->setValue('donor');
+        $src->notesCountry->setValue('long lives the judge');
+        $src->notesCantonYoung->setValue('party');
+        $src->notesCountryYoung->setValue('work');
+        $src->legacy->setValue('old');
+        $src->magazineOther->setValue('deprecatedM');
+        $src->newsletterOther->setValue('deprecatedNL');
+        $src->networkOther->setValue('deprecatedNW');
+        $src->roleYoung->setValue('maker');
+        $src->donorYoung->setValue('sponsor');
+        
+        $groupRepository = new GroupRepository(config('app.webling_api_key'));
+        $rootGroup = $groupRepository->get(100);
+        $src->addGroups($rootGroup);
+        $src = $this->saveMember($src);
+     
+        // link existing debtor to src member
+        $debtorRepository = new DebtorRepository(config('app.webling_api_key'));
+        $debtor = $debtorRepository->get(self::MERGE_MEMBER_DEBTOR_ID);
+        $debtor->setMemberId($src->id);
+        $debtorRepository->put($debtor);
+        
+        $response = $this->json(
+            'PUT',
+            '/api/v1/admin/member/' . $dst->id . '/merge/' . $src->id,
+            [],
+            $this->auth->getAuthHeader()
+        );
+        
+        $response->assertStatus(200);
+        
+        $body = json_decode($response->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(true, $body->success);
+        $this->assertEmpty($body->conflicts);
+        
+        $merged = $body->merged;
+    
+        $this->assertEquals('active', $merged->recordStatus);
+        $this->assertEquals($dst->firstName->getValue(), $merged->firstName);
+        $this->assertEquals($dst->lastName->getValue(), $merged->lastName);
+        $this->assertEquals('private', $merged->recordCategory);
+        $this->assertEquals('d', $merged->language);
+        $this->assertEquals('f', $merged->gender);
+        $this->assertEquals('fD', $merged->salutationFormal);
+        $this->assertEquals('fD', $merged->salutationInformal);
+        $this->assertEquals('Dr.', $merged->title);
+        $this->assertEquals('Company', $merged->company);
+        $this->assertEquals("Rue de l'Annonciade 22", $merged->address1);
+        $this->assertEquals('CP 123', $merged->address2);
+        $this->assertEquals('1234', $merged->zip);
+        $this->assertEquals('Entenhausen', $merged->city);
+        $this->assertEquals('ch', $merged->country);
+        $this->assertEquals('active', $merged->postStatus);
+        $this->assertEquals(strtolower($dst->email1->getValue()), $merged->email1);
+        $this->assertEquals('hugo@email.com', $merged->email2);
+        $this->assertEquals('active', $merged->emailStatus);
+        $this->assertEquals('123456', $merged->mobilePhone);
+        $this->assertEquals('789', $merged->landlinePhone);
+        $this->assertEquals('0800800800', $merged->workPhone);
+        $this->assertEquals('unwanted', $merged->phoneStatus);
+        $this->assertEquals($dst->entryChannel->getValue(), $merged->entryChannel);
+        $this->assertEquals($dst->birthday->getValue(), $merged->birthday);
+        $this->assertEquals('https://mysite.com', $merged->website);
+        $this->assertEquals('boomer', $merged->facebook);
+        $this->assertEquals('@nerd', $merged->twitter);
+        $this->assertEquals('@yay', $merged->instagram);
+        $this->assertEquals('12345678', $merged->iban);
+        $this->assertEquals('activist', $merged->profession);
+        $this->assertEquals('entrepreneurs', $merged->professionCategory);
+        $this->assertEquals('betterWorld', $merged->networkNpo);
+        $this->assertContains('finance', $merged->interests);
+        $this->assertContains('gender', $merged->interests);
+        $this->assertContains('energy', $merged->interests);
+        $this->assertContains('climate', $merged->interests);
+        $this->assertContains('music', $merged->request);
+        $this->assertContains('design', $merged->request);
+        $this->assertEquals('single', $merged->coupleCategory);
+        $this->assertEquals('fD', $merged->partnerSalutationFormal);
+        $this->assertEquals('fD', $merged->partnerSalutationInformal);
+        $this->assertEquals('Vroni', $merged->partnerFirstName);
+        $this->assertEquals('Maurer', $merged->partnerLastName);
+        $this->assertEquals('member', $merged->memberStatusMunicipality);
+        $this->assertEquals('member', $merged->memberStatusRegion);
+        $this->assertEquals('member', $merged->memberStatusCanton);
+        $this->assertEquals('member', $merged->memberStatusCountry);
+        $this->assertEquals('member', $merged->memberStatusYoung);
+        $this->assertEquals('1970-01-01', $merged->membershipStart);
+        $this->assertEquals('2034-12-31', $merged->membershipEnd);
+        $this->assertEquals('you', $merged->responsibility);
+        $this->assertEquals('regular', $merged->membershipFeeMunicipality);
+        $this->assertEquals('reduced', $merged->membershipFeeRegion);
+        $this->assertEquals('couple', $merged->membershipFeeCanton);
+        $this->assertEquals('no', $merged->membershipFeeCountry);
+        $this->assertEquals('no', $merged->membershipFeeYoung);
+        $this->assertEquals('yes', $merged->magazineMunicipality);
+        $this->assertEquals('no', $merged->newsletterMunicipality);
+        $this->assertEquals('yes', $merged->pressReleaseMunicipality);
+        $this->assertStringContainsString('problem solver', $merged->roleMunicipality);
+        $this->assertStringContainsString('trouble master', $merged->roleMunicipality);
+        $this->assertContains('legislativeActive', $merged->mandateMunicipality);
+        $this->assertContains('legislativePast', $merged->mandateMunicipality);
+        $this->assertEquals('parli', $merged->mandateMunicipalityDetail);
+        $this->assertEquals('sponsor', $merged->donorMunicipality);
+        $this->assertEquals('note', $merged->notesMunicipality);
+        $this->assertEquals('asdf', $merged->roleRegion);
+        $this->assertContains('governorActive', $merged->mandateRegion);
+        $this->assertEquals('mandateR', $merged->mandateRegionDetail);
+        $this->assertEquals('donor', $merged->donorRegion);
+        $this->assertEquals('yes', $merged->magazineCantonD);
+        $this->assertEquals('no', $merged->magazineCantonF);
+        $this->assertEquals('yes', $merged->newsletterCantonD);
+        $this->assertEquals('no', $merged->newsletterCantonF);
+        $this->assertEquals('yes', $merged->pressReleaseCantonD);
+        $this->assertEquals('no', $merged->pressReleaseCantonF);
+        $this->assertEquals('chef', $merged->roleCanton);
+        $this->assertContains('commissionActive', $merged->mandateCanton);
+        $this->assertEquals('canton', $merged->mandateCantonDetail);
+        $this->assertEquals('majorDonor', $merged->donorCanton);
+        $this->assertEquals('my note', $merged->notesCanton);
+        $this->assertEquals('yes', $merged->magazineCountryD);
+        $this->assertEquals('no', $merged->magazineCountryF);
+        $this->assertEquals('yes', $merged->newsletterCountryD);
+        $this->assertEquals('no', $merged->newsletterCountryF);
+        $this->assertEquals('yes', $merged->pressReleaseCountryD);
+        $this->assertEquals('no', $merged->pressReleaseCountryF);
+        $this->assertEquals('backer', $merged->roleCountry);
+        $this->assertEquals('butcher', $merged->roleInternational);
+        $this->assertContains('judikativeActive', $merged->mandateCountry);
+        $this->assertEquals('the judge', $merged->mandateCountryDetail);
+        $this->assertEquals('donor', $merged->donorCountry);
+        $this->assertEquals('long lives the judge', $merged->notesCountry);
+        $this->assertEquals('party', $merged->notesCantonYoung);
+        $this->assertEquals('work', $merged->notesCountryYoung);
+        $this->assertEquals('old', $merged->legacy);
+        $this->assertEquals('deprecatedM', $merged->magazineOther);
+        $this->assertEquals('deprecatedNL', $merged->newsletterOther);
+        $this->assertEquals('deprecatedNW', $merged->networkOther);
+        $this->assertEquals('maker', $merged->roleYoung);
+        $this->assertEquals('sponsor', $merged->donorYoung);
+        
+        // check if debtor was associated with dst member
+        $updatedDebtor = $debtorRepository->get(self::MERGE_MEMBER_DEBTOR_ID);
+        $this->assertSame($dst->id, $updatedDebtor->getMemberId());
+        
+        // check if src member is deleted
+        $memberRepository = new MemberRepository(config('app.webling_api_key'));
+        $this->expectException(MemberNotFoundException::class);
+        $memberRepository->get($src->id);
+    }
+    
+    public function testPutMerge_200_updateInvalidEmailStateChangeEmail(): void
+    {
+        $dst = $this->getMember();
+        $dst->email1->setValue('invalid@email.com');
+        $dst->emailStatus->setValue('invalid');
+        $dst = $this->saveMember($dst);
+        
+        $src = new Member();
+        $src->email1->setValue('valid@email.com');
+        $src->emailStatus->setValue('active');
+        
+        $groupRepository = new GroupRepository(config('app.webling_api_key'));
+        $rootGroup = $groupRepository->get(100);
+        $src->addGroups($rootGroup);
+        $src = $this->saveMember($src);
+        
+        $response = $this->json(
+            'PUT',
+            '/api/v1/admin/member/' . $dst->id . '/merge/' . $src->id,
+            [],
+            $this->auth->getAuthHeader()
+        );
+        
+        $response->assertStatus(200);
+        
+        $body = json_decode($response->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(true, $body->success);
+        $this->assertEmpty($body->conflicts);
+        
+        $merged = $body->merged;
+        
+        $this->assertEquals('valid@email.com', $merged->email1);
+        $this->assertEquals('active', $merged->emailStatus);
+    }
+    
+    public function testPutMerge_200_checkSrcDeleted()
+    {
+        $dst = $this->getMember();
+        $src = clone $dst;
+        
+        $dst = $this->saveMember($dst);
+        $src = $this->saveMember($src);
+        
+        $this->json(
+            'PUT',
+            '/api/v1/admin/member/' . $dst->id . '/merge/' . $src->id,
+            [],
+            $this->auth->getAuthHeader()
+        );
+        
+        $response = $this->json('GET', '/api/v1/member/'.$src->id, [], $this->auth->getAuthHeader());
+        $response->assertStatus(404);
+    }
+    
+    public function testPutMerge_200_checkSrcNotDeletedAfterMergeFailed()
+    {
+        $dst = $this->getMember();
+        $dst->zip->setValue('1324');
+        $dst = $this->saveMember($dst);
+    
+        $src = new Member();
+        $src->zip->setValue('8888');
+        $groupRepository = new GroupRepository(config('app.webling_api_key'));
+        $rootGroup = $groupRepository->get(100);
+        $src->addGroups($rootGroup);
+        $src = $this->saveMember($src);
+    
+        $this->json(
+            'PUT',
+            '/api/v1/admin/member/' . $dst->id . '/merge/' . $src->id,
+            [],
+            $this->auth->getAuthHeader()
+        );
+        
+        $response = $this->json('GET', '/api/v1/member/'.$src->id, [],  $this->auth->getAuthHeader());
+        $response->assertStatus(200);
+    }
+    
+    public function testPutMerge_409_checkConflictInfoAfterMergeFailed()
+    {
+        $dst = $this->getMember();
+        $dst->zip->setValue('1324');
+        $dst->city->setValue('Musterdorf');
+        $dst = $this->saveMember($dst);
+    
+        $src = new Member();
+        $src->zip->setValue('8888');
+        $src->city->setValue('Entenhausen');
+        $groupRepository = new GroupRepository(config('app.webling_api_key'));
+        $rootGroup = $groupRepository->get(100);
+        $src->addGroups($rootGroup);
+        $src = $this->saveMember($src);
+        
+        $response = $this->json(
+            'PUT',
+            '/api/v1/admin/member/' . $dst->id . '/merge/' . $src->id,
+            [],
+            $this->auth->getAuthHeader()
+        );
+        
+        $response->assertStatus(409);
+        
+        $body = json_decode($response->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(false, $body->success);
+        $this->assertEmpty($body->merged);
+    
+        $conflicts = $body->conflicts;
+        
+        $this->assertContains('zip', $conflicts);
+        $this->assertContains('city', $conflicts);
+    }
+    
+    
+    public function testPutMerge_409_dstNotActive()
+    {
+        $dst = $this->getMember();
+        $dst->recordStatus->setValue('blocked');
+        $dst = $this->saveMember($dst);
+    
+        $src = new Member();
+        $src->notesCountry->setValue('this should not be appended');
+        $groupRepository = new GroupRepository(config('app.webling_api_key'));
+        $rootGroup = $groupRepository->get(100);
+        $src->addGroups($rootGroup);
+        $src = $this->saveMember($src);
+    
+        $response = $this->json(
+            'PUT',
+            '/api/v1/admin/member/' . $dst->id . '/merge/' . $src->id,
+            [],
+            $this->auth->getAuthHeader()
+        );
+    
+        $response->assertStatus(409);
+    
+        $body = json_decode($response->getContent(), false, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(false, $body->success);
+        $this->assertEmpty($body->merged);
+    
+        $conflicts = $body->conflicts;
+    
+        $this->assertContains('recordStatus', $conflicts);
     }
 }
