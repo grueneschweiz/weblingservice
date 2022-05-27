@@ -108,6 +108,20 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api']], function () {
                     ->header('Content-Type', 'application/json')
                     ->setStatusCode(200);
             });
+        
+        Route::put('{dstMemberId}/merge/{srcMemberId}', function(Request $request, $dstMemberId, $srcMemberId) {
+            $controller = new RestApiMember();
+    
+            try {
+                return response($controller->mergeMember($request, $dstMemberId, $srcMemberId))
+                    ->header('Content-Type', 'application/json')
+                    ->setStatusCode(200);
+            } catch (\App\Exceptions\MemberMergeException $e) {
+                return response($e->getMessage())
+                    ->header('Content-Type', 'application/json')
+                    ->setStatusCode(409);
+            }
+        });
     });
     
     /*
