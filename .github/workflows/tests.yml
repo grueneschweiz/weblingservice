@@ -26,10 +26,6 @@ jobs:
       - name: laravel key
         run: docker-compose -f docker-compose.install.yml run composer php artisan key:generate
 
-      - name: require coveralls deps
-        run: |
-          docker-compose -f docker-compose.install.yml run composer composer global require php-coveralls/php-coveralls
-
       - name: start containers
         run: docker-compose up -d app mysql
 
@@ -73,10 +69,11 @@ jobs:
           -e GITHUB_RUN_ID=${GITHUB_RUN_ID} 
           -e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} 
           -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} 
-          composer 
-          php-coveralls 
-          --coverage_clover=/var/www/html/build/logs/clover.xml
-          -v 
+          composer
+          sh
+          -c
+          'composer global require php-coveralls/php-coveralls 
+          && /tmp/vendor/bin/php-coveralls --coverage_clover=/var/www/html/build/logs/clover.xml -v' 
 
       - name: Show logs if tests failed
         if: ${{ failure() }}
