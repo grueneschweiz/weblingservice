@@ -506,6 +506,13 @@ Body:
 
 ### Merge member
 
+> **API-Key Requirements**
+> 
+> The Webling-API key must have at least **read permissions for accounting** (all mandates).
+> 
+> Additionally, the WEBLING_FINANCE_ADMIN_API_KEY environment variable must be set and the key
+> must have **read- and write permissions for accounting** and **read permissions** for all members.
+
 Merge data of record with `srcId` into the record with `dstId`.
 
 > Merges
@@ -584,7 +591,6 @@ present.
 
 - `entryChannel`:
     - on conflict, the dst value takes precedence
-
 
 Request
 
@@ -726,8 +732,6 @@ Body:
 
 In case there is an error reassociating any debtor, a similar error to the merge conflict is thrown but the `conflicts`
 array is empty. Even thou the merge process is stopped, **some debtors may already have been reassociated**.
-
-
 
 ### Get changes
 
