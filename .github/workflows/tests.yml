@@ -46,8 +46,20 @@ jobs:
       - name: run tests
         env:
           WEBLING_API_KEY: ${{ secrets.WEBLING_API_KEY }}
+          WEBLING_FINANCE_ADMIN_API_KEY: ${{ secrets.WEBLING_FINANCE_ADMIN_API_KEY }}
           WEBLING_BASE_URL: ${{ secrets.WEBLING_BASE_URL }}
-        run: docker-compose run -e WEBLING_API_KEY=${WEBLING_API_KEY} -e WEBLING_BASE_URL=${WEBLING_BASE_URL} app php -dxdebug.mode=coverage /var/www/html/vendor/phpunit/phpunit/phpunit --configuration /var/www/html/phpunit.xml --coverage-clover /var/www/html/build/logs/clover.xml
+        run: >-
+          docker-compose 
+          run 
+          -e WEBLING_API_KEY=${WEBLING_API_KEY} 
+          -e WEBLING_FINANCE_ADMIN_API_KEY=${WEBLING_FINANCE_ADMIN_API_KEY} 
+          -e WEBLING_BASE_URL=${WEBLING_BASE_URL} 
+          app 
+          php 
+          -dxdebug.mode=coverage 
+          /var/www/html/vendor/phpunit/phpunit/phpunit 
+          --configuration /var/www/html/phpunit.xml 
+          --coverage-clover /var/www/html/build/logs/clover.xml
 
       - name: publish coverage report
         if: ${{ success() }}
