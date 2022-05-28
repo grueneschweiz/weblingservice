@@ -32,7 +32,7 @@ services:
     ports:
         - '3307:3306'
     volumes:
-        - .docker/mysql/data:/var/lib/mysql
+        - database:/var/lib/mysql
     environment:
         MYSQL_ROOT_PASSWORD: root
         MYSQL_DATABASE: laravel
@@ -57,3 +57,6 @@ services:
     ports:
       - '8020:8025'
     container_name: wsmailhog_webling
+
+volumes:
+  database:
