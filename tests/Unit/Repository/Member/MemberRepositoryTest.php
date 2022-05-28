@@ -22,6 +22,8 @@ class MemberRepositoryTest extends TestCase
 {
     const REVISION_LAG = 500;
     const MEMBER_STATUS = 'member';
+    const EXISTING_MEMBER_WITH_DEBTOR = 5469;
+    const DEBTOR_OF_EXISTING_MEMBER = 63332;
     
     /**
      * @var MemberRepository
@@ -80,6 +82,12 @@ class MemberRepositoryTest extends TestCase
         $member = $this->repository->get($this->member->id);
         $this->assertEquals($this->member->id, $member->id);
         $this->removeMember();
+    }
+    
+    public function testGetWithDebtor()
+    {
+        $member = $this->repository->get(self::EXISTING_MEMBER_WITH_DEBTOR);
+        $this->assertContains(self::DEBTOR_OF_EXISTING_MEMBER, $member->getDebtorIds());
     }
     
     private function addMember()

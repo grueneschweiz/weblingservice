@@ -39,6 +39,8 @@ class MasterDetectorTest extends TestCase
         $groupRepo = new GroupRepository(config('app.webling_api_key'));
         $this->group = $groupRepo->get(100);
         $this->masterDetector = new MasterDetector($this->memberRepo, $this->group);
+        
+        $this->removeExistingRecords();
     }
     
     public function tearDown(): void
@@ -242,5 +244,22 @@ class MasterDetectorTest extends TestCase
         $this->assertEquals($member1, $this->masterDetector->getMaster($member2));
         $this->memberRepo->delete($member1);
         $this->memberRepo->delete($member2);
+    }
+    
+    private function removeExistingRecords() {
+        $member1 = $this->getNewMember();
+    
+        // precondition
+        $members = $this->memberRepo->find(
+            '`E-Mail / courriel 1` = "' . $member1->email1->getValue() . '"'
+            . 'OR (`Vorname / prénom` = "' . $member1->firstName->getValue() . '"'
+            . ' AND `Name / nom` = "' . $member1->lastName->getValue() . '")'
+        );
+    
+        if ($members) {
+            foreach ($members as $member) {
+                $this->memberRepo->delete($member);
+            }
+        }
     }
 }

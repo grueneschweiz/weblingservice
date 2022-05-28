@@ -26,3 +26,4 @@ Thumbs.db
 .project
 .buildpath
 /.settings
+/build

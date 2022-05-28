@@ -59,6 +59,7 @@ use App\Repository\Member\Field\TextField;
  * @property TextField $website
  * @property TextField $facebook
  * @property TextField $twitter
+ * @property TextField $instagram
  * @property TextField $iban
  * @property SelectField $coupleCategory
  * @property SelectField $partnerSalutationFormal
@@ -119,12 +120,15 @@ use App\Repository\Member\Field\TextField;
  * @property SelectField $donorCountry
  * @property SelectField $donorCanton
  * @property SelectField $donorRegion
- * @property SelectField $donorCommune
+ * @property SelectField $donorMunicipality
  * @property SelectField $donorYoung
  * @property LongTextField $notesCountry
  * @property LongTextField $notesCanton
  * @property LongTextField $notesMunicipality
+ * @property LongTextField $notesCantonYoung
+ * @property LongTextField $notesCountryYoung
  * @property LongTextField $legacy
+ * @property LongTextField $dontUse
  *
  * @package App\Repository\Member
  */
@@ -136,7 +140,7 @@ class Member
     /**
      * The fields with the member data
      *
-     * @var array
+     * @var Field[]
      */
     private $fields = [];
     
@@ -153,6 +157,13 @@ class Member
      * @var null|Group[]
      */
     private $groups = null;
+    
+    /**
+     * The IDs of the debtors belonging to this member
+     *
+     * @var int[]
+     */
+    private $debtorIds = [];
     
     /**
      * The id of the member in webling
@@ -175,6 +186,7 @@ class Member
      * @param int|null $id the id in webling
      * @param Group[] $groups
      * @param bool $allowSettingMultiSelectFields
+     * @param int[] $debtorIds
      *
      * @throws MultiSelectOverwriteException
      * @throws WeblingFieldMappingConfigException
@@ -186,10 +198,12 @@ class Member
         array $data = [],
         int $id = null,
         array $groups = null,
-        bool $allowSettingMultiSelectFields = null
+        bool $allowSettingMultiSelectFields = null,
+        array $debtorIds = []
     )
     {
         $this->id = $id;
+        $this->debtorIds = $debtorIds;
         
         if (is_array($groups)) {
             $this->addGroups($groups);
@@ -397,7 +411,7 @@ class Member
     /**
      * Return all fields in an array.
      *
-     * @return array
+     * @return Field[]
      */
     public function getFields(): array
     {
@@ -484,5 +498,13 @@ class Member
         foreach ($groups as $group) {
             unset($this->groups[$group->getId()]);
         }
+    }
+    
+    /**
+     * @return int[]
+     */
+    public function getDebtorIds(): array
+    {
+        return $this->debtorIds;
     }
 }
