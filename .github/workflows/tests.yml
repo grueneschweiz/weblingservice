@@ -37,7 +37,7 @@ jobs:
 
       - name: wait for mysql
         run: |
-          while docker exec -t wsmysql_webling mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -e quit > /dev/null 2>&1; do
+          while docker exec -t wsmysql_webling sh -c 'mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" -e quit > /dev/null 2>&1'; do
             sleep 1
           done
 
