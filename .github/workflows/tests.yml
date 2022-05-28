@@ -24,25 +24,25 @@ jobs:
         run: docker-compose build
 
       - name: PHP dependencies
-        run: docker-compose run app composer install
+        run: docker-compose run -u root:root app composer install
 
       - name: env
         run: cp .env.ci .env
 
       - name: laravel key
-        run: docker-compose run app php artisan key:generate
+        run: docker-compose run -u root:root app php artisan key:generate
 
       - name: start containers
-        run: docker-compose up -d app mysql
+        run: docker-compose up -u root:root -d app mysql
 
       - name: wait for mysql
         run: sleep 30 # dirty hack, TODO: properly check if the db is up and ready to avoid race condition
 
       - name: run migrations
-        run: docker exec wsapp php artisan migrate
+        run: docker exec -u root:root wsapp php artisan migrate
 
       - name: install passport
-        run: docker exec wsapp php artisan passport:install
+        run: docker exec -u root:root wsapp php artisan passport:install
 
       - name: run tests
         env:
@@ -52,6 +52,7 @@ jobs:
         run: >-
           docker-compose 
           run 
+          -u root:root
           -e WEBLING_API_KEY=${WEBLING_API_KEY} 
           -e WEBLING_FINANCE_ADMIN_API_KEY=${WEBLING_FINANCE_ADMIN_API_KEY} 
           -e WEBLING_BASE_URL=${WEBLING_BASE_URL} 
@@ -73,6 +74,7 @@ jobs:
         run: >- 
           docker-compose 
           run
+          -u root:root
           -e GITHUB_REF=${GITHUB_REF} 
           -e GITHUB_ACTIONS=${GITHUB_ACTIONS} 
           -e GITHUB_RUN_ID=${GITHUB_RUN_ID} 
