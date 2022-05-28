@@ -18,13 +18,13 @@ jobs:
         continue-on-error: true
 
       - name: PHP dependencies
-        run: docker-compose -f docker-compose.install.yml up
+        run: docker-compose run app composer install
 
       - name: env
-        run: docker-compose -f docker-compose.install.yml run composer cp .env.ci .env
+        run: cp .env.ci .env
 
       - name: laravel key
-        run: docker-compose -f docker-compose.install.yml run composer php artisan key:generate
+        run: docker-compose run app php artisan key:generate
 
       - name: start containers
         run: docker-compose up -d app mysql
@@ -56,26 +56,25 @@ jobs:
           --configuration /var/www/html/phpunit.xml 
           --coverage-clover /var/www/html/build/logs/clover.xml
 
+      - name: Show logs if tests failed
+        if: ${{ failure() }}
+        run: cat storage/logs/laravel-*.log
+
       - name: publish coverage report
         if: ${{ success() }}
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >- 
           docker-compose 
-          -f docker-compose.install.yml 
           run
           -e GITHUB_REF=${GITHUB_REF} 
           -e GITHUB_ACTIONS=${GITHUB_ACTIONS} 
           -e GITHUB_RUN_ID=${GITHUB_RUN_ID} 
           -e GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME} 
           -e COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN} 
-          composer
+          app
           sh
           -c
-          'git config --global --add safe.directory /app
-          && composer global require php-coveralls/php-coveralls 
-          && /tmp/vendor/bin/php-coveralls --coverage_clover=/app/build/logs/clover.xml -v' 
-
-      - name: Show logs if tests failed
-        if: ${{ failure() }}
-        run: cat storage/logs/laravel-*.log
+          'curl -L https://github.com/php-coveralls/php-coveralls/releases/download/v2.5.2/php-coveralls.phar > /tmp/php-coveralls
+          && chmod u+x /tmp/php-coveralls
+          && /tmp/php-coveralls --coverage_clover=/var/www/html/build/logs/clover.xml -v'
