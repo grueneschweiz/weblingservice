@@ -72,7 +72,8 @@ jobs:
           composer
           sh
           -c
-          'composer global require php-coveralls/php-coveralls 
+          'git config --global --add safe.directory /app
+          && composer global require php-coveralls/php-coveralls 
           && /tmp/vendor/bin/php-coveralls --coverage_clover=/app/build/logs/clover.xml -v' 
 
       - name: Show logs if tests failed
