@@ -21,7 +21,7 @@ jobs:
         continue-on-error: true
 
       - name: build docker container
-        run: docker-compose up --build
+        run: docker-compose build
 
       - name: PHP dependencies
         run: docker-compose run app composer install
