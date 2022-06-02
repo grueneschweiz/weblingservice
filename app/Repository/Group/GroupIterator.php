@@ -47,7 +47,7 @@ class GroupIterator extends \RecursiveArrayIterator
      * @return mixed scalar on success, or null on failure.
      * @since 5.0.0
      */
-    public function key()
+    public function key(): int
     {
         return $this->current()->getId();
     }

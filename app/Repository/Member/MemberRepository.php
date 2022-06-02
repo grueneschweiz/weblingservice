@@ -13,6 +13,7 @@ namespace App\Repository\Member;
 use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\InvalidRevisionArgumentsException;
+use App\Exceptions\MemberMergeException;
 use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\MemberUnknownFieldException;
 use App\Exceptions\MultiSelectOverwriteException;
@@ -21,9 +22,11 @@ use App\Exceptions\RevisionNotFoundException;
 use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
+use App\Repository\Debtor\DebtorRepository;
 use App\Repository\Group\Group;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Field\Field;
+use App\Repository\Member\Merger\MemberMerger;
 use App\Repository\Repository;
 use App\Repository\Revision\RevisionRepository;
 use Webling\API\ClientException;
@@ -236,8 +239,9 @@ class MemberRepository extends Repository
             $fieldData = $memberData['properties'];
             $groups = $this->getGroups($memberData['parents']);
             $id = $memberData['id'];
+            $debtorIds = $memberData['links']['debitor'] ?? [];
             
-            $members[$id] = new Member($fieldData, $id, $groups, true);
+            $members[$id] = new Member($fieldData, $id, $groups, true, $debtorIds);
         }
         
         return $members;
@@ -583,5 +587,52 @@ class MemberRepository extends Repository
         if ($data->getStatusCode() !== 204) {
             throw new WeblingAPIException("Delete request to Webling failed {$data->getRawData()}", $data->getStatusCode());
         }
+    }
+    
+    /**
+     * Merge src member data into dst member
+     *
+     * The member fields of the member with $srcId are merged
+     * into the member with $dstId. The debtors of src are reassociated
+     * with the dst member. The dst member is deleted on success, but
+     * retained on error.
+     *
+     * @see MemberMerger::merge()        The merge process in detail.
+     * @see MemberMerger::mergeFields()  How the individual fields are merged.
+     * @see MemberMerger::mergeDebtors() How the debtors are merged.
+     *
+     * @param int $dstId  the id of the dst member
+     * @param int $srcId  the id of the src member
+     *
+     * @return Member  the dst member with the merged data from src
+     *
+     * @throws ClientException
+     * @throws GroupNotFoundException
+     * @throws InvalidFixedValueException
+     * @throws MemberNotFoundException
+     * @throws MemberUnknownFieldException
+     * @throws MultiSelectOverwriteException
+     * @throws NoGroupException
+     * @throws ValueTypeException
+     * @throws WeblingAPIException
+     * @throws WeblingFieldMappingConfigException
+     * @throws MemberMergeException  If the member fields could not be merged automatically.
+     * @throws \JsonException
+     */
+    public function merge(int $dstId, int $srcId): Member
+    {
+        $members = $this->getMultiple([$dstId, $srcId], 2);
+        $dst = $members[$dstId] ?? null;
+        $src = $members[$srcId] ?? null;
+        
+        if ($src === null) {
+            throw new MemberNotFoundException("Source member not found in Webling.");
+        }
+        if ($dst === null) {
+            throw new MemberNotFoundException("Destination member not found in Webling.");
+        }
+        
+        $merger = new MemberMerger($this, new DebtorRepository(config('app.webling_finance_admin_api_key')));
+        return $merger->merge($dst, $src);
     }
 }

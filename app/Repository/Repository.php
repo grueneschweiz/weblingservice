@@ -19,7 +19,7 @@ abstract class Repository
      *
      * Yes, it must be super high, we had issues with lower limits.
      */
-    private const TIMEOUT = 60;
+    private const TIMEOUT = 300;
     private const CONNECTTIMEOUT = 4;
     
     /**

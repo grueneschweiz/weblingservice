@@ -124,6 +124,8 @@ return [
     
     'webling_api_key' => env('WEBLING_API_KEY'),
     
+    'webling_finance_admin_api_key' => env('WEBLING_FINANCE_ADMIN_API_KEY'),
+    
     /*
     |--------------------------------------------------------------------------
     | Webling Field Mappings Config File
