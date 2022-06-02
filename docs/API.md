@@ -579,6 +579,10 @@ present.
     - phone numbers are normalized to compare equality (`079 123 45 57` equals `+41791234567`)
     - else default merging algorithm
 
+- **coupleCategory**:
+  - `coupleCategory: single` in the src is ignored, if dst is not empty
+  - The other couple fields raise a conflict on contradiction 
+
 - **member status** (`memberStatusCountry`,`memberStatusCanton`,`memberStatusRegion`,`memberStatusMunicipality`
   ,`memberStatusYoung`,):
     - the value that comes first in the following order takes precedence:

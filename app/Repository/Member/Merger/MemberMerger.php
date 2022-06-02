@@ -29,6 +29,7 @@ class MemberMerger
     private const ADDRESS_FIELDS = ['address1', 'address2', 'zip', 'city', 'country', 'postStatus'];
     private const EMAIL_FIELDS = ['email1', 'email2', 'emailStatus'];
     private const PHONE_FIELDS = ['mobilePhone', 'landlinePhone', 'workPhone', 'phoneStatus'];
+    private const COUPLE_FIELDS = ['coupleCategory'];
     private const MEMBER_FIELDS = ['memberStatusMunicipality', 'memberStatusRegion', 'memberStatusCanton', 'memberStatusCountry', 'memberStatusYoung'];
     private const IGNORE_CONFLICT_FIELDS = ['entryChannel', 'dontUse'];
     
@@ -38,6 +39,7 @@ class MemberMerger
         ...self::ADDRESS_FIELDS,
         ...self::EMAIL_FIELDS,
         ...self::PHONE_FIELDS,
+        ...self::COUPLE_FIELDS,
         ...self::MEMBER_FIELDS,
         ...self::IGNORE_CONFLICT_FIELDS
     ];
@@ -137,6 +139,7 @@ class MemberMerger
             in_array($fieldKey, self::EMAIL_FIELDS) => new EmailMerger($dst, $src, $this->dst, $this->src),
             in_array($fieldKey, self::PHONE_FIELDS) => new PhoneMerger($dst, $src),
             in_array($fieldKey, self::IGNORE_CONFLICT_FIELDS) => new IgnoreConflictMerger($dst, $src),
+            in_array($fieldKey, self::COUPLE_FIELDS) => new CoupleMerger($dst, $src),
             in_array($fieldKey, self::MEMBER_FIELDS) => new MemberStatusMerger($dst, $src),
         };
         
