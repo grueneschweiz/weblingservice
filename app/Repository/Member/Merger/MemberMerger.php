@@ -5,6 +5,7 @@ namespace App\Repository\Member\Merger;
 
 
 use App\Exceptions\DebtorException;
+use App\Exceptions\DebtorNotWriteableException;
 use App\Exceptions\GroupNotFoundException;
 use App\Exceptions\InvalidFixedValueException;
 use App\Exceptions\MemberMergeException;
@@ -193,6 +194,9 @@ class MemberMerger
                     'message' => 'Failed to merge some debtors. Debtors may be partially merged, member fields not merged at all. You may retry. See original message: ' . $e->getMessage(),
                 ], JSON_THROW_ON_ERROR)
             );
+        } catch (DebtorNotWriteableException) {
+            // This is ok. We do not move debtors of a locked period.
+            // They will become orphaned, but since locked periods should not be used anymore, this seems ok.
         }
     }
 }

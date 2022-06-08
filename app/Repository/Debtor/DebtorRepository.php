@@ -10,6 +10,7 @@ namespace App\Repository\Debtor;
 
 
 use App\Exceptions\DebtorException;
+use App\Exceptions\DebtorNotWriteableException;
 use App\Exceptions\WeblingAPIException;
 use App\Repository\Repository;
 use Webling\API\ClientException;
@@ -59,6 +60,7 @@ class DebtorRepository extends Repository
      *
      * @throws WeblingAPIException
      * @throws ClientException
+     * @throws DebtorNotWriteableException
      */
     public function put(Debtor $debtor): void {
         $payload = [
@@ -71,6 +73,14 @@ class DebtorRepository extends Repository
         
         $resp = $this->apiPut("debitor/{$debtor->getId()}", $payload);
     
+        $respData = $resp->getData();
+        if (is_array($respData)
+            && array_key_exists('error', $respData)
+            && 'The object is not writable' === $respData['error']
+        ) {
+            throw new DebtorNotWriteableException();
+        }
+        
         if ($resp->getStatusCode() !== 204) {
             throw new WeblingAPIException("Put request to Webling failed with status code {$resp->getStatusCode()}: {$resp->getRawData()}");
         }

@@ -507,9 +507,9 @@ Body:
 ### Merge member
 
 > **API-Key Requirements**
-> 
+>
 > The Webling-API key must have at least **read permissions for accounting** (all mandates).
-> 
+>
 > Additionally, the WEBLING_FINANCE_ADMIN_API_KEY environment variable must be set and the key
 > must have **read- and write permissions for accounting** and **read permissions** for all members.
 
@@ -544,7 +544,10 @@ applies for single valued fields (like `firstName`, `newsletterCantonD` etc.):
 For multivalued fields (like `interests`, `notesCountry` etc.) the dst value is appended to the src if not already
 present.
 
-- **debtors**: change association from src member to dst member
+- **debtors**:
+    - change association from src member to dst member
+    - if the debtor belongs to a frozen period, it won't be changed. So the debtor will become orphaned and the dst
+      member will be missing the debtor of the src member.
 
 - `recordStatus`:
     - mark `dead`, if src is marked dead
@@ -580,8 +583,8 @@ present.
     - else default merging algorithm
 
 - **coupleCategory**:
-  - `coupleCategory: single` in the src is ignored, if dst is not empty
-  - The other couple fields raise a conflict on contradiction 
+    - `coupleCategory: single` in the src is ignored, if dst is not empty
+    - The other couple fields raise a conflict on contradiction
 
 - **member status** (`memberStatusCountry`,`memberStatusCanton`,`memberStatusRegion`,`memberStatusMunicipality`
   ,`memberStatusYoung`,):
