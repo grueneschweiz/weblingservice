@@ -75,10 +75,10 @@ class MasterDetector
         
         // rate memberships and take the one with the highest rating as master.
         // for equal rates, the first one will be considered as master.
-        $maxRate = $this->rateMembership($member);
+        $maxRate = self::rateMembership($member);
         $master = $member;
         foreach ($matches->getMatches() as $candidate) {
-            $rate = $this->rateMembership($candidate);
+            $rate = self::rateMembership($candidate);
             if ($rate > $maxRate) {
                 $maxRate = $rate;
                 $master = $candidate;
@@ -101,7 +101,7 @@ class MasterDetector
      *
      * @return int
      */
-    private function rateMembership(Member $member): int
+    public static function rateMembership(Member $member): int
     {
         $rating = 0;
         

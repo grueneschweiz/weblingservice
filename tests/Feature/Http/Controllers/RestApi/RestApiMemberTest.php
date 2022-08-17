@@ -1193,6 +1193,34 @@ class RestApiMemberTest extends TestCase
         $response->assertJsonFragment(['status' => 'multiple']);
     }
     
+    public function testPostMatch_200_rating_multiple()
+    {
+        $member1 = $this->getMember();
+        $member1->memberStatusCountry->setValue('member');
+        $member1 = $this->saveMember($member1);
+    
+        $member2 = $this->getMember();
+        $member2->email1->setValue($member1->email1->getValue());
+        $member2->memberStatusCountry->setValue('sympathiser');
+        $member2 = $this->saveMember($member2);
+        
+        $m = [
+            'email1' => [
+                'value' => $member1->email1->getValue(),
+            ]
+        ];
+        
+        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
+        
+        $this->deleteMember($member1);
+        $this->deleteMember($member2);
+        
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['ratings']);
+        $response->assertJsonCount(2, 'ratings');
+        $response->assertJsonFragment(['ratings' => [$member1->id => 11, $member2->id => 1]]);
+    }
+    
     public function testPutMerge_200_noconflicts()
     {
         $dst = $this->getMember();
