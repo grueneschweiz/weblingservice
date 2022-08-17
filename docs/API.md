@@ -379,6 +379,11 @@ Match statuses:
   enough properties for an unmistakable match
 * `multiple` we found multiple records that match
 
+Ratings:
+
+See [Find main record](/docs/API.md#find-main-record) for details on the rating. The key 
+`rating` contains a map with the member id as key and the rating as value: `"id": rating`.
+
 Request:
 
 ```
@@ -441,7 +446,10 @@ Body:
             ],
             "firstLevelGroupNames": "ZH"
         }
-    ]
+    ],
+    "ratings": {
+        "30361": 6
+    }
 }
 ```
 

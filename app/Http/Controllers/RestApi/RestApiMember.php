@@ -5,6 +5,7 @@ namespace App\Http\Controllers\RestApi;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\IllegalFieldUpdateMode;
 use App\Repository\Group\GroupRepository;
+use App\Repository\Member\MasterDetector;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberMatch;
 use Illuminate\Http\Request;
@@ -533,8 +534,11 @@ class RestApiMember
      * The response contains a json containing:
      * {
      *   'status': 'match'|'no_match'|'ambiguous'|'multiple'|'error',
-     *   'matches': [ members ]
+     *   'matches': [ members ],
+     *   'ratings': { '1234': 11, '1111': 7 }
      * }
+     *
+     * The ratings use the member id as key and the rating as value.
      *
      * Note: The given member must at least have an email address or
      * first and last name.
@@ -571,6 +575,7 @@ class RestApiMember
             return json_encode([
                 'status' => 'match',
                 'matches' => $data,
+                'ratings' => [$member->id => MasterDetector::rateMembership($member)],
             ]);
         }
         
@@ -579,8 +584,10 @@ class RestApiMember
         $match = $memberRepo->findExisting($member, $requestedGroups);
         
         $data = [];
+        $ratings = [];
         foreach ($match->getMatches() as $member) {
             $data[] = ApiHelper::getMemberAsArray($member, $allowedGroups);
+            $ratings[$member->id] = MasterDetector::rateMembership($member);
         }
         
         switch ($match->getStatus()) {
@@ -607,6 +614,7 @@ class RestApiMember
         return json_encode([
             'status' => $status,
             'matches' => $data,
+            'ratings' => $ratings,
         ]);
     }
     
