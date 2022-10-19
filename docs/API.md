@@ -2,7 +2,8 @@
 
 ## Authentication
 
-### Obtain Access Token
+<details>
+<summary>### Obtain Access Token</summary>
 
 The API is secured with OAuth2. Use the client credentials flow to authenticate yourself.
 To do so send a `POST` request to the `/oauth/token` endpoint containing the following
@@ -24,6 +25,8 @@ must satisfy the following form.
 ```
 Authorization: Bearer %token%
 ```
+
+</details>
 
 ### Test Access Token
 
