@@ -224,7 +224,7 @@ class AddressMerger extends FieldMerger
             return false;
         }
         
-        $removeNumber = static function (string $str, false|string $num): string {
+        $removeNumber = static function (string $str, null|string $num): string {
             if (!$num) {
                 return $str;
             }
