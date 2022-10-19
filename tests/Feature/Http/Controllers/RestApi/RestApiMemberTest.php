@@ -1052,6 +1052,47 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals($m['email2']['value'], $m2->email2);
     }
     
+    public function testPostMember_force_insert_201(): void
+    {
+        $member = $this->addMember();
+        $this->assertEmpty($member->email2->getValue());
+        
+        $m = [
+            'email2' => [
+                'value' => $member->email1->getValue(),
+                'mode' => 'replace'
+            ],
+            'id' => [
+                'value' => $member->id
+            ],
+            'groups' => [
+                'value' => [100]
+            ]
+        ];
+        
+        $post = $this->json(
+            'POST',
+            '/api/v1/member/insert',
+            $m,
+            $this->auth->getAuthHeader()
+        );
+        
+        $id = $post->getContent();
+        
+        $getUpdated = $this->json('GET', "/api/v1/admin/member/$id", [], $this->auth->getAuthHeader());
+        $m2 = json_decode($getUpdated->getContent());
+        
+        // call this before asserting anything so it gets also
+        // deleted if assertions fail.
+        $memberRepository = new MemberRepository(config('app.webling_api_key'));
+        $this->deleteMember($memberRepository->get((int)$id));
+        $this->deleteMember($member);
+        
+        $this->assertEquals(201, $post->getStatusCode());
+        $this->assertNotEquals($id, $member->id);
+        $this->assertEquals($m['email2']['value'], $m2->email2);
+    }
+    
     public function testPostMatch_200_no_match()
     {
         $member = $this->getMember();

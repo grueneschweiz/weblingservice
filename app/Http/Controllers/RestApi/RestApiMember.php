@@ -258,6 +258,38 @@ class RestApiMember
     }
     
     /**
+     * Insert the given member (without any deduplication magic)
+     *
+     * @param  Request  $request  - the http Request with the member data
+     *
+     * @return int member id
+     *
+     * @throws BadRequestException
+     * @throws IllegalFieldUpdateMode
+     * @throws \App\Exceptions\GroupNotFoundException
+     * @throws \App\Exceptions\InvalidFixedValueException
+     * @throws \App\Exceptions\MemberNotFoundException
+     * @throws \App\Exceptions\MemberUnknownFieldException
+     * @throws \App\Exceptions\MultiSelectOverwriteException
+     * @throws \App\Exceptions\NoGroupException
+     * @throws \App\Exceptions\ValueTypeException
+     * @throws \App\Exceptions\WeblingAPIException
+     * @throws \App\Exceptions\WeblingFieldMappingConfigException
+     * @throws \Webling\API\ClientException
+     */
+    public function insertMember(Request $request): int
+    {
+        $memberData = $this->extractMemberData($request);
+        
+        $member = new Member();
+        $patched = $this->patchMember($request, $member, $memberData, true);
+        
+        $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
+        
+        return $memberRepo->save($patched)->id;
+    }
+    
+    /**
      * Returns the member data form the given request
      *
      * @param  Request  $request

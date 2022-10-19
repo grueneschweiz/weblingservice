@@ -362,6 +362,64 @@ Body: 30361
 The body contains the `id` of the matching or the new record. The status code is 201 regardless
 of whether the item was inserted or updated.
 
+### Insert
+
+Force insert a record, despite any duplication issues. Usually [upsert](#upsert) is the way to
+go. Only use insert if you really have to. Make sure to prevent duplicates.
+
+Request:
+
+```
+POST api/v1/member/insert
+
+Body:
+{
+    "email1": 
+    {
+        "value": "new@example.com",
+        "mode": "replace"
+    },
+    "newsletterCountryD":
+    {
+        "value": "yes",
+        "mode": "replaceEmpty"
+    },
+    "entryChannel":
+    {
+        "value": "gruene.ch",
+        "mode": "addIfNew"
+    },
+    "notesCountry": 
+    [
+        {
+          "value": "aNewTag", 
+          "mode": "append"
+        },
+        {
+          "value": "anOldTag", 
+          "mode": "remove"
+        }
+    ],
+    "groups":
+    {
+        "value": [201, 202],
+        "mode": "append"
+    }
+}
+
+```
+
+Response:
+
+```
+Status code: 201
+
+Body: 30361
+```
+
+The body contains the `id` of the new record.
+
+
 ### <a name="matching"></a> Find matching records
 
 Using a given member, this endpoint searches the database using the following algorithm to

@@ -49,6 +49,15 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api']], function () {
                 ->header('Content-Type', 'application/json')
                 ->setStatusCode(201);
         });
+    
+        Route::post('insert', function (Request $request) {
+            $controller = new RestApiMember();
+            $id = $controller->insertMember($request);
+        
+            return response($id)
+                ->header('Content-Type', 'application/json')
+                ->setStatusCode(201);
+        });
         
         Route::get('{id}/main/{groups?}', function (Request $request, $memberId, $groupIds = null) {
             $controller = new RestApiMember();
