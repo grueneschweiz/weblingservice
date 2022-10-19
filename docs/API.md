@@ -271,6 +271,9 @@ Body:
 
 ### Update
 
+<details>
+    <summary>Click to expand</summary>
+
 Request:
 
 ```
@@ -322,6 +325,8 @@ Body: 30361
 ```
 
 The body contains the `id` of the new record.
+
+</details>
 
 ### Upsert
 
