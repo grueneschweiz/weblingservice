@@ -621,6 +621,10 @@ class MemberRepository extends Repository
      */
     public function merge(int $dstId, int $srcId): Member
     {
+        if ($dstId === $srcId) {
+            return $this->get($dstId);
+        }
+        
         $members = $this->getMultiple([$dstId, $srcId], 2);
         $dst = $members[$dstId] ?? null;
         $src = $members[$srcId] ?? null;

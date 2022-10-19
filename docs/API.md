@@ -4,6 +4,9 @@
 
 ### Obtain Access Token
 
+<details>
+    <summary>Click to expand</summary>
+    
 The API is secured with OAuth2. Use the client credentials flow to authenticate yourself.
 To do so send a `POST` request to the `/oauth/token` endpoint containing the following
 data (replace the `%values%` with your credentials).
@@ -25,7 +28,12 @@ must satisfy the following form.
 Authorization: Bearer %token%
 ```
 
+</details>
+
 ### Test Access Token
+
+<details>
+    <summary>Click to expand</summary>
 
 Request:
 
@@ -41,7 +49,12 @@ Status code: 200
 Body: success
 ```
 
+</details>
+
 ## Member
+
+<details>
+    <summary>Click to expand</summary>
 
 Read the
 full [list](https://raw.githubusercontent.com/grueneschweiz/weblingservice/master/config/webling-field-mappings.yml) of
@@ -51,10 +64,10 @@ The `id` property is read only.
 Field update modes:
 
 * `replace` replaces the current value
-* `append` appends the given value to the current value. Doesn't work for fields of type `DateField` and `SelectField`
-* `remove` removes the given value from the current value. Doesn't work for fields of type `DateField` and `SelectField`
-* `replaceEmpty` adds the given value only if the field is empty
-* `addIfNew` adds the given value only if this is a new record
+  * `append` appends the given value to the current value. Doesn't work for fields of type `DateField` and `SelectField`
+  * `remove` removes the given value from the current value. Doesn't work for fields of type `DateField` and `SelectField`
+  * `replaceEmpty` adds the given value only if the field is empty
+  * `addIfNew` adds the given value only if this is a new record
 
 On any field, a single action or multiple actions may be performed.
 
@@ -90,7 +103,12 @@ On any field, a single action or multiple actions may be performed.
   This will add the `climate` interest flag and remove the `agriculture` flag
   but wont affect any other flags.
 
+</details>
+
 ### Show single
+
+<details>
+    <summary>Click to expand</summary>
 
 #### Regular request
 
@@ -249,7 +267,12 @@ Body:
 }
 ```
 
+</details>
+
 ### Update
+
+<details>
+    <summary>Click to expand</summary>
 
 Request:
 
@@ -303,7 +326,12 @@ Body: 30361
 
 The body contains the `id` of the new record.
 
+</details>
+
 ### Upsert
+
+<details>
+    <summary>Click to expand</summary>
 
 This uses the [matching](#matching) algorithm internally to determine, if the record does
 already exist. If we get a *match* the record is updated. For *no_match*, *multiple*
@@ -362,7 +390,74 @@ Body: 30361
 The body contains the `id` of the matching or the new record. The status code is 201 regardless
 of whether the item was inserted or updated.
 
+</details>
+
+### Insert
+
+<details>
+    <summary>Click to expand</summary>
+
+Force insert a record, despite any duplication issues. Usually [upsert](#upsert) is the way to
+go. Only use insert if you really have to. Make sure to prevent duplicates.
+
+Request:
+
+```
+POST api/v1/member/insert
+
+Body:
+{
+    "email1": 
+    {
+        "value": "new@example.com",
+        "mode": "replace"
+    },
+    "newsletterCountryD":
+    {
+        "value": "yes",
+        "mode": "replaceEmpty"
+    },
+    "entryChannel":
+    {
+        "value": "gruene.ch",
+        "mode": "addIfNew"
+    },
+    "notesCountry": 
+    [
+        {
+          "value": "aNewTag", 
+          "mode": "append"
+        },
+        {
+          "value": "anOldTag", 
+          "mode": "remove"
+        }
+    ],
+    "groups":
+    {
+        "value": [201, 202],
+        "mode": "append"
+    }
+}
+
+```
+
+Response:
+
+```
+Status code: 201
+
+Body: 30361
+```
+
+The body contains the `id` of the new record.
+
+</details>
+
 ### <a name="matching"></a> Find matching records
+
+<details>
+    <summary>Click to expand</summary>
 
 Using a given member, this endpoint searches the database using the following algorithm to
 determine, if the member is already in the database.
@@ -453,7 +548,12 @@ Body:
 }
 ```
 
+</details>
+
 ### Find main record
+
+<details>
+    <summary>Click to expand</summary>
 
 Try to find the most important record of the given member. If only one exists, this is, of
 course, the most important member. If we have multiple matches (see [matching](#matching) for
@@ -512,7 +612,12 @@ Body:
 }
 ```
 
+</details>
+
 ### Merge member
+
+<details>
+    <summary>Click to expand</summary>
 
 > **API-Key Requirements**
 >
@@ -748,7 +853,12 @@ Body:
 In case there is an error reassociating any debtor, a similar error to the merge conflict is thrown but the `conflicts`
 array is empty. Even thou the merge process is stopped, **some debtors may already have been reassociated**.
 
+</details>
+
 ### Get changes
+
+<details>
+    <summary>Click to expand</summary>
 
 Retrieve changes since the given `revisionId`. Call the [revision](#get-revision) endpoint
 to get the current revision id.
@@ -802,9 +912,14 @@ Body:
 If the response only contains a key with a null value, this means, that the record with the
 id of the key was deleted.
 
+</details>
+
 ## Revision
 
 ### <a name="get-revision"></a>Get current revision
+
+<details>
+    <summary>Click to expand</summary>
 
 Request:
 
@@ -822,9 +937,14 @@ Body: 69986
 
 The response body contains the current revision id.
 
+</details>
+
 ## Group
 
 ### Show single group
+
+<details>
+    <summary>Click to expand</summary>
 
 Request:
 
@@ -857,3 +977,5 @@ Body:
     ]
 }
 ```
+
+</details>
