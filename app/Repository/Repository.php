@@ -20,7 +20,7 @@ abstract class Repository
      * Yes, it must be super high, we had issues with lower limits.
      */
     private const TIMEOUT = 300;
-    private const CONNECTTIMEOUT = 4;
+    private const CONNECTTIMEOUT = 10;
     
     /**
      * The api key
