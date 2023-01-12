@@ -1272,11 +1272,13 @@ class RestApiMemberTest extends TestCase
         $dst->zip->setValue('1234');
         $dst->city->setValue('Entenhausen');
         $dst->entryChannel->setValue('initial value');
+        $dst->birthday->setValue('2000-01-01');
         $dst->interests->setValue(['finance', 'gender']);
         $dst->request->setValue('music');
         $dst->memberStatusMunicipality->setValue('sympathiser');
         $dst->memberStatusRegion->setValue('member');
         $dst->memberStatusCanton->setValue('unconfirmed');
+        $dst->membershipStart->setValue('2023-01-01');
         $dst->roleMunicipality->setValue('trouble master');
         $dst->mandateMunicipality->setValue('legislativePast');
         $dst->mandateMunicipalityDetail->setValue('parli');
@@ -1307,7 +1309,7 @@ class RestApiMemberTest extends TestCase
         $src->workPhone->setValue('0800800800');
         $src->phoneStatus->setValue('unwanted');
         $src->entryChannel->setValue('must not be merged');
-        $src->birthday->setValue('');
+        $src->birthday->setValue('2000-11-11');
         $src->website->setValue('https://mysite.com');
         $src->facebook->setValue('boomer');
         $src->twitter->setValue('@nerd');
@@ -1430,7 +1432,7 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals('0800800800', $merged->workPhone);
         $this->assertEquals('unwanted', $merged->phoneStatus);
         $this->assertEquals($dst->entryChannel->getValue(), $merged->entryChannel);
-        $this->assertEquals($dst->birthday->getValue(), $merged->birthday);
+        $this->assertEquals('2000-11-11', $merged->birthday);
         $this->assertEquals('https://mysite.com', $merged->website);
         $this->assertEquals('boomer', $merged->facebook);
         $this->assertEquals('@nerd', $merged->twitter);
@@ -1455,7 +1457,7 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals('member', $merged->memberStatusCanton);
         $this->assertEquals('member', $merged->memberStatusCountry);
         $this->assertEquals('member', $merged->memberStatusYoung);
-        $this->assertEquals('1970-01-01', $merged->membershipStart);
+        $this->assertEquals('2023-01-01', $merged->membershipStart);
         $this->assertEquals('2034-12-31', $merged->membershipEnd);
         $this->assertEquals('you', $merged->responsibility);
         $this->assertEquals('regular', $merged->membershipFeeMunicipality);

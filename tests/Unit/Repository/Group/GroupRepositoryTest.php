@@ -34,7 +34,7 @@ class GroupRepositoryTest extends TestCase
         $this->assertEquals('Unit Group 1', $group->getName());
         $this->assertEquals(100, $group->getParent());
         $this->assertEquals([1084, 1086], $group->getChildren());
-        $this->assertEquals([5469, 5470], $group->getMembers());
+        $this->assertEqualsCanonicalizing([5469, 5470], $group->getMembers());
     }
     
     public function testGetAllMembers()
@@ -98,7 +98,7 @@ class GroupRepositoryTest extends TestCase
         $this->assertEquals('Unit Group 1', $group->getName());
         $this->assertEquals(100, $group->getParent());
         $this->assertEquals([1084, 1086], $group->getChildren());
-        $this->assertEquals([5469, 5470], $group->getMembers());
+        $this->assertEqualsCanonicalizing([5469, 5470], $group->getMembers());
     }
     
     public function testUpdateCache($cacheDeleteAfter = 'PT1M')
