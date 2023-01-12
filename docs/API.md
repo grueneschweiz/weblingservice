@@ -695,6 +695,10 @@ present.
     - phone numbers are normalized to compare equality (`079 123 45 57` equals `+41791234567`)
     - else default merging algorithm
 
+- **birthday** (`birthday`):
+    - any date takes precedence over january the first, if both dates are in the same year
+    - any date overwrites 1970-01-01
+
 - **coupleCategory**:
     - `coupleCategory: single` in the src is ignored, if dst is not empty
     - The other couple fields raise a conflict on contradiction
@@ -708,6 +712,10 @@ present.
         - `unconfirmed`
         - `sympathiser`
         - `notMember`
+
+- **membership dates** (`membershipStart`, `membershipEnd`):
+    - on conflict, the earlier start and the later end date are taken
+      (this works well with the young greens and usually also corresponds best with reality).
 
 - `entryChannel`:
     - on conflict, the dst value takes precedence
