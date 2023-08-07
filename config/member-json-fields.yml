@@ -24,6 +24,7 @@ mappings:
   - memberStatusCanton
   - memberStatusRegion
   - memberStatusMunicipality
+  - memberStatusYoung
   - membershipStart
   - interests
   - donorCountry
