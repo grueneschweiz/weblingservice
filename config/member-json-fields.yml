@@ -9,6 +9,7 @@ mappings:
   - address1
   - zip
   - city
+  - birthday
   - newsletterCountryD
   - newsletterCountryF
   - newsletterCantonD
