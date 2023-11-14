@@ -9,6 +9,7 @@ mappings:
   - address1
   - zip
   - city
+  - birthday
   - newsletterCountryD
   - newsletterCountryF
   - newsletterCantonD
@@ -24,6 +25,7 @@ mappings:
   - memberStatusCanton
   - memberStatusRegion
   - memberStatusMunicipality
+  - memberStatusYoung
   - membershipStart
   - interests
   - donorCountry
