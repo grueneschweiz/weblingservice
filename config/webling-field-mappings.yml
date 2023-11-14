@@ -545,21 +545,18 @@ mappings:
 - key: notesCountryYoung
   type: LongTextField
   weblingKey: Notizen national JG / notes nationales JV
-- key: legacy
-  type: LongTextField
-  weblingKey: "(nicht mehr benutzen / plus actuelles)"
 - key: dontUse
   type: Skip
   weblingKey: Mitglieder ID / n° de membre
-- key: magazineOther
-  type: TextField
-  weblingKey: Andere Zeitschrift / autre journal
+- key: legacy
+  type: LongTextField
+  weblingKey: "(nicht mehr benutzen / plus actuelles)"
 - key: newsletterOther
   type: TextField
   weblingKey: Anderer Newsletter / autre infolettre
-- key: networkOther
+- key: magazineOther
   type: TextField
-  weblingKey: Anderes (zB Komitees) / autres (p.ex. comité)
+  weblingKey: Andere Zeitschrift / autre journal
 - key: roleYoung
   type: LongTextField
   weblingKey: Funktion Junge Grüne / fonctions chez les Jeunes Verts
@@ -570,3 +567,6 @@ mappings:
   - sponsor: Gönnerin / sponsor
   - majorDonor: Grossspenderin / mécène
   weblingKey: Spendenstatus Junge Grüne / statut de donatrice Jeunes Verts
+- key: networkOther
+  type: TextField
+  weblingKey: Anderes (zB Komitees) / autres (p.ex. comité)
