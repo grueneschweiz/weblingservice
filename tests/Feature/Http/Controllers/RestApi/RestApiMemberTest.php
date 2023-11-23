@@ -72,7 +72,7 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMember_200()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $response = $this->json('GET', '/api/v1/member/' . $member->id, [], $this->auth->getAuthHeader());
         
@@ -89,17 +89,17 @@ class RestApiMemberTest extends TestCase
         $this->assertObjectNotHasAttribute('iban', $m);
     }
     
-    private function addMember()
+    private function addMember(string $firstName)
     {
-        $member = $this->getMember();
+        $member = $this->getMember($firstName);
         
         return $this->saveMember($member);
     }
     
-    private function getMember()
+    private function getMember(string $firstName)
     {
         $member = new Member();
-        $member->firstName->setValue('Unit');
+        $member->firstName->setValue($firstName);
         $member->lastName->setValue('Test');
         $member->email1->setValue('unittest+' . Str::random() . '@unittest.ut');
         $member->iban->setValue('12345678');
@@ -127,7 +127,7 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMember_200_subgroup()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         
         $groupRepository = new GroupRepository(config('app.webling_api_key'));
         $rootGroup = $groupRepository->get(1084);
@@ -146,7 +146,7 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMember_200_multigroup()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         
         $groupRepository = new GroupRepository(config('app.webling_api_key'));
         $rootGroup = $groupRepository->get(1084);
@@ -168,7 +168,7 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMember_403()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $response = $this->json('GET', '/api/v1/member/' . $member->id, [], $this->auth->getAuthHeader([1081]));
         
@@ -181,7 +181,7 @@ class RestApiMemberTest extends TestCase
     
     public function testGetAdminMember_200()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $response = $this->json('GET', '/api/v1/admin/member/' . $member->id, [], $this->auth->getAuthHeader());
         
@@ -198,8 +198,8 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMainMember_200()
     {
-        $member1 = $this->addMember();
-        $member2 = $this->getMember();
+        $member1 = $this->addMember(__METHOD__);
+        $member2 = $this->getMember(__METHOD__);
         $member2->email1->setValue($member1->email1->getValue());
         $member2->memberStatusCountry->setValue('member');
         $member2 = $this->saveMember($member2);
@@ -222,8 +222,8 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMainMember_noGroupIds_200()
     {
-        $member1 = $this->addMember();
-        $member2 = $this->getMember();
+        $member1 = $this->addMember(__METHOD__);
+        $member2 = $this->getMember(__METHOD__);
         $member2->email1->setValue($member1->email1->getValue());
         $member2->memberStatusCountry->setValue('member');
         $member2 = $this->saveMember($member2);
@@ -246,7 +246,7 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMainMember_403()
     {
-        $member1 = $this->addMember();
+        $member1 = $this->addMember(__METHOD__);
         
         $response = $this->json('GET', '/api/v1/member/' . $member1->id . '/main/100', [], $this->auth->getAuthHeader([1081]));
         
@@ -259,13 +259,13 @@ class RestApiMemberTest extends TestCase
     
     public function testGetMainMember_200_subgroup()
     {
-        $member1 = $this->getMember();
+        $member1 = $this->getMember(__METHOD__);
         $groupRepository = new GroupRepository(config('app.webling_api_key'));
         $rootGroup = $groupRepository->get(1084);
         $member1->addGroups($rootGroup);
         $member1 = $this->saveMember($member1);
         
-        $member2 = $this->getMember();
+        $member2 = $this->getMember(__METHOD__);
         $member2->email1->setValue($member1->email1->getValue());
         $member2->memberStatusCountry->setValue('member');
         $member2 = $this->saveMember($member2);
@@ -285,8 +285,8 @@ class RestApiMemberTest extends TestCase
     
     public function testGetAdminMainMember_200()
     {
-        $member1 = $this->addMember();
-        $member2 = $this->getMember();
+        $member1 = $this->addMember(__METHOD__);
+        $member2 = $this->getMember(__METHOD__);
         $member2->email1->setValue($member1->email1->getValue());
         $member2->memberStatusCountry->setValue('member');
         $member2 = $this->saveMember($member2);
@@ -339,7 +339,7 @@ class RestApiMemberTest extends TestCase
         $response->assertStatus(200);
         $lastRevisionId = json_decode($response->getContent());
         
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $response = $this->json('GET', '/api/v1/member/changed/' . $lastRevisionId, [], $this->auth->getAuthHeader());
         $response->assertStatus(200);
@@ -363,7 +363,7 @@ class RestApiMemberTest extends TestCase
         $response->assertStatus(200);
         $lastRevisionId = json_decode($response->getContent());
         
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $response = $this->json('GET', '/api/v1/admin/member/changed/' . $lastRevisionId, [], $this->auth->getAuthHeader());
         $response->assertStatus(200);
@@ -385,7 +385,7 @@ class RestApiMemberTest extends TestCase
     {
         $email = 'unittest_replace+' . Str::random() . '@unittest.ut';
         
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $m = [
             'email1' => [
@@ -415,7 +415,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMember_replaceMultiselect_201()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->mandateCountry->setValue(['legislativeActive', 'legislativePast']);
         
         $member = $this->saveMember($member);
@@ -451,7 +451,7 @@ class RestApiMemberTest extends TestCase
         $initial = 'climate';
         $appended = 'energy';
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->interests->append($initial);
         $member = $this->saveMember($member);
         
@@ -486,7 +486,7 @@ class RestApiMemberTest extends TestCase
         $remove = 'energy';
         $initial = 'climate';
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->interests->append([$initial, $remove]);
         $member = $this->saveMember($member);
         
@@ -521,7 +521,7 @@ class RestApiMemberTest extends TestCase
         $remove = 'tagtagtag';
         $initial = "this is a note\nanothertag";
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->notesCountry->append("$initial\n$remove");
         $member = $this->saveMember($member);
         
@@ -557,7 +557,7 @@ class RestApiMemberTest extends TestCase
         $initial = "this is a note\nanothertag\n$remove";
         $final = "this is a note\nanothertag\n$append";
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->notesCountry->append($initial);
         $member = $this->saveMember($member);
         
@@ -597,7 +597,7 @@ class RestApiMemberTest extends TestCase
         $initial = 'already in the database';
         $add = 'this should not be appended';
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->entryChannel->setValue($initial);
         $member = $this->saveMember($member);
         
@@ -669,7 +669,7 @@ class RestApiMemberTest extends TestCase
         $initial = 'already in the database';
         $replace = 'this should not be replaced';
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->entryChannel->setValue($initial);
         $member = $this->saveMember($member);
         
@@ -704,7 +704,7 @@ class RestApiMemberTest extends TestCase
         $initial = '';
         $replace = 'this should not be replaced';
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->entryChannel->setValue($initial);
         $member = $this->saveMember($member);
         
@@ -736,7 +736,7 @@ class RestApiMemberTest extends TestCase
     public function testPutMember_append_500()
     {
         $date = '2019-07-27';
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $m = [
             'birthday' => [
@@ -761,7 +761,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMember_skipId_201()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $m = [
             'id' => [
@@ -791,7 +791,7 @@ class RestApiMemberTest extends TestCase
     public function testPutMember_replaceGroup_201()
     {
         $group = 1081;
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $m = [
             'groups' => [
@@ -821,7 +821,7 @@ class RestApiMemberTest extends TestCase
     public function testPutMember_appendGroup_201()
     {
         $group = 1081;
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $m = [
             'groups' => [
@@ -855,7 +855,7 @@ class RestApiMemberTest extends TestCase
         $groupRepository = new GroupRepository(config('app.webling_api_key'));
         $group = $groupRepository->get($groupId);
         
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->addGroups($group);
         
         $member = $this->saveMember($member);
@@ -931,7 +931,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMember_upsert_id_201()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         $this->assertEmpty($member->email2->getValue());
         
         $m = [
@@ -968,7 +968,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMember_upsert_email_single_201()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         $this->assertEmpty($member->email2->getValue());
         
         $m = [
@@ -1006,7 +1006,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMember_upsert_email_multiple_201()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member1 = $this->saveMember($member);
         $member2 = $this->saveMember($member);
         
@@ -1054,7 +1054,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMember_force_insert_201(): void
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         $this->assertEmpty($member->email2->getValue());
         
         $m = [
@@ -1095,7 +1095,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_no_match()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         
         $m = [
             'email1' => [
@@ -1113,7 +1113,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_match()
     {
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         
         $m = [
             'email1' => [
@@ -1133,7 +1133,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_match_apostrophe()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->firstName->setValue("d'apostrophique");
         $member = $this->saveMember($member);
         
@@ -1157,7 +1157,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_match_ampersand()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member->firstName->setValue("P. & M.");
         $member = $this->saveMember($member);
         
@@ -1181,7 +1181,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_ambiguous()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         
         $m = [
             'firstName' => [
@@ -1200,7 +1200,7 @@ class RestApiMemberTest extends TestCase
         }
         
         // the actual test
-        $member = $this->addMember();
+        $member = $this->addMember(__METHOD__);
         $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
         
         $this->deleteMember($member);
@@ -1213,7 +1213,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_multiple()
     {
-        $member = $this->getMember();
+        $member = $this->getMember(__METHOD__);
         $member1 = $this->saveMember($member);
         $member2 = $this->saveMember($member);
         
@@ -1236,11 +1236,11 @@ class RestApiMemberTest extends TestCase
     
     public function testPostMatch_200_rating_multiple()
     {
-        $member1 = $this->getMember();
+        $member1 = $this->getMember(__METHOD__);
         $member1->memberStatusCountry->setValue('member');
         $member1 = $this->saveMember($member1);
     
-        $member2 = $this->getMember();
+        $member2 = $this->getMember(__METHOD__);
         $member2->email1->setValue($member1->email1->getValue());
         $member2->memberStatusCountry->setValue('sympathiser');
         $member2 = $this->saveMember($member2);
@@ -1264,7 +1264,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMerge_200_noconflicts()
     {
-        $dst = $this->getMember();
+        $dst = $this->getMember(__METHOD__);
         $dst->gender->setValue('n');
         $dst->salutationInformal->setValue('nD');
         $dst->address1->setValue("Rue de l'Annonciade 22");
@@ -1514,6 +1514,8 @@ class RestApiMemberTest extends TestCase
         // check if debtor was associated with dst member
         $updatedDebtor = $debtorRepository->get(self::MERGE_MEMBER_DEBTOR_ID);
         $this->assertSame($dst->id, $updatedDebtor->getMemberId());
+
+        $this->deleteMember($dst);
         
         // check if src member is deleted
         $memberRepository = new MemberRepository(config('app.webling_api_key'));
@@ -1523,7 +1525,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMerge_200_updateInvalidEmailStateChangeEmail(): void
     {
-        $dst = $this->getMember();
+        $dst = $this->getMember(__METHOD__);
         $dst->email1->setValue('invalid@email.com');
         $dst->emailStatus->setValue('invalid');
         $dst = $this->saveMember($dst);
@@ -1543,6 +1545,8 @@ class RestApiMemberTest extends TestCase
             [],
             $this->auth->getAuthHeader()
         );
+
+        $this->deleteMember($dst);
         
         $response->assertStatus(200);
         
@@ -1558,7 +1562,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMerge_200_checkSrcDeleted()
     {
-        $dst = $this->getMember();
+        $dst = $this->getMember(__METHOD__);
         $src = clone $dst;
         
         $dst = $this->saveMember($dst);
@@ -1570,6 +1574,8 @@ class RestApiMemberTest extends TestCase
             [],
             $this->auth->getAuthHeader()
         );
+
+        $this->deleteMember($dst);
         
         $response = $this->json('GET', '/api/v1/member/'.$src->id, [], $this->auth->getAuthHeader());
         $response->assertStatus(404);
@@ -1577,7 +1583,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMerge_200_checkSrcNotDeletedAfterMergeFailed()
     {
-        $dst = $this->getMember();
+        $dst = $this->getMember(__METHOD__);
         $dst->zip->setValue('1324');
         $dst = $this->saveMember($dst);
     
@@ -1594,14 +1600,18 @@ class RestApiMemberTest extends TestCase
             [],
             $this->auth->getAuthHeader()
         );
-        
+
         $response = $this->json('GET', '/api/v1/member/'.$src->id, [],  $this->auth->getAuthHeader());
+
+        $this->deleteMember($dst);
+        $this->deleteMember($src);
+
         $response->assertStatus(200);
     }
     
     public function testPutMerge_409_checkConflictInfoAfterMergeFailed()
     {
-        $dst = $this->getMember();
+        $dst = $this->getMember(__METHOD__);
         $dst->zip->setValue('1324');
         $dst->city->setValue('Musterdorf');
         $dst = $this->saveMember($dst);
@@ -1624,6 +1634,10 @@ class RestApiMemberTest extends TestCase
         $response->assertStatus(409);
         
         $body = json_decode($response->getContent(), false, 512, JSON_THROW_ON_ERROR);
+
+        $this->deleteMember($dst);
+        $this->deleteMember($src);
+
         $this->assertEquals(false, $body->success);
         $this->assertEmpty($body->merged);
     
@@ -1636,7 +1650,7 @@ class RestApiMemberTest extends TestCase
     
     public function testPutMerge_409_dstNotActive()
     {
-        $dst = $this->getMember();
+        $dst = $this->getMember(__METHOD__);
         $dst->recordStatus->setValue('blocked');
         $dst = $this->saveMember($dst);
     
@@ -1653,6 +1667,9 @@ class RestApiMemberTest extends TestCase
             [],
             $this->auth->getAuthHeader()
         );
+
+        $this->deleteMember($dst);
+        $this->deleteMember($src);
     
         $response->assertStatus(409);
     
