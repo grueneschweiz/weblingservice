@@ -26,6 +26,8 @@ services:
         MAIL_ENCRYPTION: null
     depends_on:
       - mysql
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   mysql:
     image: mysql:5.7
