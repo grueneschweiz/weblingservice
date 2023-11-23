@@ -86,7 +86,7 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals($member->email1->getValue(), $m->email1);
         $this->assertEquals($member->getGroupIds(), $m->groups);
         $this->assertEquals($member->id, $m->id);
-        $this->assertObjectNotHasAttribute('iban', $m);
+        $this->assertFalse(property_exists($m, 'iban'));
     }
     
     private function addMember(string $firstName)
@@ -217,7 +217,7 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals($member1->email1->getValue(), $m->email1);
         $this->assertEquals($member2->email1->getValue(), $m->email1);
         $this->assertEquals($member2->id, $m->id);
-        $this->assertObjectNotHasAttribute('iban', $m);
+        $this->assertFalse(property_exists($m, 'iban'));
     }
     
     public function testGetMainMember_noGroupIds_200()
@@ -241,7 +241,7 @@ class RestApiMemberTest extends TestCase
         $this->assertEquals($member1->email1->getValue(), $m->email1);
         $this->assertEquals($member2->email1->getValue(), $m->email1);
         $this->assertEquals($member2->id, $m->id);
-        $this->assertObjectNotHasAttribute('iban', $m);
+        $this->assertFalse(property_exists($m, 'iban'));
     }
     
     public function testGetMainMember_403()
@@ -354,7 +354,7 @@ class RestApiMemberTest extends TestCase
         $m = reset($members);
         
         $this->assertEquals($member->email1->getValue(), $m->email1);
-        $this->assertObjectNotHasAttribute('iban', $m);
+        $this->assertFalse(property_exists($m, 'iban'));
     }
     
     public function testGetAdminChanged_changed()
