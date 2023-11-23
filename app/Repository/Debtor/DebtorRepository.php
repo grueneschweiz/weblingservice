@@ -76,7 +76,7 @@ class DebtorRepository extends Repository
         $respData = $resp->getData();
         if (is_array($respData)
             && array_key_exists('error', $respData)
-            && 'The object is not writable' === $respData['error']
+            && $this->isDebtorNotWriteableError($respData['error'])
         ) {
             throw new DebtorNotWriteableException();
         }
@@ -84,5 +84,11 @@ class DebtorRepository extends Repository
         if ($resp->getStatusCode() !== 204) {
             throw new WeblingAPIException("Put request to Webling failed with status code {$resp->getStatusCode()}: {$resp->getRawData()}");
         }
+    }
+
+    private function isDebtorNotWriteableError(string $error): bool
+    {
+        return 'The object is not writable' === $error
+            || preg_match('/The instance with the id \d+ is not writable/', $error);
     }
 }
