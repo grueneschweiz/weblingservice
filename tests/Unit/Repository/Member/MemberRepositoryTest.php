@@ -52,7 +52,12 @@ class MemberRepositoryTest extends TestCase
         parent::tearDown();
 
         if(isset($this->member)) {
-            $this->repository->delete($this->member);
+            try {
+                $this->repository->delete($this->member);
+            } catch (\Exception){
+                // ignore
+            }
+
         }
     }
     
