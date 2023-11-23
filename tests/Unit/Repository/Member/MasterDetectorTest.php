@@ -58,14 +58,14 @@ class MasterDetectorTest extends TestCase
     
     public function testGetMaster__noMatch()
     {
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $this->assertEquals($member1, $this->masterDetector->getMaster($member1));
     }
     
-    private function getNewMember()
+    private function getNewMember(string $firstName)
     {
         $member = new Member();
-        $member->firstName->setValue('Unit');
+        $member->firstName->setValue($firstName);
         $member->lastName->setValue('Test');
         $member->zip->setValue("1234");
         $member->email1->setValue('masterdetector@unittest.ut');
@@ -77,7 +77,7 @@ class MasterDetectorTest extends TestCase
     
     public function testGetMaster__match()
     {
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member1 = $this->saveMember($member1);
         $this->assertEquals($member1, $this->masterDetector->getMaster($member1));
         $this->memberRepo->delete($member1);
@@ -93,7 +93,7 @@ class MasterDetectorTest extends TestCase
     
     public function testGetMaster__ambiguousMatch()
     {
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member1->zip->setValue('');
         $member1->email1->setValue('');
         $member2 = clone $member1;
@@ -107,7 +107,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__euqalRating()
     {
         // given member has equal rating to similar
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member1->memberStatusCountry->setValue(self::MEMBER_STATUS);
         $member2 = clone $member1;
         $member1 = $this->saveMember($member1);
@@ -120,7 +120,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__memberRating()
     {
         // given has higher rating to similar
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member2 = clone $member1;
         $member1->memberStatusCountry->setValue(self::MEMBER_STATUS);
         $member1 = $this->saveMember($member1);
@@ -133,7 +133,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__unconfirmedRating()
     {
         // given has higher rating to similar
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member2 = clone $member1;
         $member1->memberStatusCountry->setValue(self::UNCONFIRMED_STATUS);
         $member1 = $this->saveMember($member1);
@@ -146,7 +146,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__sympathiserRating()
     {
         // given has higher rating to similar
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member2 = clone $member1;
         $member1->memberStatusCountry->setValue(self::SYMPATHISER_STATUS);
         $member1 = $this->saveMember($member1);
@@ -159,7 +159,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__smallerRating()
     {
         // given has smaller rating to similar
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member2 = clone $member1;
         $member2->memberStatusCountry->setValue(self::MEMBER_STATUS);
         $member1 = $this->saveMember($member1);
@@ -173,7 +173,7 @@ class MasterDetectorTest extends TestCase
     {
         // multiple similar, one with lower rating one with higher rating
         // expect similar with higher rating
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member2 = clone $member1;
         $member3 = clone $member1;
         $member1->memberStatusCountry->setValue(self::UNCONFIRMED_STATUS);
@@ -192,7 +192,7 @@ class MasterDetectorTest extends TestCase
     {
         // multiple similar, both with higher but equal rating
         // expect one of similar (order undefined)
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member2 = clone $member1;
         $member3 = clone $member1;
         $member1->memberStatusCountry->setValue(self::SYMPATHISER_STATUS);
@@ -213,7 +213,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__memberSympathiser()
     {
         // one member flag wins over 5 sympathiser flags
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member1->memberStatusCountry->setValue(self::MEMBER_STATUS);
         $member2 = clone $member1;
         $member2->memberStatusCountry->setValue(self::SYMPATHISER_STATUS);
@@ -231,7 +231,7 @@ class MasterDetectorTest extends TestCase
     public function testGetMaster__memberUnconfirmed()
     {
         // one member flag wins over 1 unconfirmed and 5 sympathiser flags
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
         $member1->memberStatusCountry->setValue(self::MEMBER_STATUS);
         $member2 = clone $member1;
         $member2->memberStatusCountry->setValue(self::UNCONFIRMED_STATUS);
@@ -247,7 +247,7 @@ class MasterDetectorTest extends TestCase
     }
     
     private function removeExistingRecords() {
-        $member1 = $this->getNewMember();
+        $member1 = $this->getNewMember(__METHOD__);
     
         // precondition
         $members = $this->memberRepo->find(

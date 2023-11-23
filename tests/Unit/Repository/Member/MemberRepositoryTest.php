@@ -46,10 +46,24 @@ class MemberRepositoryTest extends TestCase
         
         $this->repository = new MemberRepository(config('app.webling_api_key'));
     }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+
+        if(isset($this->member)) {
+            try {
+                $this->repository->delete($this->member);
+            } catch (\Exception){
+                // ignore
+            }
+
+        }
+    }
     
     public function testGetMaster()
     {
-        $member1 = $this->getNewLocalMember();
+        $member1 = $this->getNewLocalMember(__METHOD__);
         $member2 = clone $member1;
         $member2->memberStatusCountry->setValue(self::MEMBER_STATUS);
         $member1 = $this->repository->save($member1);
@@ -62,10 +76,10 @@ class MemberRepositoryTest extends TestCase
         $this->assertEquals($member2, $master2);
     }
     
-    private function getNewLocalMember()
+    private function getNewLocalMember(string $firstName)
     {
         $member = new Member();
-        $member->firstName->setValue('Unit');
+        $member->firstName->setValue($firstName);
         $member->lastName->setValue('Test');
         $member->email1->setValue('unittest+' . Str::random() . '@unittest.ut');
         
@@ -78,7 +92,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testGet()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         $member = $this->repository->get($this->member->id);
         $this->assertEquals($this->member->id, $member->id);
         $this->removeMember();
@@ -90,14 +104,15 @@ class MemberRepositoryTest extends TestCase
         $this->assertContains(self::DEBTOR_OF_EXISTING_MEMBER, $member->getDebtorIds());
     }
     
-    private function addMember()
+    private function addMember(string $firstName)
     {
-        $this->member = $this->repository->save($this->getNewLocalMember());
+        $this->member = $this->repository->save($this->getNewLocalMember($firstName));
     }
     
     private function removeMember()
     {
         $this->repository->delete($this->member);
+        unset($this->member);
     }
     
     public function testGetMemberNotFoundException()
@@ -108,7 +123,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testSaveUpdate()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         $member = &$this->member;
         
         $member->interests->append('energy');
@@ -122,7 +137,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testSaveCreate()
     {
-        $member = $this->getNewLocalMember();
+        $member = $this->getNewLocalMember(__METHOD__);
         $member = $this->repository->save($member);
         
         $this->assertNotEmpty($member->id);
@@ -135,7 +150,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testSaveNoGroupException()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         $member = &$this->member;
         
         $member->removeGroups($member->groups);
@@ -202,7 +217,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testFind()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         
         $query = '`' . $this->member->email1->getWeblingKey() . '` = "' . $this->member->email1->getValue() . '"';
         $found = $this->repository->find($query);
@@ -215,7 +230,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testFind_all()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         
         $found = $this->repository->find('');
         $this->assertTrue(in_array($this->member, $found));
@@ -225,7 +240,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testGetAll()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         
         $found = $this->repository->getAll();
         $this->assertTrue(in_array($this->member, $found));
@@ -235,7 +250,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testGetAll_limited()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         
         $this->repository->setLimit(1);
         $offset = 0;
@@ -268,7 +283,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testFindWithRootGroups()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         
         $query = '`' . $this->member->email1->getWeblingKey() . '` = "' . $this->member->email1->getValue() . '"';
         $groupRepository = new GroupRepository(config('app.webling_api_key'));
@@ -285,7 +300,7 @@ class MemberRepositoryTest extends TestCase
     
     public function testDelete()
     {
-        $this->addMember();
+        $this->addMember(__METHOD__);
         
         $this->repository->delete($this->member);
         

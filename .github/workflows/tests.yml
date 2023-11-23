@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [ $default-branch ]
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
 
   tests:
