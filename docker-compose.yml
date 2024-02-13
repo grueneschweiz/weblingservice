@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: .docker/Dockerfile
+      args:
+        UserID: $UserID
+        GroupID: $GroupID
     ports:
       - '8000:80'
     volumes:

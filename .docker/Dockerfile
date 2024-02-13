@@ -1,5 +1,8 @@
 FROM php:8.1-apache
 
+ARG UserID=1000
+ARG GroupID=1000
+
 # update the repository sources list
 # and install basic dependencies
 RUN apt-get update -y \
@@ -21,7 +24,7 @@ RUN curl -sS https://getcomposer.org/installer \
     | php -- --install-dir=/usr/local/bin --filename=composer
 
 # change uid and gid of apache to docker user uid/gid
-RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
+RUN usermod -u ${UserID} www-data && groupmod -g ${GroupID} www-data
 
 # reconfigure the virtual hosts to use the ones defined in .docker/apache-vhost.conf
 COPY .docker/apache-vhost.conf /etc/apache2/sites-available/custom-vhost.conf
