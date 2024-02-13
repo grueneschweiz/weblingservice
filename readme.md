@@ -22,7 +22,7 @@ and start contributing 😍.
 1. Clone this repo `git clone https://github.com/grueneschweiz/weblingservice.git`
 1. `cd` into the folder containing the repo
 1. If your UID or GID is different to 1000 add `UserID=X` and `GroupID=Y` to a file .env.temp 
-   (where X is your `id -u` and Y is `id -g`) and `source env.temp`
+   (where X is your `id -u` and Y is `id -g`) and `source .env.temp`
 1. Execute `docker-compose run app composer install` and have a ☕️ while it installs.
 1. Execute `docker-compose up -d` to start up the stack. The first time you run
    this command, it will take a minute or two. Subsequent calls will be much faster.
