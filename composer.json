@@ -10,7 +10,7 @@
         "doctrine/dbal": "^3.0",
         "laravel/framework": "^10.0",
         "laravel/passport": "^11.0",
-        "symfony/yaml": "^6.1",
+        "symfony/yaml": "^7.0",
         "usystems/webling-api-php": "^1.2"
     },
     "require-dev": {
