@@ -78,3 +78,12 @@ curl -X POST \
 	-F "scope=" \
 	https://%mydomain.tld%/oauth/token
 ```
+
+### Example request
+```
+curl -X GET "https://%mydomain.tld%/api/v1/member/%member-id%" \
+     -H "Authorization: Bearer %token%" \
+     -H "Content-Type: application/json"
+```
+
+[Other API routes](https://github.com/grueneschweiz/weblingservice/blob/master/routes/api.php)
