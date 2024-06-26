@@ -21,9 +21,9 @@ and start contributing 😍.
 1. Start docker
 1. Clone this repo `git clone https://github.com/grueneschweiz/weblingservice.git`
 1. `cd` into the folder containing the repo
-1. Execute `docker-compose run app composer install` and have a ☕️ while
+1. Execute `docker compose run app composer install` and have a ☕️ while
    it installs.
-1. Execute `docker-compose up -d` to start up the stack. The first time you run
+1. Execute `docker compose up -d` to start up the stack. The first time you run
    this command, it will take a minute or two. Subsequent calls will be much faster.
 1. Execute `docker exec wsapp cp .env.example .env` to get an instance of the environment variables
 1. Execute `docker exec wsapp php artisan key:generate` to generate the app secrets
@@ -32,16 +32,16 @@ and start contributing 😍.
 
 Yupii, you're nearly done. Just add the `WEBLING_API_KEY`, `WEBLING_FINANCE_ADMIN_API_KEY`, `WEBLING_BASE_URL`
 to the `.env` file and you're ready to go. From now on, you can just start up the
-stack with a single `docker-compose up -d`, without repeating all the commands
+stack with a single `docker compose up -d`, without repeating all the commands
 from above.
 
 ### Docker Cheat Sheet
 
-- Start up: `docker-compose up -d`
-- Shut down: `docker-compose down`
+- Start up: `docker compose up -d`
+- Shut down: `docker compose down`
 - Execute Laravel CLI commands (enter container): `docker exec -it wsapp bash` use `exit` to escape the
   container.
-- Add dependency using composer: `docker-compose run wsapp composer require DEPENDENCY`
+- Add dependency using composer: `docker compose run wsapp composer require DEPENDENCY`
 
 ### Tooling
 
