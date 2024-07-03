@@ -265,7 +265,9 @@ Body:
     "groups": [
         201
     ],
-    "firstLevelGroupNames": "CH"
+    "firstLevelGroupNames": [
+        "CH"
+    ]
 }
 ```
 
@@ -541,7 +543,9 @@ Body:
                 201,
                 202
             ],
-            "firstLevelGroupNames": "ZH"
+            "firstLevelGroupNames": [
+                "ZH"
+            ]
         }
     ],
     "ratings": {
@@ -610,7 +614,9 @@ Body:
         201,
         202
     ],
-    "firstLevelGroupNames": "ZH"
+    "firstLevelGroupNames": [
+        "ZH"
+    ]
 }
 ```
 
@@ -836,7 +842,9 @@ Body:
             "groups": [
                 201
             ],
-            "firstLevelGroupNames": "CH"
+            "firstLevelGroupNames": [
+                "CH"
+            ]
         }
     "message": "OK"
 }
@@ -914,7 +922,9 @@ Body:
             201,
             202
         ],
-        "firstLevelGroupNames": "ZH"
+        "firstLevelGroupNames": [
+            "ZH"
+        ]
     }
 }
 ```
