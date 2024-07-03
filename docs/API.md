@@ -147,7 +147,9 @@ Body:
     "groups": [
         201
     ],
-    "firstLevelGroupNames": "CH"
+    "firstLevelGroupNames": [
+        "CH"
+    ]
 }
 ```
 
