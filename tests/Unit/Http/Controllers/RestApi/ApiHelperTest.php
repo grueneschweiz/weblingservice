@@ -58,7 +58,7 @@ class ApiHelperTest extends TestCase
         $this->assertArrayHasKey($this->someKey, $memberArray);
         $this->assertArrayNotHasKey($this->someAdminKey, $memberArray);
         $this->assertEquals($this->id, $memberArray['id']);
-        $this->assertEquals('Unit Group 1', $memberArray['firstLevelGroupNames']);
+        $this->assertContains('Unit Group 1', $memberArray['firstLevelGroupNames']);
     }
     
     private function getMember()
