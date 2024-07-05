@@ -53,7 +53,7 @@ class ApiHelper
         foreach ($allowedGroups as $group) {
             $rootGroupIds = $member->getFirstLevelGroupIds($group->getId());
             foreach ($rootGroupIds as $id) {
-                $rootGroups = $groupRepo->get($id)->getName();
+                $rootGroups[] = $groupRepo->get($id)->getName();
             }
         }
         
