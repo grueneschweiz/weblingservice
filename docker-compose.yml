@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  app:
+  weblingservice:
     build:
       context: .
       dockerfile: .docker/Dockerfile
@@ -28,6 +28,8 @@ services:
       - mysql
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - my-shared-network
 
   mysql:
     image: mysql:5.7
@@ -41,6 +43,8 @@ services:
         MYSQL_USER: laravel
         MYSQL_PASSWORD: laravel
     container_name: wsmysql_webling
+    networks:
+      - my-shared-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -53,12 +57,20 @@ services:
       PMA_USER: laravel
       PMA_PASSWORD: laravel
     container_name: wsphpmyadmin_webling
+    networks:
+      - my-shared-network
 
   mailhog:
     image: mailhog/mailhog
     ports:
       - '8020:8025'
     container_name: wsmailhog_webling
+    networks:
+      - my-shared-network
 
 volumes:
   database:
+
+networks:
+  my-shared-network:
+    external: true
