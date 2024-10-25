@@ -21,7 +21,7 @@ and start contributing 😍.
 1. Start docker
 1. Clone this repo `git clone https://github.com/grueneschweiz/weblingservice.git`
 1. `cd` into the folder containing the repo
-1. Execute `docker compose run app composer install` and have a ☕️ while
+1. Execute `docker compose run weblingservice composer install` and have a ☕️ while
    it installs.
 1. Execute `docker compose up -d` to start up the stack. The first time you run
    this command, it will take a minute or two. Subsequent calls will be much faster.
