@@ -29,7 +29,7 @@ class MemberMatch
     const NO_MATCH = 0;
     
     /**
-     * It's an unambiguous match of exaclty one member
+     * It's an unambiguous match of exactly one member
      */
     const MATCH = 1;
     
@@ -69,7 +69,7 @@ class MemberMatch
         $this->status = $status;
         $this->matches = $matches;
     }
-    
+
     /**
      * Find duplicate members in given group or its subgroups
      *
@@ -100,38 +100,71 @@ class MemberMatch
             if (!empty($matches) && $member->firstName->getValue()) {
                 self::selectByFirstName($matches, $member->firstName->getValue());
             }
-            
+
             if (count($matches)) {
                 return self::create($matches, false);
             }
         }
-        
+
+        // find by phone and return if found
+        if ($member->mobilePhone->getValue()) {
+            $query = self::buildMobilePhoneQuery($member);
+            $matches = self::matchByQuery($query, $rootGroups, $memberRepository);
+            if (!empty($matches) && $member->firstName->getValue()) {
+                self::selectByFirstName($matches, $member->firstName->getValue());
+            }
+
+            if (count($matches)) {
+                return self::create($matches, false);
+            }
+        }
+
         // don't proceed, if we don't have first and last name
         if (!($member->firstName->getValue() && $member->lastName->getValue())) {
             return new MemberMatch(self::NO_MATCH, []);
         }
-        
+
         // search webling by first and last name
         $query = self::buildNameQuery($member);
         $matches = self::matchByQuery($query, $rootGroups, $memberRepository);
-        
+
         if (!empty($matches)) {
             // make sure we filter out all entries where only the beginning of the
             // name was identical, but the given name was no a short name
             self::removeWrongNameMatches($matches, $member->firstName->getValue(),
                 $member->lastName->getValue());
         }
-        
+
         if (!empty($matches) && $member->zip->getValue()) {
             // filter out all results, where the zip didn't match
             self::removeWrongZipMatches($matches, $member->zip->getValue());
             
             return self::create($matches, false);
         }
-        
-        return self::create($matches, true);
+
+        // if there is more information available in the record, we create an ambiguous match
+        if (!empty($matches) && self::hasAdditionalInformation($member)) {
+            return self::create($matches, true);
+        }
+
+        return new MemberMatch(self::NO_MATCH, []);
     }
-    
+
+    /**
+     * Check if the member has a phone number or address assigned
+     *
+     * @param Member $member
+     *
+     * @return bool
+     */
+    private static function hasAdditionalInformation(Member $member): bool {
+        return  $member->mobilePhone->getValue() ||
+                $member->landlinePhone->getValue() ||
+                $member->workPhone->getValue() ||
+                $member->address1->getValue() ||
+                $member->address2->getValue();
+    }
+
     /**
      * Return webling query to find members by email
      *
@@ -142,22 +175,41 @@ class MemberMatch
     private static function buildEmailQuery(Member $member): string
     {
         // as webling compares casesensitive, transform everything to lower case.
-        
+
         $email1 = mb_strtolower(self::escape($member->email1->getWeblingValue()));
         $email2 = mb_strtolower(self::escape($member->email2->getWeblingValue()));
-        
+
         $query = [];
         if ($member->email1->getWeblingValue()) {
             $query[] = "(LOWER(`{$member->email1->getWeblingKey()}`) = '$email1' OR LOWER(`{$member->email2->getWeblingKey()}`) = '$email1')";
         }
-        
+
         if ($member->email2->getWeblingValue()) {
             $query[] = "(LOWER(`{$member->email1->getWeblingKey()}`) = '$email2' OR LOWER(`{$member->email2->getWeblingKey()}`) = '$email2')";
         }
-        
+
         return implode(' OR ', $query);
     }
-    
+
+    /**
+     * Return webling query to find members by mobile phone
+     *
+     * @param Member $member
+     *
+     * @return string
+     */
+    private static function buildMobilePhoneQuery(Member $member): string
+    {
+        $mobilePhone = self::normalizePhoneNumber($member->mobilePhone->getWeblingValue());
+
+        $query = [];
+        if ($member->mobilePhone->getWeblingValue()) {
+            $query[] = "`{$member->mobilePhone->getWeblingKey()}` = '$mobilePhone'";
+        }
+
+        return implode(' OR ', $query);
+    }
+
     /**
      * Return members that matched the given query and log exceptions that
      * should not occur here.
@@ -342,7 +394,18 @@ class MemberMatch
             }
         }
     }
-    
+
+    /**
+     * Normalize a phone number by removing non-digits and standardizing format.
+     *
+     * @param string $phoneNumber
+     * @return string
+     */
+    private static function normalizePhoneNumber(string $phoneNumber): string
+    {
+        return preg_replace('/\D/', '', str_replace('+41', '0', $phoneNumber));
+    }
+
     /**
      * Escape single quotes
      *
