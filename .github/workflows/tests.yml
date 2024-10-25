@@ -82,7 +82,7 @@ jobs:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >- 
-          docker-compose 
+          docker compose 
           run
           -u root:root
           -e GITHUB_REF=${GITHUB_REF} 
