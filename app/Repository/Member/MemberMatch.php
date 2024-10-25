@@ -366,7 +366,7 @@ class MemberMatch
     {
         foreach ($matches as $idx => $match) {
             if (!self::isShortNameOf($firstName, $match->firstName->getValue())
-                && !self::isShortNameOf($match->firstName->getValue(), $lastName)) {
+                && !self::isShortNameOf($match->firstName->getValue(), $firstName)) {
                 unset($matches[$idx]);
             }
             if (!self::isShortNameOf($lastName, $match->lastName->getValue())
