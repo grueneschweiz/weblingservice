@@ -2,5 +2,5 @@
 - `docker-compose pull`
 - `docker-compose build`
 - `docker-compose -f docker-compose.install.yml run composer composer install --ignore-platform-reqs`
-- `docker-compose run app php arisan migrate`
+- `docker-compose run weblingservice php arisan migrate`
 
