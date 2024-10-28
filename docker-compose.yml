@@ -29,7 +29,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - my-shared-network
+      - gruene-services-bridge-network
 
   mysql:
     image: mysql:5.7
@@ -44,7 +44,7 @@ services:
         MYSQL_PASSWORD: laravel
     container_name: wsmysql_webling
     networks:
-      - my-shared-network
+      - gruene-services-bridge-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -58,7 +58,7 @@ services:
       PMA_PASSWORD: laravel
     container_name: wsphpmyadmin_webling
     networks:
-      - my-shared-network
+      - gruene-services-bridge-network
 
   mailhog:
     image: mailhog/mailhog
@@ -66,11 +66,11 @@ services:
       - '8020:8025'
     container_name: wsmailhog_webling
     networks:
-      - my-shared-network
+      - gruene-services-bridge-network
 
 volumes:
   database:
 
 networks:
-  my-shared-network:
+  gruene-services-bridge-network:
     external: true
