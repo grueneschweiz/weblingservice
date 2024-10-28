@@ -167,7 +167,7 @@ class MemberMatchTest extends TestCase
          */
         $member = $this->getNewMember();
         $member->email1->setValue('');
-        
+
         // no match
         $member1 = $this->saveMember(clone $member);
         $member1->firstName->setValue('unknown');
@@ -176,16 +176,25 @@ class MemberMatchTest extends TestCase
         $this->assertEmpty($match->getMatches());
         $this->assertEquals(0, $match->count());
         $this->memberRepo->delete($member1);
-        
-        // ambiguous match
+
+        // no zip, no address
         $member1 = $this->saveMember(clone $member);
         $member1->zip->setValue('');
+        $member1->mobilePhone->setValue('');
+        $match = MemberMatch::match($member1, [$this->group], $this->memberRepo);
+        $this->assertEquals(MemberMatch::NO_MATCH, $match->getStatus());
+        $this->assertEmpty($match->getMatches());
+        $this->assertEquals(0, $match->count());
+
+        // ambiguous match happens only if there is additional information available
+        $member1->address1->setValue('123 Test Street');
+        $member1->mobilePhone->setValue('');
         $match = MemberMatch::match($member1, [$this->group], $this->memberRepo);
         $this->assertEquals(MemberMatch::AMBIGUOUS_MATCH, $match->getStatus());
         $this->assertEquals($member1->id, $match->getMatches()[0]->id);
         $this->assertEquals(1, $match->count());
         $this->memberRepo->delete($member1);
-        
+
         // single match
         $member1 = $this->saveMember($member);
         $match = MemberMatch::match($member, [$this->group], $this->memberRepo);
@@ -211,8 +220,37 @@ class MemberMatchTest extends TestCase
         $this->assertEmpty($match->getMatches());
         $this->assertEquals(0, $match->count());
         $this->memberRepo->delete($member1);
+
+        /**
+         * match by name and phone number
+         * phone number is only used if there is no email
+         */
+        $member->mobilePhone->setValue('0761234567');
+
+        // correct phone number
+        $member1 = $this->saveMember(clone $member);
+        $member1->zip->setValue('');
+        $member1->address1->setValue('');
+        $member1->mobilePhone->setValue('+41 76 123 45 67');
+        $match = MemberMatch::match($member1, [$this->group], $this->memberRepo);
+        $this->assertEquals(MemberMatch::MATCH, $match->getStatus());
+        $this->assertEquals($member1->id, $match->getMatches()[0]->id);
+        $this->assertEquals(1, $match->count());
+        $this->memberRepo->delete($member1);
+
+        // wrong phone number
+        $member1 = $this->saveMember(clone $member);
+        $member1->zip->setValue('');
+        $member1->address1->setValue('');
+        $member1->mobilePhone->setValue('0797654321');
+        $match = MemberMatch::match($member1, [$this->group], $this->memberRepo);
+        $this->assertEquals(MemberMatch::AMBIGUOUS_MATCH, $match->getStatus());
+        $this->memberRepo->delete($member1);
         
-        // multiple matches
+        /**
+         * multiple matches
+         */
+        $member->mobilePhone->setValue('');
         $member1 = $this->saveMember($member);
         $member2 = $this->saveMember($member);
         $match = MemberMatch::match($member, [$this->group], $this->memberRepo);
