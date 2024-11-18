@@ -1143,6 +1143,9 @@ class RestApiMemberTest extends TestCase
             ],
             'lastName' => [
                 'value' => $member->lastName->getValue(),
+            ],
+            'email1' => [
+                'value' => $member->email1->getValue(),
             ]
         ];
         
@@ -1167,6 +1170,9 @@ class RestApiMemberTest extends TestCase
             ],
             'lastName' => [
                 'value' => $member->lastName->getValue(),
+            ],
+            'email1' => [
+                'value' => $member->email1->getValue(),
             ]
         ];
         
@@ -1182,7 +1188,8 @@ class RestApiMemberTest extends TestCase
     public function testPostMatch_200_ambiguous()
     {
         $member = $this->getMember(__METHOD__);
-        
+        $member->address1->setValue("Rue de l'Annonciade 22");
+
         $m = [
             'firstName' => [
                 'value' => $member->firstName->getValue(),
@@ -1190,6 +1197,9 @@ class RestApiMemberTest extends TestCase
             'lastName' => [
                 'value' => $member->lastName->getValue(),
             ],
+            'address1' => [
+                'value' => $member->address1->getValue(),
+            ]
         ];
         
         // precondition: assert we dont have any records with the same name
