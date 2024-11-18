@@ -22,7 +22,7 @@ jobs:
         run: docker compose pull mysql
 
       - name: create docker network
-        run: docker network create my-shared-network
+        run: docker network create gruene-services-bridge-network
 
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
