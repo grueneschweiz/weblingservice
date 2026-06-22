@@ -135,34 +135,19 @@ class MemberMatch
                 $member->lastName->getValue());
         }
 
-        if (!empty($matches) && $member->zip->getValue()) {
+        // require both ZIP and address for name-based matching
+        if (!empty($matches) && $member->zip->getValue() && $member->address1->getValue()) {
             // filter out all results, where the zip didn't match
             self::removeWrongZipMatches($matches, $member->zip->getValue());
+            
+            // filter out all results, where the address didn't match
+            self::removeWrongAddressMatches($matches, $member->address1->getValue());
             
             return self::create($matches, false);
         }
 
-        // if there is more information available in the record, we create an ambiguous match
-        if (!empty($matches) && self::hasAdditionalInformation($member)) {
-            return self::create($matches, true);
-        }
-
+        // no match if we don't have ZIP + address for verification
         return new MemberMatch(self::NO_MATCH, []);
-    }
-
-    /**
-     * Check if the member has a phone number or address assigned
-     *
-     * @param Member $member
-     *
-     * @return bool
-     */
-    private static function hasAdditionalInformation(Member $member): bool {
-        return  $member->mobilePhone->getValue() ||
-                $member->landlinePhone->getValue() ||
-                $member->workPhone->getValue() ||
-                $member->address1->getValue() ||
-                $member->address2->getValue();
     }
 
     /**
@@ -391,6 +376,41 @@ class MemberMatch
                 if ($matchZip != $zip) {
                     unset($matches[$idx]);
                 }
+            } else {
+                // Remove matches without a ZIP code - can't verify they're the same person
+                unset($matches[$idx]);
+            }
+        }
+    }
+
+    /**
+     * Compare street address and remove entries where addresses are different
+     *
+     * Only compares the first 5 characters to handle abbreviations and minor
+     * variations (e.g., "Dorfstrasse 5" vs "Dorfstr. 5a").
+     *
+     * Removes matches that don't have an address OR have a different address.
+     *
+     * @param Member[] $matches
+     * @param string $address
+     */
+    private static function removeWrongAddressMatches(array &$matches, string $address)
+    {
+        $address = mb_strtolower(trim($address));
+        $addressPrefix = mb_substr($address, 0, 5);
+        
+        foreach ($matches as $idx => $match) {
+            if ($match->address1->getValue()) {
+                $matchAddress = mb_strtolower(trim($match->address1->getValue()));
+                $matchAddressPrefix = mb_substr($matchAddress, 0, 5);
+                
+                // Both have addresses - compare first 5 characters
+                if ($matchAddressPrefix !== $addressPrefix) {
+                    unset($matches[$idx]);
+                }
+            } else {
+                // Match has no address - remove it (can't verify they're the same person)
+                unset($matches[$idx]);
             }
         }
     }

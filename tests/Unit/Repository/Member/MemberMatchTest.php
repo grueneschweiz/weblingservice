@@ -163,10 +163,11 @@ class MemberMatchTest extends TestCase
         $this->memberRepo->delete($member2);
         
         /**
-         * match by name & zip
+         * match by name, zip & address
          */
         $member = $this->getNewMember();
         $member->email1->setValue('');
+        $member->address1->setValue('Test Street 1'); // Required for name-based matching
 
         // no match
         $member1 = $this->saveMember(clone $member);
@@ -185,14 +186,6 @@ class MemberMatchTest extends TestCase
         $this->assertEquals(MemberMatch::NO_MATCH, $match->getStatus());
         $this->assertEmpty($match->getMatches());
         $this->assertEquals(0, $match->count());
-
-        // ambiguous match happens only if there is additional information available
-        $member1->address1->setValue('123 Test Street');
-        $member1->mobilePhone->setValue('');
-        $match = MemberMatch::match($member1, [$this->group], $this->memberRepo);
-        $this->assertEquals(MemberMatch::AMBIGUOUS_MATCH, $match->getStatus());
-        $this->assertEquals($member1->id, $match->getMatches()[0]->id);
-        $this->assertEquals(1, $match->count());
         $this->memberRepo->delete($member1);
 
         // single match
@@ -222,6 +215,58 @@ class MemberMatchTest extends TestCase
         $this->memberRepo->delete($member1);
 
         /**
+         * match by name, zip & address with different emails
+         */
+        // Test case 1: same name, same zip, same address, but different emails -> MATCH
+        // (same address is strong enough verification, different email could be old vs new)
+        $member2 = $this->getNewMember();
+        $member2->email1->setValue('different@email.com');
+        $member2->address1->setValue('Dorfstrasse 5');
+        $member2Saved = $this->saveMember($member2);
+        
+        $member2Lookup = clone $member2;
+        $member2Lookup->email1->setValue('another@email.com'); // Different email
+        $match = MemberMatch::match($member2Lookup, [$this->group], $this->memberRepo);
+        $this->assertEquals(MemberMatch::MATCH, $match->getStatus());
+        $this->assertEquals($member2Saved->id, $match->getMatches()[0]->id);
+        $this->assertEquals(1, $match->count());
+        $this->memberRepo->delete($member2Saved);
+
+        /**
+         * match by name, zip & similar address (first 5 chars)
+         */
+        // Test case 2: no email in existing record, but similar address -> MATCH
+        $member3 = $this->getNewMember();
+        $member3->email1->setValue(''); // No email in existing record
+        $member3->address1->setValue('Dorfstrasse 5');
+        $member3Saved = $this->saveMember($member3);
+        
+        $member3Lookup = clone $member3;
+        $member3Lookup->address1->setValue('Dorfstr. 5a'); // Similar address (first 5 chars match)
+        $match = MemberMatch::match($member3Lookup, [$this->group], $this->memberRepo);
+        $this->assertEquals(MemberMatch::MATCH, $match->getStatus());
+        $this->assertEquals($member3Saved->id, $match->getMatches()[0]->id);
+        $this->assertEquals(1, $match->count());
+        $this->memberRepo->delete($member3Saved);
+
+        /**
+         * match by name & zip, but submission has address and existing record doesn't
+         */
+        // Test case 3: submission has address, existing record doesn't -> NO_MATCH
+        $member4 = $this->getNewMember();
+        $member4->email1->setValue(''); // No email
+        $member4->address1->setValue(''); // No address in existing record
+        $member4Saved = $this->saveMember($member4);
+        
+        $member4Lookup = clone $member4;
+        $member4Lookup->address1->setValue('Dorfstrasse 5'); // Submission has address
+        $match = MemberMatch::match($member4Lookup, [$this->group], $this->memberRepo);
+        $this->assertEquals(MemberMatch::NO_MATCH, $match->getStatus());
+        $this->assertEmpty($match->getMatches());
+        $this->assertEquals(0, $match->count());
+        $this->memberRepo->delete($member4Saved);
+
+        /**
          * match by name and phone number
          * phone number is only used if there is no email
          */
@@ -244,7 +289,9 @@ class MemberMatchTest extends TestCase
         $member1->address1->setValue('');
         $member1->mobilePhone->setValue('0797654321');
         $match = MemberMatch::match($member1, [$this->group], $this->memberRepo);
-        $this->assertEquals(MemberMatch::AMBIGUOUS_MATCH, $match->getStatus());
+        $this->assertEquals(MemberMatch::NO_MATCH, $match->getStatus());
+        $this->assertEmpty($match->getMatches());
+        $this->assertEquals(0, $match->count());
         $this->memberRepo->delete($member1);
         
         /**
