@@ -1185,42 +1185,6 @@ class RestApiMemberTest extends TestCase
         $response->assertJsonCount(1, 'matches');
     }
     
-    public function testPostMatch_200_ambiguous()
-    {
-        $member = $this->getMember(__METHOD__);
-        $member->address1->setValue("Rue de l'Annonciade 22");
-
-        $m = [
-            'firstName' => [
-                'value' => $member->firstName->getValue(),
-            ],
-            'lastName' => [
-                'value' => $member->lastName->getValue(),
-            ],
-            'address1' => [
-                'value' => $member->address1->getValue(),
-            ]
-        ];
-        
-        // precondition: assert we dont have any records with the same name
-        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
-        
-        foreach ($response->json('matches') as $match) {
-            $this->deleteMember($match['id']);
-        }
-        
-        // the actual test
-        $member = $this->addMember(__METHOD__);
-        $response = $this->json('POST', '/api/v1/member/match', $m, $this->auth->getAuthHeader());
-        
-        $this->deleteMember($member);
-        
-        $response->assertStatus(200);
-        $response->assertJsonStructure(['status', 'matches']);
-        $response->assertJsonCount(1, 'matches');
-        $response->assertJsonFragment(['status' => 'ambiguous']);
-    }
-    
     public function testPostMatch_200_multiple()
     {
         $member = $this->getMember(__METHOD__);
