@@ -26,10 +26,10 @@ class HandlerTest extends TestCase
     /**
      * Helper function to test different Exceptions
      */
-    private function genericTestHandleException(\Exception $exception, int $expectedErrorCode, String $message = null)
+    private function genericTestHandleException(\Exception $exception, int $expectedErrorCode, ?string $message = null)
     {
-        $mockInstance = new Handler($this->createMock(Container::class));
-        $request = $this->createMock(Request::class);
+        $mockInstance = new Handler($this->createStub(Container::class));
+        $request = Request::create('/');
         $class = new \ReflectionClass(Handler::class);
         $method = $class->getMethod('render');
         $method->setAccessible(true);

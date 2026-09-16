@@ -10,9 +10,7 @@ use Tests\TestCase;
 class CoupleMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         ?string $dstValue,
         ?string $srcValue,
@@ -27,9 +25,7 @@ class CoupleMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         ?string $dstValue,
         ?string $srcValue,
@@ -44,7 +40,7 @@ class CoupleMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             [null, 'single', 'single'],
@@ -57,7 +53,7 @@ class CoupleMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             ['single', 'partner1', 'single'],

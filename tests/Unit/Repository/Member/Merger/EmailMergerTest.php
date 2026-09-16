@@ -10,9 +10,7 @@ use Tests\TestCase;
 class EmailMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         array   $dstMemberData,
@@ -33,9 +31,7 @@ class EmailMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         string  $fieldKey,
         array   $dstMemberData,
@@ -57,7 +53,7 @@ class EmailMergerTest extends TestCase
     }
     
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             'email1_empty' => ['email1', ['email1' => null], ['email1' => null], null],
@@ -139,7 +135,7 @@ class EmailMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             'email1_three' => ['email1', ['email1' => 'a', 'email2' => 'b'], ['email1' => 'c'], 'a'],

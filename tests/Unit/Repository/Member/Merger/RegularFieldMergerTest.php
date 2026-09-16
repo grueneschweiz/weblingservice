@@ -9,9 +9,7 @@ use Tests\TestCase;
 
 class RegularFieldMergerTest extends TestCase
 {
-    /**
-     * @dataProvider provideSuccess_singleValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess_singleValue')]
     public function testMerge__success_singleValue(
         ?string $dstValue,
         ?string $srcValue,
@@ -26,9 +24,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError_singleValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError_singleValue')]
     public function testMerge__error_singleValue(
         ?string $dstValue,
         ?string $srcValue,
@@ -42,7 +38,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess_singleValue(): array
+    public static function provideSuccess_singleValue(): array
     {
         return [
             [null, 'hans', 'hans'],
@@ -53,16 +49,14 @@ class RegularFieldMergerTest extends TestCase
         ];
     }
     
-    public function provideError_singleValue(): array
+    public static function provideError_singleValue(): array
     {
         return [
             ['maria', 'hans'],
         ];
     }
     
-    /**
-     * @dataProvider provideSuccess_append
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess_append')]
     public function testMerge__success_append(
         ?string $dstValue,
         ?string $srcValue,
@@ -77,7 +71,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess_append(): array
+    public static function provideSuccess_append(): array
     {
         return [
             [null, 'new', 'new'],
@@ -86,9 +80,7 @@ class RegularFieldMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideSuccess_append_multiValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess_append_multiValue')]
     public function testMerge__success_append_multiValue(
         null|string|array $dstValue,
         null|string|array $srcValue,
@@ -106,7 +98,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess_append_multiValue(): array
+    public static function provideSuccess_append_multiValue(): array
     {
         return [
             [null, 'driver', ['driver']],

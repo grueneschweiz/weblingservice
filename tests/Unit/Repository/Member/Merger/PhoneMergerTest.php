@@ -11,9 +11,7 @@ use Tests\TestCase;
 class PhoneMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         ?string $dstValue,
@@ -30,9 +28,7 @@ class PhoneMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         string  $fieldKey,
         ?string $dstValue,
@@ -50,7 +46,7 @@ class PhoneMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         $keys = ['mobilePhone', 'landlinePhone', 'workPhone'];
         $num = '+41 23 456 78 90';
@@ -76,7 +72,7 @@ class PhoneMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         $keys = ['mobilePhone', 'landlinePhone', 'workPhone'];
         $num = '+41 23 456 78 90';

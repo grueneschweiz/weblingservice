@@ -13,9 +13,7 @@ use Tests\TestCase;
 class AddressMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         array   $dstMemberData,
@@ -35,7 +33,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         $someAddress = self::getSomeAddress();
         
@@ -184,9 +182,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         string  $fieldKey,
         array   $dstMemberData,
@@ -206,7 +202,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         $someAddress = self::getSomeAddress();
         
@@ -275,9 +271,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideRemoveWordStreet
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideRemoveWordStreet')]
     public function testRemoveWordStreet(string $input, string $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'removeWordStreet');
@@ -287,7 +281,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideRemoveWordStreet(): array
+    public static function provideRemoveWordStreet(): array
     {
         return [
             ['Chemin Mestrezat 25A', 'Mestrezat 25A'],
@@ -321,9 +315,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideFindAddressNumber
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideFindAddressNumber')]
     public function testFindAddressNumber(string $input, ?string $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'findAddressNumber');
@@ -333,7 +325,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideFindAddressNumber(): array
+    public static function provideFindAddressNumber(): array
     {
         return [
             ['Hauptstrasse 1', '1'],
@@ -348,9 +340,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideIsPOBox
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideIsPOBox')]
     public function testIsPOBox(string $input, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'isPOBox');
@@ -360,7 +350,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideIsPOBox(): array
+    public static function provideIsPOBox(): array
     {
         return [
             ['Postfach', true],
@@ -405,9 +395,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideAddressFieldsAreSimilar
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideAddressFieldsAreSimilar')]
     public function testAddressFieldsAreSimilar(?string $value1, ?string $value2, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'addressLineIsSimilar');
@@ -419,7 +407,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideAddressFieldsAreSimilar(): array
+    public static function provideAddressFieldsAreSimilar(): array
     {
         return [
             ['Chemin Mestrezat 25A', 'Ch. Mestrezat 25A', true],
@@ -443,9 +431,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideFieldsAreSimilarOrOneIsEmpty
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideFieldsAreSimilarOrOneIsEmpty')]
     public function testFieldsAreSimilarOrOneIsEmpty(?string $value1, ?string $value2, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'fieldsAreSimilarOrOneIsEmpty');
@@ -457,7 +443,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideFieldsAreSimilarOrOneIsEmpty(): array
+    public static function provideFieldsAreSimilarOrOneIsEmpty(): array
     {
         return [
             ['hans', 'HANS', true],
@@ -472,9 +458,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideIsAddressEmpty
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideIsAddressEmpty')]
     public function testIsAddressEmpty(array $memberFields, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'isAddressEmpty');
@@ -486,7 +470,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideIsAddressEmpty(): array
+    public static function provideIsAddressEmpty(): array
     {
         return [
             [[], true],
@@ -502,9 +486,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideWholeAddressIsSimilar
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideWholeAddressIsSimilar')]
     public function testWholeAddressIsSimilar(array $dstMemberData, array $srcMemberData, bool $expected): void
     {
         $dstMember = new Member($dstMemberData);
@@ -520,7 +502,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideWholeAddressIsSimilar(): array
+    public static function provideWholeAddressIsSimilar(): array
     {
         $someAddress = self::getSomeAddress();
         unset($someAddress['postStatus']);

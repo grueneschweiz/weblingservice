@@ -66,11 +66,11 @@ class AddClient extends ClientCommand
      */
     private function addClient(ClientRepository $clientRepository, string $name)
     {
-        $client = $clientRepository->create(null, $name, '');
+        $client = $clientRepository->createClientCredentialsGrantClient($name);
         
         $this->info('New client created successfully.');
         $this->line('<comment>Client ID:</comment> ' . $client->id);
-        $this->line('<comment>Client secret:</comment> ' . $client->secret);
+        $this->line('<comment>Client secret:</comment> ' . $client->plainSecret);
         
         return $client->id;
     }

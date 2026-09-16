@@ -11,9 +11,7 @@ use Tests\TestCase;
 class MembershipDateMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $field,
         ?string $dstValue,
@@ -29,7 +27,7 @@ class MembershipDateMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             'equal' => ['membershipStart', '2000-01-02', '2000-01-02', '2000-01-02'],
