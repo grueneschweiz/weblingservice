@@ -35,7 +35,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         $someAddress = self::getSomeAddress();
         
@@ -206,7 +206,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         $someAddress = self::getSomeAddress();
         
@@ -287,7 +287,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideRemoveWordStreet(): array
+    public static function provideRemoveWordStreet(): array
     {
         return [
             ['Chemin Mestrezat 25A', 'Mestrezat 25A'],
@@ -333,7 +333,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideFindAddressNumber(): array
+    public static function provideFindAddressNumber(): array
     {
         return [
             ['Hauptstrasse 1', '1'],
@@ -360,7 +360,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideIsPOBox(): array
+    public static function provideIsPOBox(): array
     {
         return [
             ['Postfach', true],
@@ -419,7 +419,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideAddressFieldsAreSimilar(): array
+    public static function provideAddressFieldsAreSimilar(): array
     {
         return [
             ['Chemin Mestrezat 25A', 'Ch. Mestrezat 25A', true],
@@ -457,7 +457,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideFieldsAreSimilarOrOneIsEmpty(): array
+    public static function provideFieldsAreSimilarOrOneIsEmpty(): array
     {
         return [
             ['hans', 'HANS', true],
@@ -486,7 +486,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideIsAddressEmpty(): array
+    public static function provideIsAddressEmpty(): array
     {
         return [
             [[], true],
@@ -520,7 +520,7 @@ class AddressMergerTest extends TestCase
         self::assertEquals($expected, $actual);
     }
     
-    public function provideWholeAddressIsSimilar(): array
+    public static function provideWholeAddressIsSimilar(): array
     {
         $someAddress = self::getSomeAddress();
         unset($someAddress['postStatus']);

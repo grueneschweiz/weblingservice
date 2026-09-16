@@ -45,7 +45,7 @@ class SalutationMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             ['salutationFormal', null, null, null],
@@ -113,7 +113,7 @@ class SalutationMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             ['salutationFormal', 'fD', 'mD'],

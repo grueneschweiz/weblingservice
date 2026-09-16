@@ -31,7 +31,7 @@ class MemberStatusMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         $keys = ['memberStatusMunicipality', 'memberStatusRegion', 'memberStatusCanton', 'memberStatusCountry', 'memberStatusYoung'];
         

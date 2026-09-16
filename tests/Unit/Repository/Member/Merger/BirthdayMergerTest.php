@@ -44,7 +44,7 @@ class BirthdayMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             'equal' => ['2000-01-02', '2000-01-02', '2000-01-02'],
@@ -58,7 +58,7 @@ class BirthdayMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             'unresolvable' => ['2000-01-02', '2000-02-01'],

@@ -43,7 +43,7 @@ class RecordStatusMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             [null, 'active', 'active'],
@@ -58,7 +58,7 @@ class RecordStatusMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             ['active', 'blocked'],

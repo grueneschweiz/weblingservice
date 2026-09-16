@@ -107,7 +107,7 @@ class MemberMergerTest extends TestCase
         $merger->merge($dst, $src);
     }
     
-    public function provideTestMerge_conflict(): array
+    public static function provideTestMerge_conflict(): array
     {
         $memberData = self::getMemberData();
         
@@ -243,7 +243,7 @@ class MemberMergerTest extends TestCase
         ];
     }
     
-    public function provideTestMerge_memberSuccess(): array
+    public static function provideTestMerge_memberSuccess(): array
     {
         $memberData = self::getMemberData();
         
@@ -314,7 +314,7 @@ class MemberMergerTest extends TestCase
         ];
     }
     
-    public function provideTestMerge_debtorSuccess(): array
+    public static function provideTestMerge_debtorSuccess(): array
     {
         $memberData = self::getMemberData();
         

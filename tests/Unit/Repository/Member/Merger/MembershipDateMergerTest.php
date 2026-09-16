@@ -29,7 +29,7 @@ class MembershipDateMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             'equal' => ['membershipStart', '2000-01-02', '2000-01-02', '2000-01-02'],

@@ -30,7 +30,7 @@ class IgnoreConflictMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             'srcEmpty' => ['entryChannel', 'web', null, 'web'],

@@ -42,7 +42,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess_singleValue(): array
+    public static function provideSuccess_singleValue(): array
     {
         return [
             [null, 'hans', 'hans'],
@@ -53,7 +53,7 @@ class RegularFieldMergerTest extends TestCase
         ];
     }
     
-    public function provideError_singleValue(): array
+    public static function provideError_singleValue(): array
     {
         return [
             ['maria', 'hans'],
@@ -77,7 +77,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess_append(): array
+    public static function provideSuccess_append(): array
     {
         return [
             [null, 'new', 'new'],
@@ -106,7 +106,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess_append_multiValue(): array
+    public static function provideSuccess_append_multiValue(): array
     {
         return [
             [null, 'driver', ['driver']],

@@ -50,7 +50,7 @@ class PhoneMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         $keys = ['mobilePhone', 'landlinePhone', 'workPhone'];
         $num = '+41 23 456 78 90';
@@ -76,7 +76,7 @@ class PhoneMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         $keys = ['mobilePhone', 'landlinePhone', 'workPhone'];
         $num = '+41 23 456 78 90';

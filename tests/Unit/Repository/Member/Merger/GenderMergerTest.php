@@ -43,7 +43,7 @@ class GenderMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             [null, 'f', 'f'],
@@ -66,7 +66,7 @@ class GenderMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             ['f', 'mf'],
