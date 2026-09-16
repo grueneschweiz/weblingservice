@@ -13,9 +13,7 @@ use Tests\TestCase;
 class AddressMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         array   $dstMemberData,
@@ -184,9 +182,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         string  $fieldKey,
         array   $dstMemberData,
@@ -275,9 +271,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideRemoveWordStreet
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideRemoveWordStreet')]
     public function testRemoveWordStreet(string $input, string $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'removeWordStreet');
@@ -321,9 +315,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideFindAddressNumber
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideFindAddressNumber')]
     public function testFindAddressNumber(string $input, ?string $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'findAddressNumber');
@@ -348,9 +340,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideIsPOBox
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideIsPOBox')]
     public function testIsPOBox(string $input, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'isPOBox');
@@ -405,9 +395,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideAddressFieldsAreSimilar
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideAddressFieldsAreSimilar')]
     public function testAddressFieldsAreSimilar(?string $value1, ?string $value2, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'addressLineIsSimilar');
@@ -443,9 +431,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideFieldsAreSimilarOrOneIsEmpty
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideFieldsAreSimilarOrOneIsEmpty')]
     public function testFieldsAreSimilarOrOneIsEmpty(?string $value1, ?string $value2, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'fieldsAreSimilarOrOneIsEmpty');
@@ -472,9 +458,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideIsAddressEmpty
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideIsAddressEmpty')]
     public function testIsAddressEmpty(array $memberFields, bool $expected): void
     {
         $method = new ReflectionMethod(AddressMerger::class, 'isAddressEmpty');
@@ -502,9 +486,7 @@ class AddressMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideWholeAddressIsSimilar
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideWholeAddressIsSimilar')]
     public function testWholeAddressIsSimilar(array $dstMemberData, array $srcMemberData, bool $expected): void
     {
         $dstMember = new Member($dstMemberData);

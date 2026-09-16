@@ -10,7 +10,7 @@
 This project aims to add some crucial but missing functionality to Webling,
 while using Weblings RESTful API and exposing a new, higher lever RESTful
 API. It is based on the fabulous [Laravel](https://laravel.com/) framework
-to speed up the development. Check out the [docs](https://laravel.com/docs/9.x)
+to speed up the development. Check out the [docs](https://laravel.com/docs/12.x)
 and start contributing 😍.
 
 ## Contributing ...
@@ -42,7 +42,22 @@ from above.
 - Shut down: `docker compose down`
 - Execute Laravel CLI commands (enter container): `docker exec -it wsapp bash` use `exit` to escape the
   container.
-- Add dependency using composer: `docker compose run wsapp composer require DEPENDENCY`
+- Add dependency using composer: `docker compose run --rm weblingservice composer require DEPENDENCY`
+
+### Upgrading From Laravel 10
+
+Passport 13 hashes client secrets and validates OAuth key permissions. Back up
+the database, deploy the updated dependencies, and run these commands once:
+
+```bash
+docker compose run --rm weblingservice php artisan migrate --force
+docker compose run --rm weblingservice php artisan passport:hash --force
+docker compose run --rm weblingservice chmod 0660 storage/oauth-public.key
+docker compose run --rm weblingservice chmod 0600 storage/oauth-private.key
+```
+
+Hashing existing client secrets cannot be undone. Existing clients continue to
+use their current plaintext secret when requesting tokens.
 
 ### Tooling
 

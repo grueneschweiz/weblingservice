@@ -10,9 +10,7 @@ use Tests\TestCase;
 class SalutationMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         ?string $dstValue,
@@ -28,9 +26,7 @@ class SalutationMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         string  $fieldKey,
         ?string $dstValue,

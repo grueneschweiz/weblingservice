@@ -10,9 +10,7 @@ use Tests\TestCase;
 class GenderMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         ?string $dstValue,
         ?string $srcValue,
@@ -27,9 +25,7 @@ class GenderMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         ?string $dstValue,
         ?string $srcValue,

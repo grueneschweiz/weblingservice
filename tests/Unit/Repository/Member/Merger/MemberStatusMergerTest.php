@@ -11,9 +11,7 @@ use Tests\TestCase;
 class MemberStatusMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         ?string $dstValue,

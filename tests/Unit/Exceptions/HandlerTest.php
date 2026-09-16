@@ -29,7 +29,7 @@ class HandlerTest extends TestCase
     private function genericTestHandleException(\Exception $exception, int $expectedErrorCode, String $message = null)
     {
         $mockInstance = new Handler($this->createMock(Container::class));
-        $request = $this->createMock(Request::class);
+        $request = Request::create('/');
         $class = new \ReflectionClass(Handler::class);
         $method = $class->getMethod('render');
         $method->setAccessible(true);

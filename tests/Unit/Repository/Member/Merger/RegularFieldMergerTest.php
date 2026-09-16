@@ -9,9 +9,7 @@ use Tests\TestCase;
 
 class RegularFieldMergerTest extends TestCase
 {
-    /**
-     * @dataProvider provideSuccess_singleValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess_singleValue')]
     public function testMerge__success_singleValue(
         ?string $dstValue,
         ?string $srcValue,
@@ -26,9 +24,7 @@ class RegularFieldMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError_singleValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError_singleValue')]
     public function testMerge__error_singleValue(
         ?string $dstValue,
         ?string $srcValue,
@@ -60,9 +56,7 @@ class RegularFieldMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideSuccess_append
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess_append')]
     public function testMerge__success_append(
         ?string $dstValue,
         ?string $srcValue,
@@ -86,9 +80,7 @@ class RegularFieldMergerTest extends TestCase
         ];
     }
     
-    /**
-     * @dataProvider provideSuccess_append_multiValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess_append_multiValue')]
     public function testMerge__success_append_multiValue(
         null|string|array $dstValue,
         null|string|array $srcValue,
