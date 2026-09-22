@@ -14,6 +14,10 @@ class ClientIdentifier
      */
     public static function getClientId(): ?string
     {
+        if (!app()->bound('request')) {
+            return null;
+        }
+
         $oauthClientId = request()->attributes->get('oauth_client_id');
 
         return $oauthClientId === null ? null : (string) $oauthClientId;
