@@ -118,8 +118,7 @@ class RepositoryTest extends TestCase
     {
         parent::setUp();
         
-        $this->repository = $this->getMockBuilder(Repository::class)
-            ->setConstructorArgs(array(config('app.webling_api_key')))
-            ->getMockForAbstractClass();
+        $this->repository = new class(config('app.webling_api_key')) extends Repository {
+        };
     }
 }

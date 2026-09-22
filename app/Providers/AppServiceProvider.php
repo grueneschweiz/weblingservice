@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,6 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Passport::$clientUuids = false;
+
         /**
          * Reduce the default string length in the DB to be compatible
          * with mysql < 5.7.7

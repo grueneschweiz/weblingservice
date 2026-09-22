@@ -16,10 +16,8 @@ use Tests\TestCase;
 
 class MemberMergerTest extends TestCase
 {
-    /**
-     * @dataProvider provideTestMerge_debtorSuccess
-     * @dataProvider provideTestMerge_memberSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideTestMerge_debtorSuccess')]
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideTestMerge_memberSuccess')]
     public function testMerge_success(array $dstMemberData, array $srcMemberData, array $expectedMemberData): void
     {
         $memberRepositoryMock = \Mockery::mock(MemberRepository::class);
@@ -80,9 +78,7 @@ class MemberMergerTest extends TestCase
         }
     }
     
-    /**
-     * @dataProvider provideTestMerge_conflict
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideTestMerge_conflict')]
     public function testMerge_conflict(array $dstMemberData, array $srcMemberData, array $expectedConflicts): void
     {
         $memberRepositoryMock = \Mockery::mock(MemberRepository::class);
@@ -107,7 +103,7 @@ class MemberMergerTest extends TestCase
         $merger->merge($dst, $src);
     }
     
-    public function provideTestMerge_conflict(): array
+    public static function provideTestMerge_conflict(): array
     {
         $memberData = self::getMemberData();
         
@@ -243,7 +239,7 @@ class MemberMergerTest extends TestCase
         ];
     }
     
-    public function provideTestMerge_memberSuccess(): array
+    public static function provideTestMerge_memberSuccess(): array
     {
         $memberData = self::getMemberData();
         
@@ -314,7 +310,7 @@ class MemberMergerTest extends TestCase
         ];
     }
     
-    public function provideTestMerge_debtorSuccess(): array
+    public static function provideTestMerge_debtorSuccess(): array
     {
         $memberData = self::getMemberData();
         

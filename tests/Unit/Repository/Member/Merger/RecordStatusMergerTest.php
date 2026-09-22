@@ -10,9 +10,7 @@ use Tests\TestCase;
 class RecordStatusMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         ?string $dstValue,
         ?string $srcValue,
@@ -27,9 +25,7 @@ class RecordStatusMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    /**
-     * @dataProvider provideError
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideError')]
     public function testMerge__error(
         ?string $dstValue,
         ?string $srcValue,
@@ -43,7 +39,7 @@ class RecordStatusMergerTest extends TestCase
         self::assertEquals($dstValue, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             [null, 'active', 'active'],
@@ -58,7 +54,7 @@ class RecordStatusMergerTest extends TestCase
         ];
     }
     
-    public function provideError(): array
+    public static function provideError(): array
     {
         return [
             ['active', 'blocked'],

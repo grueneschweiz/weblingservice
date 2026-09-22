@@ -11,9 +11,7 @@ use Tests\TestCase;
 class IgnoreConflictMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         ?string $dstValue,
@@ -30,7 +28,7 @@ class IgnoreConflictMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         return [
             'srcEmpty' => ['entryChannel', 'web', null, 'web'],

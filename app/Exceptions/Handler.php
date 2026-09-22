@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Support\ClientIdentifier;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Webling\API\ClientException;
@@ -16,7 +17,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         //
     ];
-    
+
     /**
      * A list of the inputs that are never flashed for validation exceptions.
      *
@@ -26,18 +27,21 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
-    
-    /**
-     * Report or log an exception.
-     *
-     * @param Throwable $exception
-     * @return void
-     */
-    public function report(Throwable $exception)
+
+    protected function context()
     {
-        parent::report($exception);
+        $context = parent::context();
+
+        if (config('app.client_logging', false)) {
+            $oauthClientId = ClientIdentifier::getClientId();
+            if ($oauthClientId !== null) {
+                $context['client_id'] = $oauthClientId;
+            }
+        }
+
+        return $context;
     }
-    
+
     /**
      * Render an exception into an HTTP response.
      *

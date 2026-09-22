@@ -6,6 +6,7 @@ use App\Exceptions\IllegalArgumentException;
 use App\Http\Controllers\RestApi\ApiHelper;
 use App\Repository\Group\GroupRepository;
 use App\Repository\Member\Member;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use Tests\TestCase;
 
 class ApiHelperTest extends TestCase
@@ -35,9 +36,7 @@ class ApiHelperTest extends TestCase
         $this->groups = [$groupRepo->get(1081)];
     }
     
-    /**
-     * @doesNotPerformAssertions - we check for the happy case
-     */
+    #[DoesNotPerformAssertions]
     public function testCheckIntegerInput()
     {
         ApiHelper::checkIntegerInput('11');

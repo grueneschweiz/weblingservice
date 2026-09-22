@@ -18,6 +18,7 @@ use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Repository\Group\Group;
+use App\Support\ClientIdentifier;
 use Illuminate\Support\Facades\Log;
 use Webling\API\ClientException;
 
@@ -223,15 +224,29 @@ class MemberMatch
         | ValueTypeException
         | WeblingFieldMappingConfigException $e) {
             Log::error($e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
-                ['Query' => $query, 'Root Groups' => $rootGroups]);
+                self::getLogContext($query, $rootGroups));
             
             return [];
         } catch (MemberNotFoundException $e) {
             Log::debug($e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
-                ['Query' => $query, 'Root Groups' => $rootGroups]);
+                self::getLogContext($query, $rootGroups));
             
             return [];
         }
+    }
+
+    private static function getLogContext(string $query, array $rootGroups): array
+    {
+        $context = ['Query' => $query, 'Root Groups' => $rootGroups];
+
+        if (config('app.client_logging', false)) {
+            $oauthClientId = ClientIdentifier::getClientId();
+            if ($oauthClientId !== null) {
+                $context['client_id'] = $oauthClientId;
+            }
+        }
+
+        return $context;
     }
     
     /**
