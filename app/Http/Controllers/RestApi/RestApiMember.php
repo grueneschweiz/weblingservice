@@ -8,7 +8,9 @@ use App\Repository\Group\GroupRepository;
 use App\Repository\Member\MasterDetector;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberMatch;
+use App\Support\ClientIdentifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class RestApiMember
@@ -245,12 +247,18 @@ class RestApiMember
                 $matchedMember = reset($matches);
                 $patched = $this->patchMember($request, $matchedMember, $memberData);
                 
-                return $memberRepo->save($patched)->id;
+                $memberId = $memberRepo->save($patched)->id;
+                $this->logSyncResult($memberId);
+                
+                return $memberId;
     
             case MemberMatch::NO_MATCH:
             case MemberMatch::MULTIPLE_MATCHES:
             case MemberMatch::AMBIGUOUS_MATCH:
-                return $memberRepo->save($patched)->id;
+                $memberId = $memberRepo->save($patched)->id;
+                $this->logSyncResult($memberId);
+                
+                return $memberId;
             
             default:
                 throw new IllegalFieldUpdateMode($match->getStatus().' is not defined');
@@ -286,7 +294,10 @@ class RestApiMember
         
         $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
         
-        return $memberRepo->save($patched)->id;
+        $memberId = $memberRepo->save($patched)->id;
+        $this->logSyncResult($memberId);
+        
+        return $memberId;
     }
     
     /**
@@ -299,6 +310,8 @@ class RestApiMember
      */
     private function extractMemberData(Request &$request): array
     {
+        $this->logSyncPayload($request);
+        
         $memberData = json_decode($request->getContent(), true);
         if (!$memberData) {
             throw new BadRequestException('Missing request content data.');
@@ -309,6 +322,48 @@ class RestApiMember
         }
         
         return $memberData;
+    }
+    
+    /**
+     * Log the raw request body of a member sync request, together with the
+     * client id, if member sync payload logging is enabled.
+     *
+     * This is meant as a temporary debugging aid to trace what data a
+     * client actually sent (e.g. missing/dropped fields), since it may
+     * log personal data.
+     *
+     * @param Request $request
+     */
+    private function logSyncPayload(Request $request): void
+    {
+        if (!config('app.log_member_sync_payloads', false)) {
+            return;
+        }
+        
+        Log::info('Member sync request received', [
+            'client_id' => ClientIdentifier::getClientId(),
+            'method' => $request->method(),
+            'path' => $request->path(),
+            'body' => $request->getContent(),
+        ]);
+    }
+    
+    /**
+     * Log the outcome (resulting member id) of a member sync request, if
+     * member sync payload logging is enabled.
+     *
+     * @param int $memberId
+     */
+    private function logSyncResult(int $memberId): void
+    {
+        if (!config('app.log_member_sync_payloads', false)) {
+            return;
+        }
+        
+        Log::info('Member sync request completed', [
+            'client_id' => ClientIdentifier::getClientId(),
+            'member_id' => $memberId,
+        ]);
     }
     
     /**
@@ -344,7 +399,10 @@ class RestApiMember
         $memberData = $this->extractMemberData($request);
         $patched = $this->patchMember($request, $member, $memberData);
         
-        return $memberRepo->save($patched)->id;
+        $memberId = $memberRepo->save($patched)->id;
+        $this->logSyncResult($memberId);
+        
+        return $memberId;
     }
     
     /**

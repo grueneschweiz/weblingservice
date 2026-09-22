@@ -18,6 +18,7 @@ use App\Exceptions\ValueTypeException;
 use App\Exceptions\WeblingAPIException;
 use App\Exceptions\WeblingFieldMappingConfigException;
 use App\Repository\Group\Group;
+use App\Support\ClientIdentifier;
 use Illuminate\Support\Facades\Log;
 use Webling\API\ClientException;
 
@@ -223,12 +224,12 @@ class MemberMatch
         | ValueTypeException
         | WeblingFieldMappingConfigException $e) {
             Log::error($e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
-                ['Query' => $query, 'Root Groups' => $rootGroups]);
+                ['Query' => $query, 'Root Groups' => $rootGroups, 'client_id' => ClientIdentifier::getClientId()]);
             
             return [];
         } catch (MemberNotFoundException $e) {
             Log::debug($e->getFile() . ':' . $e->getLine() . "\n" . $e->getMessage() . $e->getTraceAsString(),
-                ['Query' => $query, 'Root Groups' => $rootGroups]);
+                ['Query' => $query, 'Root Groups' => $rootGroups, 'client_id' => ClientIdentifier::getClientId()]);
             
             return [];
         }
