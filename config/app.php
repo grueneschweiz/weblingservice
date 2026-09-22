@@ -58,7 +58,7 @@ return [
     | When set to true, the raw request body and the resulting member id of
     | every insert/update/upsert member request are logged, together with
     | the client id. This is meant as a temporary debugging aid, since it
-    | may log personal data - turn if off again once done debugging.
+    | may log personal data - turn it off again once done debugging.
     |
     */
     'log_member_sync_payloads' => env('LOG_MEMBER_SYNC_PAYLOADS', false),
