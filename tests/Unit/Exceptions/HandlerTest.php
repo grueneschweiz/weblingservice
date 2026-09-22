@@ -9,6 +9,7 @@ use App\Exceptions\MemberNotFoundException;
 use App\Exceptions\MemberSaveException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request as Request;
+use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 use Webling\API\ClientException;
@@ -17,6 +18,41 @@ class HandlerTest extends TestCase
 {
     
     private $message = 'This is a test message';
+
+    public function testReportUsesLaravelReportableCallbacks(): void
+    {
+        $reported = false;
+        $handler = app(Handler::class);
+        $handler->reportable(function (RuntimeException $exception) use (&$reported) {
+            $reported = true;
+
+            return false;
+        });
+
+        $handler->report(new RuntimeException($this->message));
+
+        $this->assertTrue($reported);
+    }
+
+    public function testExceptionContextIncludesAuthenticatedClientIdWhenEnabled(): void
+    {
+        config()->set('app.client_logging', true);
+        request()->attributes->set('oauth_client_id', 'client-123');
+
+        $context = app(Handler::class)->contextForException(new RuntimeException($this->message));
+
+        $this->assertSame('client-123', $context['client_id']);
+    }
+
+    public function testExceptionContextOmitsClientIdWhenDisabled(): void
+    {
+        config()->set('app.client_logging', false);
+        request()->attributes->set('oauth_client_id', 'client-123');
+
+        $context = app(Handler::class)->contextForException(new RuntimeException($this->message));
+
+        $this->assertArrayNotHasKey('client_id', $context);
+    }
     
     public function testHandle_ClientException()
     {

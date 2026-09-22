@@ -8,7 +8,10 @@ use App\Repository\Group\GroupRepository;
 use App\Repository\Member\MasterDetector;
 use App\Repository\Member\Member;
 use App\Repository\Member\MemberMatch;
+use App\Support\ClientIdentifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Class RestApiMember
@@ -223,6 +226,7 @@ class RestApiMember
      */
     public function upsertMember(Request $request)
     {
+        $correlationId = $this->logSyncPayload($request);
         $memberData = $this->extractMemberData($request);
         
         // update the given member, if it contains an id
@@ -230,7 +234,7 @@ class RestApiMember
             $idField = $memberData[Member::KEY_ID];
             $memberId = isset($idField['value']) ? $idField['value'] : $idField;
             
-            return $this->updateMember($request, $memberId);
+            return $this->updateMemberWithData($request, $memberId, $memberData, $correlationId);
         }
         
         $member = new Member();
@@ -245,12 +249,18 @@ class RestApiMember
                 $matchedMember = reset($matches);
                 $patched = $this->patchMember($request, $matchedMember, $memberData);
                 
-                return $memberRepo->save($patched)->id;
+                $memberId = $memberRepo->save($patched)->id;
+                $this->logSyncResult($memberId, $correlationId);
+                
+                return $memberId;
     
             case MemberMatch::NO_MATCH:
             case MemberMatch::MULTIPLE_MATCHES:
             case MemberMatch::AMBIGUOUS_MATCH:
-                return $memberRepo->save($patched)->id;
+                $memberId = $memberRepo->save($patched)->id;
+                $this->logSyncResult($memberId, $correlationId);
+                
+                return $memberId;
             
             default:
                 throw new IllegalFieldUpdateMode($match->getStatus().' is not defined');
@@ -279,6 +289,7 @@ class RestApiMember
      */
     public function insertMember(Request $request): int
     {
+        $correlationId = $this->logSyncPayload($request);
         $memberData = $this->extractMemberData($request);
         
         $member = new Member();
@@ -286,7 +297,10 @@ class RestApiMember
         
         $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
         
-        return $memberRepo->save($patched)->id;
+        $memberId = $memberRepo->save($patched)->id;
+        $this->logSyncResult($memberId, $correlationId);
+        
+        return $memberId;
     }
     
     /**
@@ -309,6 +323,56 @@ class RestApiMember
         }
         
         return $memberData;
+    }
+    
+    /**
+     * Log the raw request body of a member sync request, together with the
+     * client id, if member sync payload logging is enabled.
+     *
+     * This is meant as a temporary debugging aid to trace what data a
+     * client actually sent (e.g. missing/dropped fields), since it may
+     * log personal data.
+     *
+     * @param Request $request
+     * @return string|null Correlation ID when logging is enabled
+     */
+    private function logSyncPayload(Request $request): ?string
+    {
+        if (!config('app.log_member_sync_payloads', false)) {
+            return null;
+        }
+
+        $correlationId = (string) Str::uuid();
+        
+        Log::info('Member sync request received', [
+            'client_id' => ClientIdentifier::getClientId(),
+            'correlation_id' => $correlationId,
+            'method' => $request->method(),
+            'path' => $request->path(),
+            'body' => $request->getContent(),
+        ]);
+
+        return $correlationId;
+    }
+    
+    /**
+     * Log the outcome (resulting member id) of a member sync request, if
+     * member sync payload logging is enabled.
+     *
+     * @param int $memberId
+     * @param string|null $correlationId
+     */
+    private function logSyncResult(int $memberId, ?string $correlationId): void
+    {
+        if ($correlationId === null) {
+            return;
+        }
+        
+        Log::info('Member sync request completed', [
+            'client_id' => ClientIdentifier::getClientId(),
+            'correlation_id' => $correlationId,
+            'member_id' => $memberId,
+        ]);
     }
     
     /**
@@ -335,16 +399,30 @@ class RestApiMember
      */
     public function updateMember(Request $request, $memberId)
     {
+        $correlationId = $this->logSyncPayload($request);
+        $memberData = $this->extractMemberData($request);
+
+        return $this->updateMemberWithData($request, $memberId, $memberData, $correlationId);
+    }
+
+    private function updateMemberWithData(
+        Request $request,
+        $memberId,
+        array $memberData,
+        ?string $correlationId
+    ) {
         ApiHelper::checkIntegerInput($memberId);
         $memberRepo = ApiHelper::createMemberRepo($request->header($key = 'db_key'));
         
         $member = $memberRepo->get($memberId);
         ApiHelper::assertAllowedMember(ApiHelper::getAllowedGroups($request), $member);
         
-        $memberData = $this->extractMemberData($request);
         $patched = $this->patchMember($request, $member, $memberData);
         
-        return $memberRepo->save($patched)->id;
+        $memberId = $memberRepo->save($patched)->id;
+        $this->logSyncResult($memberId, $correlationId);
+        
+        return $memberId;
     }
     
     /**
