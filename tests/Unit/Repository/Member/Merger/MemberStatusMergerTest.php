@@ -11,9 +11,7 @@ use Tests\TestCase;
 class MemberStatusMergerTest extends TestCase
 {
     
-    /**
-     * @dataProvider provideSuccess
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideSuccess')]
     public function testMerge__success(
         string  $fieldKey,
         ?string $dstValue,
@@ -31,7 +29,7 @@ class MemberStatusMergerTest extends TestCase
         self::assertEquals($result, $dst->getValue());
     }
     
-    public function provideSuccess(): array
+    public static function provideSuccess(): array
     {
         $keys = ['memberStatusMunicipality', 'memberStatusRegion', 'memberStatusCanton', 'memberStatusCountry', 'memberStatusYoung'];
         
