@@ -4,7 +4,6 @@ namespace App\Exceptions;
 
 use App\Support\ClientIdentifier;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 use Webling\API\ClientException;
 
@@ -29,42 +28,18 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /**
-     * Report or log an exception.
-     *
-     * @param Throwable $exception
-     * @return void
-     */
-    public function report(Throwable $exception)
+    protected function context()
     {
-        if (config('app.client_logging', false) && $this->shouldReport($exception)) {
-            if ($this->logExceptionWithClientInfo($exception)) {
-                return;
+        $context = parent::context();
+
+        if (config('app.client_logging', false)) {
+            $oauthClientId = ClientIdentifier::getClientId();
+            if ($oauthClientId !== null) {
+                $context['client_id'] = $oauthClientId;
             }
         }
 
-        parent::report($exception);
-    }
-
-    /**
-     * Log an exception with client information from the bearer token.
-     *
-     * @param Throwable $exception
-     * @return bool Whether the exception was logged with client info
-     */
-    protected function logExceptionWithClientInfo(Throwable $exception): bool
-    {
-        $oauthClientId = ClientIdentifier::getClientId();
-
-        if ($oauthClientId === null) {
-            return false;
-        }
-
-        Log::error($exception->getMessage(), [
-            'client_id' => $oauthClientId,
-            'exception' => $exception,
-        ]);
-        return true;
+        return $context;
     }
 
     /**
